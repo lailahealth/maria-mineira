@@ -4,6 +4,11 @@ module Chat
   class Conversation < ApplicationRecord
     self.table_name = "chat_conversations"
 
+    # Retenção curta por padrão (seção 14 do parecer técnico): depois de 1h sem
+    # interação, a conversa deixa de ser retomada (ApplicationController#current_chat_conversation
+    # começa uma nova) e passa a ser candidata a expurgo (PurgeStaleChatMessagesJob).
+    INACTIVITY_TIMEOUT = 1.hour
+
     enum :stage, {
       saudacao: 0,
       aguardando_motivo: 1,

@@ -15,12 +15,15 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_journey_session
 
-  # Conversa ativa da sessão anônima atual (cria uma se ainda não existir).
+  # Conversa ativa da sessão anônima atual. Só retoma uma conversa existente se
+  # ela teve atividade há menos de Chat::Conversation::INACTIVITY_TIMEOUT — depois
+  # disso começa uma nova (a antiga fica para o PurgeStaleChatMessagesJob apagar).
   def current_chat_conversation
     @current_chat_conversation ||= Chat::Conversation
       .where(journey_session_id: current_journey_session.id)
+      .where("chat_conversations.updated_at > ?", Chat::Conversation::INACTIVITY_TIMEOUT.ago)
       .order(created_at: :desc)
-      .first_or_create!(journey_session_id: current_journey_session.id)
+      .first || Chat::Conversation.create!(journey_session_id: current_journey_session.id)
   end
   helper_method :current_chat_conversation
 

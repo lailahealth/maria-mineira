@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   # tela "em construção" — mantém a navegação completa e clicável desde a fundação, sem
   # simular funcionalidades que ainda não foram implementadas.
   get "converse", to: "chat/conversations#show", as: :chat
+  delete "converse", to: "chat/conversations#destroy"
   post "converse/mensagens", to: "chat/messages#create", as: :chat_messages
 
   # "Encontrar um serviço" agora acontece dentro da própria conversa (Entrada 2 —
