@@ -1,0 +1,85 @@
+<% content_for :title, "Sobre a Maria Mineira" %>
+
+<%
+  # Conteúdo desta página vem do slide "Debriefing" e do slide "Símbolo & Logotipo"
+  # da apresentação de marca fornecida pela equipe (Apresentação - Maria Mineira.pdf)
+  # — não é texto criado por este protótipo.
+  symbol_elements = [
+    { title: "A mulher", text: "Representa a mulher mineira como centro da marca. A silhueta traz presença humana, acolhimento e identificação com o público do projeto." },
+    { title: "O coração", text: "Simboliza cuidado, escuta e apoio. Ele aparece de forma simples para reforçar o lado humano da Maria Mineira, sem deixar a marca delicada demais." },
+    { title: "As folhas", text: "Trazem a ideia de vida, crescimento e recomeço. Também ajudam a deixar o símbolo mais orgânico e conectado à terra." },
+    { title: "A base de proteção", text: "A parte inferior funciona como um abrigo. Ela sustenta a composição e passa a sensação de segurança, amparo e lugar de acolhimento." },
+    { title: "As montanhas de Minas", text: "A forma externa remete ao relevo mineiro, trazendo pertencimento territorial sem usar elementos óbvios ou caricatos." },
+    { title: "O triângulo no topo", text: "Faz referência direta à bandeira de Minas Gerais. No símbolo, ele também funciona como ponto de direção e estrutura visual, reforçando a ligação da marca com o estado." }
+  ]
+%>
+
+<article class="mx-auto max-w-2xl px-5 py-14">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Quem somos</p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl">Sobre a Maria Mineira</h1>
+
+  <div class="mt-8 space-y-8 text-base leading-relaxed text-presenca/85">
+    <section>
+      <h2 class="font-display text-lg font-semibold text-presenca">Origem e contexto</h2>
+      <p class="mt-2">
+        A Maria Mineira nasce da necessidade de criar um espaço digital confiável para mulheres de Minas Gerais
+        encontrarem informação, acolhimento e orientação. Em meio a conteúdos dispersos, linguagem difícil e falta
+        de direcionamento claro, o projeto surge como um canal independente para aproximar mulheres de temas
+        essenciais sobre direitos, políticas públicas e proteção.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-lg font-semibold text-presenca">Base e valores</h2>
+      <p class="mt-2">
+        A marca se sustenta em três pilares: acolhimento, informação e segurança. Acolhimento porque muitas
+        mulheres precisam se sentir ouvidas antes de buscar ajuda. Informação porque conhecer direitos e caminhos
+        possíveis é parte fundamental da proteção. Segurança porque a marca precisa transmitir cuidado, seriedade
+        e independência, sem parecer institucional, partidária ou governamental.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-lg font-semibold text-presenca">Momento atual</h2>
+      <p class="mt-2">
+        A Maria Mineira se posiciona como um projeto digital independente, pensado para redes sociais e site. A
+        identidade visual busca equilibrar sensibilidade e firmeza, com uma estética orgânica, humana e mineira.
+        O símbolo traz a mulher como centro da marca, com elementos que remetem a território, natureza, proteção
+        e pertencimento.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-lg font-semibold text-presenca">Futuro e visão</h2>
+      <p class="mt-2">
+        O objetivo é consolidar a Maria Mineira como uma referência digital para mulheres mineiras que buscam
+        orientação, apoio e informação segura. A marca deve crescer como um ponto de acesso simples, humano e
+        confiável, mantendo sua independência e sua conexão com Minas Gerais. A visão é construir um espaço
+        reconhecido pela clareza, pelo cuidado e pela responsabilidade com quem precisa de direção.
+      </p>
+    </section>
+  </div>
+
+  <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+    <%= link_to "Conversar com a Maria Mineira", chat_path,
+          class: "inline-flex items-center justify-center rounded-full bg-vinho px-6 py-3 text-sm font-semibold text-offwhite hover:bg-vinho/90" %>
+    <%= link_to "Rede Maria Mineira", partners_path,
+          class: "inline-flex items-center justify-center rounded-full border border-vinho px-6 py-3 text-sm font-semibold text-vinho hover:bg-vinho hover:text-offwhite" %>
+  </div>
+</article>
+
+<section class="border-t border-blush bg-white">
+  <div class="mx-auto max-w-4xl px-5 py-14">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Identidade visual</p>
+    <h2 class="mt-2 font-display text-2xl font-semibold tracking-tight text-vinho sm:text-3xl">O que o símbolo representa</h2>
+
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <% symbol_elements.each do |element| %>
+        <div>
+          <p class="font-display text-base font-semibold text-presenca"><%= element[:title] %></p>
+          <p class="mt-1.5 text-sm text-presenca/70"><%= element[:text] %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
