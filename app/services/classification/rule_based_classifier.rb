@@ -16,13 +16,18 @@ module Classification
     KEYWORDS_BY_SUBTAG = {
       "violencia_fisica" => %w[bateu apanhei agrediu agressão agressao soco chute machucou hematoma empurrou],
       "violencia_psicologica" => %w[ameaça ameaca humilha xinga controla ciúme ciume grita insulta medo constante],
-      "violencia_sexual" => %w[estupro abuso forçou forcou assédio assedio sexual contra minha vontade],
-      "violencia_patrimonial" => %w[dinheiro salário salario conta bens documentos não deixa trabalhar nao deixa trabalhar controla o dinheiro],
+      "violencia_sexual" => [
+        "estupro", "abuso", "forçou", "forcou", "assédio", "assedio", "sexual", "contra minha vontade"
+      ],
+      "violencia_patrimonial" => [
+        "dinheiro", "salário", "salario", "conta", "bens", "documentos",
+        "não deixa trabalhar", "nao deixa trabalhar", "controla o dinheiro"
+      ],
       "violencia_moral" => %w[calúnia calunia difama mentiras espalhou reputação reputacao]
     }.freeze
 
     KEYWORDS_BY_TAG = {
-      "direitos" => %w[direito direitos lei maria da penha pensão pensao guarda filhos],
+      "direitos" => ["direito", "direitos", "lei maria da penha", "pensão", "pensao", "guarda", "filhos"],
       "saude" => %w[saúde saude psicológico psicologico terapia atendimento médico medico],
       "autonomia_economica" => %w[trabalho emprego renda microcrédito microcredito independência financeira independencia financeira],
       "servicos_e_equipamentos" => %w[delegacia abrigo cras creas atendimento perto serviço servico]

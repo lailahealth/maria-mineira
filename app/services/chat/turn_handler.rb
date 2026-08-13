@@ -27,7 +27,7 @@ module Chat
       return if text.blank?
 
       say_user(text)
-      result = Classification::RuleBasedClassifier.classify(text)
+      result = Classification::Classifier.classify(text)
 
       Journey::EventRecorder.record(
         session: @journey_session, event_type: :motivo, tag: result.tag_slug, subtag: result.subtag_slug
@@ -84,7 +84,7 @@ module Chat
       return if text.blank?
 
       say_user(text)
-      result = Classification::RuleBasedClassifier.classify(text)
+      result = Classification::Classifier.classify(text)
 
       if result.classified?
         Journey::ChatTurn.create!(session: @journey_session, tag_chat: result.tag_slug, subtag_chat: result.subtag_slug)
