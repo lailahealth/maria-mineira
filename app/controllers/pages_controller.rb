@@ -1,9 +1,5 @@
 class PagesController < ApplicationController
   COMING_SOON = {
-    map: {
-      title: "Mapa",
-      description: "O mapa com equipamentos e serviços em Minas Gerais está sendo construído."
-    },
     partners: {
       title: "Rede Maria Mineira",
       description: "A rede de parceiros da Maria Mineira está sendo estruturada — em breve você vai poder conhecê-la aqui."

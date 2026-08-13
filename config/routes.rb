@@ -20,7 +20,9 @@ Rails.application.routes.draw do
   # "Encontrar um serviço" agora acontece dentro da própria conversa (Entrada 2 —
   # ver seção 1 do parecer técnico), não numa tela de busca separada.
   get "encontre-um-servico", to: redirect("/converse"), as: :service_search
-  get "mapa", to: "pages#map", as: :map_page
+  get "mapa", to: "map#index", as: :map_page
+  get "mapa/municipios/:id", to: "territorial/municipalities#show", as: :territorial_municipality
+  get "mapa/equipamentos/:id", to: "territorial/facilities#show", as: :territorial_facility
 
   # Conteúdo educativo (seções 18-19 do PDF original). Navegar por essas páginas
   # é a Entrada 1 (origem por conteúdo, passiva) — ver ApplicationController#record_content_origin.

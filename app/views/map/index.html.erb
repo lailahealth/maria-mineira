@@ -1,0 +1,74 @@
+<% content_for :title, "Mapa" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag "maplibre-gl", "data-turbo-track": "reload" %>
+<% end %>
+
+<section class="mx-auto max-w-5xl px-5 py-10">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Mapa</p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl">Encontre um serviço</h1>
+  <p class="mt-4 max-w-2xl text-base text-presenca/80">
+    Busque por município e/ou tipo de serviço para ver os equipamentos cadastrados. Prefere ser guiada?
+    <%= link_to "Converse com a Maria Mineira", chat_path, class: "font-semibold text-vinho underline decoration-vinho/40 underline-offset-4 hover:decoration-vinho" %>.
+  </p>
+
+  <%= form_with url: map_page_path, method: :get, class: "mt-6 grid gap-3 sm:grid-cols-[1fr_1fr_auto]" do %>
+    <div>
+      <label class="sr-only" for="municipio">Município</label>
+      <input type="text" name="municipio" id="municipio" list="municipios" value="<%= params[:municipio] %>"
+        placeholder="Digite o município"
+        class="w-full rounded-full border border-blush bg-white px-4 py-2.5 text-sm text-presenca placeholder:text-presenca/40 focus:border-vinho focus:outline-none">
+      <datalist id="municipios">
+        <% Territorial::Municipality.order(:name).pluck(:name).each do |name| %>
+          <option value="<%= name %>">
+        <% end %>
+      </datalist>
+    </div>
+
+    <div>
+      <label class="sr-only" for="categoria">Categoria de serviço</label>
+      <select name="categoria" id="categoria"
+        class="w-full rounded-full border border-blush bg-white px-4 py-2.5 text-sm text-presenca focus:border-vinho focus:outline-none">
+        <option value="">Qualquer tipo de serviço</option>
+        <% @service_categories.each do |category| %>
+          <option value="<%= category.slug %>" <%= "selected" if @service_category == category %>><%= category.name %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <button type="submit" class="rounded-full bg-vinho px-6 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90">
+      Buscar
+    </button>
+  <% end %>
+
+  <div
+    data-controller="map"
+    data-map-facilities-value="<%= @facilities.map { |f| { id: f.id, name: f.name, lat: f.latitude, lng: f.longitude } }.to_json %>"
+    class="mt-8 h-80 w-full overflow-hidden rounded-3xl border border-blush sm:h-96"
+  ></div>
+
+  <div class="mt-8">
+    <% if @searched %>
+      <% if @facilities.any? %>
+        <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@facilities.size, "equipamento encontrado", plural: "equipamentos encontrados") %></h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <% @facilities.each do |facility| %>
+            <%= render "territorial/facilities/card", facility: facility %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
+          <% if @municipality %>
+            Ainda não temos informações suficientes sobre serviços cadastrados em <%= @municipality.name %><%= @service_category ? " para #{@service_category.name.downcase}" : "" %>.
+            Isso não significa que não exista ajuda disponível —
+            <%= link_to "converse com a Maria Mineira", chat_path, class: "font-semibold text-vinho underline" %> para continuar a orientação.
+          <% else %>
+            Não encontramos equipamentos para essa busca. Tente outro município ou
+            <%= link_to "converse com a Maria Mineira", chat_path, class: "font-semibold text-vinho underline" %>.
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-sm text-presenca/60">Use a busca acima para ver equipamentos por município e tipo de serviço.</p>
+    <% end %>
+  </div>
+</section>

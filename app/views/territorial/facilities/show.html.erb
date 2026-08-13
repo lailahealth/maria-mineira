@@ -1,0 +1,43 @@
+<% content_for :title, @facility.name %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag "maplibre-gl", "data-turbo-track": "reload" %>
+<% end %>
+
+<article class="mx-auto max-w-2xl px-5 py-10">
+  <%= link_to "← #{@facility.municipality.name}", territorial_municipality_path(@facility.municipality), class: "text-sm font-semibold text-vinho hover:underline" %>
+
+  <p class="mt-6 font-display text-sm font-semibold uppercase tracking-widest text-terracota"><%= @facility.facility_type %></p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl"><%= @facility.name %></h1>
+
+  <dl class="mt-6 space-y-3 text-sm text-presenca/85">
+    <% if @facility.address.present? %>
+      <div><dt class="font-semibold text-presenca">Endereço</dt><dd><%= @facility.address %><% if @facility.neighborhood.present? %>, <%= @facility.neighborhood %><% end %> — <%= @facility.municipality.name %></dd></div>
+    <% end %>
+    <% if @facility.phone.present? %>
+      <div><dt class="font-semibold text-presenca">Telefone</dt><dd><%= @facility.phone %></dd></div>
+    <% end %>
+    <% if @facility.opening_hours.present? %>
+      <div><dt class="font-semibold text-presenca">Horário</dt><dd><%= @facility.opening_hours %></dd></div>
+    <% end %>
+    <% if @facility.access_info.present? %>
+      <div><dt class="font-semibold text-presenca">Como acessar</dt><dd><%= @facility.access_info %></dd></div>
+    <% end %>
+  </dl>
+
+  <% if @facility.description.present? %>
+    <p class="mt-6 text-base leading-relaxed text-presenca/85"><%= @facility.description %></p>
+  <% end %>
+
+  <% if @facility.latitude.present? && @facility.longitude.present? %>
+    <div
+      data-controller="map"
+      data-map-facilities-value="<%= [{ id: @facility.id, name: @facility.name, lat: @facility.latitude, lng: @facility.longitude }].to_json %>"
+      class="mt-8 h-64 w-full overflow-hidden rounded-3xl border border-blush"
+    ></div>
+  <% end %>
+
+  <div class="mt-8">
+    <%= link_to "Conversar com a Maria Mineira", chat_path,
+          class: "inline-flex items-center justify-center rounded-full bg-vinho px-6 py-3 text-sm font-semibold text-offwhite hover:bg-vinho/90" %>
+  </div>
+</article>

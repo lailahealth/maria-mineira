@@ -1,0 +1,25 @@
+<% content_for :title, @municipality.name %>
+
+<section class="mx-auto max-w-4xl px-5 py-10">
+  <%= link_to "← Mapa", map_page_path, class: "text-sm font-semibold text-vinho hover:underline" %>
+
+  <p class="mt-6 font-display text-sm font-semibold uppercase tracking-widest text-terracota"><%= @municipality.region %></p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl"><%= @municipality.name %></h1>
+
+  <div class="mt-8">
+    <% if @facilities.any? %>
+      <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@facilities.size, "equipamento cadastrado", plural: "equipamentos cadastrados") %></h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <% @facilities.each do |facility| %>
+          <%= render "territorial/facilities/card", facility: facility %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
+        Ainda não temos informações suficientes sobre serviços cadastrados em <%= @municipality.name %>.
+        Isso não significa que não exista ajuda disponível —
+        <%= link_to "converse com a Maria Mineira", chat_path, class: "font-semibold text-vinho underline" %> para continuar a orientação.
+      </div>
+    <% end %>
+  </div>
+</section>

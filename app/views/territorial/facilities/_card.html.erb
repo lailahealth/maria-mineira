@@ -1,0 +1,10 @@
+<%= link_to territorial_facility_path(facility), class: "block rounded-2xl border border-blush bg-white p-5 transition-colors hover:border-vinho" do %>
+  <p class="font-display text-base font-semibold text-presenca"><%= facility.name %></p>
+  <p class="mt-1 text-sm text-presenca/70"><%= facility.facility_type %> · <%= facility.municipality.name %></p>
+  <% if facility[:distance_meters] %>
+    <p class="mt-1 text-xs font-semibold text-vinho"><%= facility.distance_km %> km</p>
+  <% end %>
+  <% if facility.address.present? %>
+    <p class="mt-2 text-sm text-presenca/70"><%= facility.address %></p>
+  <% end %>
+<% end %>
