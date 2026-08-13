@@ -4,18 +4,6 @@ class PagesController < ApplicationController
       title: "Mapa",
       description: "O mapa com equipamentos e serviços em Minas Gerais está sendo construído."
     },
-    violence_types: {
-      title: "Tipos de violência",
-      description: "Os conteúdos educativos sobre tipos de violência, fornecidos pela equipe Maria Mineira, estão sendo organizados aqui."
-    },
-    rights: {
-      title: "Direitos",
-      description: "Os conteúdos sobre direitos das mulheres estão sendo organizados aqui."
-    },
-    policies: {
-      title: "Políticas e programas",
-      description: "Os conteúdos sobre políticas públicas e programas para mulheres estão sendo organizados aqui."
-    },
     partners: {
       title: "Rede Maria Mineira",
       description: "A rede de parceiros da Maria Mineira está sendo estruturada — em breve você vai poder conhecê-la aqui."

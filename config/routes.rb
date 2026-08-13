@@ -21,9 +21,18 @@ Rails.application.routes.draw do
   # ver seção 1 do parecer técnico), não numa tela de busca separada.
   get "encontre-um-servico", to: redirect("/converse"), as: :service_search
   get "mapa", to: "pages#map", as: :map_page
-  get "tipos-de-violencia", to: "pages#violence_types", as: :violence_types
-  get "direitos", to: "pages#rights", as: :rights
-  get "politicas-e-programas", to: "pages#policies", as: :policies
+
+  # Conteúdo educativo (seções 18-19 do PDF original). Navegar por essas páginas
+  # é a Entrada 1 (origem por conteúdo, passiva) — ver ApplicationController#record_content_origin.
+  get "tipos-de-violencia", to: "content/violence_types#index", as: :violence_types
+  get "tipos-de-violencia/:id", to: "content/violence_types#show", as: :violence_type
+
+  get "direitos", to: "content/pages#index", defaults: { section: "direitos" }, as: :rights
+  get "direitos/:id", to: "content/pages#show", defaults: { section: "direitos" }, as: :right
+
+  get "politicas-e-programas", to: "content/pages#index", defaults: { section: "politicas-e-programas" }, as: :policies
+  get "politicas-e-programas/:id", to: "content/pages#show", defaults: { section: "politicas-e-programas" }, as: :policy
+
   get "rede-maria-mineira", to: "pages#partners", as: :partners
   get "sobre", to: "pages#about", as: :about
 end

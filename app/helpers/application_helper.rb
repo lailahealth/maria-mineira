@@ -13,4 +13,12 @@ module ApplicationHelper
       "Sobre" => about_path
     }
   end
+
+  def content_page_path(page)
+    case page.content_type
+    when "tipo_violencia" then violence_type_path(page)
+    when "direito" then right_path(page)
+    else policy_path(page)
+    end
+  end
 end

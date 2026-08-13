@@ -1,0 +1,9 @@
+<%= link_to content_page_path(page), class: "group block rounded-3xl border border-blush bg-white p-6 transition-transform hover:-translate-y-0.5" do %>
+  <p class="font-display text-lg font-semibold text-presenca"><%= page.title %></p>
+  <% if page.summary.present? %>
+    <p class="mt-2 text-sm text-presenca/70"><%= truncate(page.summary, length: 140) %></p>
+  <% end %>
+  <span class="mt-4 inline-flex items-center text-sm font-semibold text-vinho">
+    Ler mais <span class="ml-1 transition-transform group-hover:translate-x-0.5">→</span>
+  </span>
+<% end %>

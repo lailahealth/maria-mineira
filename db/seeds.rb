@@ -94,6 +94,77 @@ rescue StandardError => e
 end
 
 # ---------------------------------------------------------------------------
+# Páginas de conteúdo (seções 18-19 do PDF original). IMPORTANTE: o PDF é explícito
+# — "conceitos... serão fornecidos pela equipe. Não criar ou alterar definições."
+# Por isso o corpo de cada página aqui é um placeholder claramente identificado como
+# tal, não uma explicação educativa de fato — só a base legal (número da lei/artigo)
+# é citada, sem reproduzir texto integral que não possa ser verificado agora.
+# ---------------------------------------------------------------------------
+puts "Semeando páginas de conteúdo (placeholder)..."
+
+def placeholder_body(topic)
+  <<~TEXT.strip
+    Conteúdo pendente. A equipe Maria Mineira vai fornecer aqui o conceito oficial sobre #{topic}, incluindo explicação educativa, sinais de alerta e orientações — na linguagem e identidade da própria marca.
+
+    Este protótipo não cria nem reinterpreta esse conteúdo. A referência legal de base é o art. 7º da Lei nº 11.340/2006 (Lei Maria da Penha), que define as formas de violência doméstica e familiar contra a mulher.
+  TEXT
+end
+
+violence_type_pages = {
+  "violencia_fisica" => "violência física",
+  "violencia_psicologica" => "violência psicológica",
+  "violencia_sexual" => "violência sexual",
+  "violencia_patrimonial" => "violência patrimonial",
+  "violencia_moral" => "violência moral"
+}
+
+violence_type_pages.each do |tag_slug, label|
+  tag = Taxonomy::Tag.find_by!(slug: tag_slug)
+  Content::Page.find_or_create_by!(slug: tag_slug) do |page|
+    page.content_type = :tipo_violencia
+    page.title = tag.label
+    page.summary = "Conceito oficial pendente — conteúdo será fornecido pela equipe Maria Mineira."
+    page.body = placeholder_body(label)
+    page.taxonomy_tag = tag
+    page.published_at = Time.current
+  end
+end
+
+direitos_pages = [
+  { slug: "medidas-protetivas", title: "Medidas protetivas de urgência", topic: "medidas protetivas de urgência" },
+  { slug: "pensao-e-guarda", title: "Pensão alimentícia e guarda dos filhos", topic: "pensão alimentícia e guarda" }
+]
+
+direitos_pages.each do |attrs|
+  Content::Page.find_or_create_by!(slug: attrs[:slug]) do |page|
+    page.content_type = :direito
+    page.title = attrs[:title]
+    page.summary = "Conteúdo pendente — a equipe Maria Mineira vai detalhar este direito aqui."
+    page.body = placeholder_body(attrs[:topic])
+    page.taxonomy_tag = Taxonomy::Tag.find_by(slug: "direitos")
+    page.published_at = Time.current
+  end
+end
+
+politicas_pages = [
+  { slug: "lei-maria-da-penha", title: "Lei Maria da Penha", content_type: :politica, topic: "a Lei Maria da Penha" },
+  { slug: "casa-da-mulher-mineira", title: "Programa Casa da Mulher Mineira", content_type: :programa, topic: "o programa Casa da Mulher Mineira" }
+]
+
+politicas_pages.each do |attrs|
+  Content::Page.find_or_create_by!(slug: attrs[:slug]) do |page|
+    page.content_type = attrs[:content_type]
+    page.title = attrs[:title]
+    page.summary = "Conteúdo pendente — a equipe Maria Mineira vai detalhar esta política/programa aqui."
+    page.body = placeholder_body(attrs[:topic])
+    page.taxonomy_tag = Taxonomy::Tag.find_by(slug: "politicas_publicas")
+    page.published_at = Time.current
+  end
+end
+
+puts "  #{Content::Page.count} páginas de conteúdo."
+
+# ---------------------------------------------------------------------------
 # Equipamentos (Territorial::Facility): propositalmente NENHUM equipamento fictício
 # é criado aqui. A base real "será fornecida pela equipe" (PDF original) — até lá,
 # toda busca deve cair no fluxo "ainda não temos informações suficientes" (seção 11).

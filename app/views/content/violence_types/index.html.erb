@@ -1,0 +1,20 @@
+<% content_for :title, "Tipos de violência" %>
+
+<section class="mx-auto max-w-5xl px-5 py-14">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Conheça as políticas para as mulheres</p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl">Tipos de violência</h1>
+  <p class="mt-4 max-w-2xl text-base text-presenca/80">
+    Conceitos e informações educativas sobre os diferentes tipos de violência contra a mulher,
+    conforme a Lei Maria da Penha (Lei nº 11.340/2006).
+  </p>
+
+  <% if @pages.any? %>
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <% @pages.each do |page| %>
+        <%= render "content/pages/card", page: page %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="mt-8 text-sm text-presenca/60">Nenhum conteúdo publicado ainda.</p>
+  <% end %>
+</section>

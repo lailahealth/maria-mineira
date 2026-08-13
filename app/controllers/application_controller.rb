@@ -24,6 +24,21 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_chat_conversation
 
+  # Entrada 1 (origem por conteúdo — seção 1 do parecer técnico): quando a pessoa
+  # navega por uma página de conteúdo, registramos o tema como tag_origem (só na
+  # primeira vez, para manter o "primeiro toque") e sempre um Journey::Event de
+  # página consultada, independentemente de já haver origem definida.
+  def record_content_origin(page)
+    tag, subtag = page.taxonomy_tag&.origin_pair || [nil, nil]
+
+    session = current_journey_session
+    if session.tag_origem.blank? && tag.present?
+      session.update!(tag_origem: tag, subtag_origem: subtag)
+    end
+
+    Journey::EventRecorder.record(session: session, event_type: :pagina_conteudo, tag: tag, subtag: subtag)
+  end
+
   def find_or_create_journey_session
     id = cookies.signed[:journey_session_id]
     session = id.present? ? Journey::Session.find_by(id: id) : nil

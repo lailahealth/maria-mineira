@@ -1,0 +1,28 @@
+<% content_for :title, @page.title %>
+
+<article class="mx-auto max-w-2xl px-5 py-14">
+  <%= link_to "← #{@section[:title]}",
+        @section == Content::PagesController::SECTIONS["direitos"] ? rights_path : policies_path,
+        class: "text-sm font-semibold text-vinho hover:underline" %>
+
+  <h1 class="mt-6 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl"><%= @page.title %></h1>
+
+  <div class="mt-6 space-y-4 text-base leading-relaxed text-presenca/85">
+    <% if @page.body.present? %>
+      <% @page.body.to_s.split("\n\n").each do |paragraph| %>
+        <p><%= paragraph %></p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+    <% if @page.show_chat_cta? %>
+      <%= link_to "Conversar com a Maria Mineira", chat_path,
+            class: "inline-flex items-center justify-center rounded-full bg-vinho px-6 py-3 text-sm font-semibold text-offwhite hover:bg-vinho/90" %>
+    <% end %>
+    <% if @page.show_find_service_cta? %>
+      <%= link_to "Encontrar serviço próximo", service_search_path,
+            class: "inline-flex items-center justify-center rounded-full border border-vinho px-6 py-3 text-sm font-semibold text-vinho hover:bg-vinho hover:text-offwhite" %>
+    <% end %>
+  </div>
+</article>
