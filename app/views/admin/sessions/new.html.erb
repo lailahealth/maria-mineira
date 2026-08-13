@@ -1,0 +1,25 @@
+<% content_for :title, "Entrar" %>
+
+<div class="mx-auto max-w-sm rounded-3xl border border-blush bg-white p-8">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Área administrativa</p>
+  <h1 class="mt-2 font-display text-2xl font-semibold tracking-tight text-vinho">Entrar</h1>
+
+  <%= form_with url: admin_session_url, class: "mt-6 space-y-4" do |form| %>
+    <div>
+      <%= form.label :email_address, "E-mail", class: "text-sm font-semibold text-presenca" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username",
+            value: params[:email_address],
+            class: "mt-1.5 block w-full rounded-xl border border-blush px-3.5 py-2.5 text-sm text-presenca focus:border-vinho focus:outline-none" %>
+    </div>
+
+    <div>
+      <%= form.label :password, "Senha", class: "text-sm font-semibold text-presenca" %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72,
+            class: "mt-1.5 block w-full rounded-xl border border-blush px-3.5 py-2.5 text-sm text-presenca focus:border-vinho focus:outline-none" %>
+    </div>
+
+    <%= form.submit "Entrar", class: "w-full cursor-pointer rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90" %>
+
+    <%= link_to "Esqueceu a senha?", new_admin_password_path, class: "block text-center text-sm text-presenca/70 hover:text-vinho hover:underline" %>
+  <% end %>
+</div>

@@ -1,0 +1,46 @@
+<% content_for :title, "Conteúdo" %>
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Páginas de conteúdo</h1>
+  </div>
+  <%= link_to "Nova página", new_admin_page_path, class: AdminHelper::BUTTON_PRIMARY %>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">Título</th>
+        <th class="px-5 py-3">Tipo</th>
+        <th class="px-5 py-3">Status</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @pages.each do |page| %>
+        <tr>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= page.title %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= AdminHelper::CONTENT_TYPE_LABELS.fetch(page.content_type) %></td>
+          <td class="px-5 py-3">
+            <% if page.published_at.present? %>
+              <span class="rounded-full bg-vinho/10 px-2.5 py-1 text-xs font-semibold text-vinho">Publicada</span>
+            <% else %>
+              <span class="rounded-full bg-presenca/10 px-2.5 py-1 text-xs font-semibold text-presenca/60">Rascunho</span>
+            <% end %>
+          </td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Editar", edit_admin_page_path(page), class: "font-semibold text-vinho hover:underline" %>
+            <%= button_to "Remover", admin_page_path(page), method: :delete,
+                  data: { turbo_confirm: "Remover \"#{page.title}\"?" },
+                  class: "ml-4 inline font-semibold text-terracota hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @pages.none? %>
+        <tr><td colspan="4" class="px-5 py-6 text-center text-presenca/60">Nenhuma página cadastrada.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

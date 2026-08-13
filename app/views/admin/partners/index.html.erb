@@ -1,0 +1,48 @@
+<% content_for :title, "Parceiros" %>
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Rede Maria Mineira</h1>
+  </div>
+  <%= link_to "Novo parceiro", new_admin_partner_path, class: AdminHelper::BUTTON_PRIMARY %>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">Logo</th>
+        <th class="px-5 py-3">Nome</th>
+        <th class="px-5 py-3">Tipo</th>
+        <th class="px-5 py-3">Ativo</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @partners.each do |partner| %>
+        <tr>
+          <td class="px-5 py-3">
+            <% if partner.logo.attached? %>
+              <%= image_tag partner.logo.variant(resize_to_limit: [32, 32]), class: "h-8 w-8 rounded-full object-cover" %>
+            <% else %>
+              <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blush text-xs font-semibold text-vinho"><%= partner.name.first %></span>
+            <% end %>
+          </td>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= partner.name %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= partner.partner_type %></td>
+          <td class="px-5 py-3"><%= partner.active? ? "Sim" : "Não" %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Editar", edit_admin_partner_path(partner), class: "font-semibold text-vinho hover:underline" %>
+            <%= button_to "Remover", admin_partner_path(partner), method: :delete,
+                  data: { turbo_confirm: "Remover \"#{partner.name}\"?" },
+                  class: "ml-4 inline font-semibold text-terracota hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @partners.none? %>
+        <tr><td colspan="5" class="px-5 py-6 text-center text-presenca/60">Nenhum parceiro cadastrado.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

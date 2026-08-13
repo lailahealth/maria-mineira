@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_13_181646) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_13_182834) do
   create_schema "tiger"
   create_schema "topology"
 
@@ -47,6 +47,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_13_181646) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "public.admin_sessions", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.index ["admin_user_id"], name: "index_admin_sessions_on_admin_user_id"
+  end
+
+  create_table "public.admin_users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
+    t.integer "role", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_admin_users_on_email_address", unique: true
   end
 
   create_table "public.chat_conversations", force: :cascade do |t|
@@ -160,6 +178,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_13_181646) do
 
   add_foreign_key "public.active_storage_attachments", "public.active_storage_blobs", column: "blob_id"
   add_foreign_key "public.active_storage_variant_records", "public.active_storage_blobs", column: "blob_id"
+  add_foreign_key "public.admin_sessions", "public.admin_users"
   add_foreign_key "public.chat_conversations", "public.territorial_municipalities", column: "municipality_id"
   add_foreign_key "public.chat_conversations", "public.territorial_service_categories", column: "service_category_id"
   add_foreign_key "public.chat_messages", "public.chat_conversations"

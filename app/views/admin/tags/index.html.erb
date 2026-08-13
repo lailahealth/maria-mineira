@@ -1,0 +1,47 @@
+<% content_for :title, "Taxonomia" %>
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Taxonomia (tags/subtags)</h1>
+    <p class="mt-1 max-w-xl text-sm text-presenca/70">
+      Rascunho inicial — a taxonomia definitiva é da equipe Maria Mineira (seções 5-7 do parecer técnico).
+    </p>
+  </div>
+  <%= link_to "Nova tag", new_admin_tag_path, class: AdminHelper::BUTTON_PRIMARY %>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">Label</th>
+        <th class="px-5 py-3">Slug</th>
+        <th class="px-5 py-3">Tipo</th>
+        <th class="px-5 py-3">Tag pai</th>
+        <th class="px-5 py-3">Ativa</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @tags.each do |tag| %>
+        <tr>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= tag.label %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= tag.slug %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= tag.violence_type? ? "Tipo de violência" : "Geral" %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= tag.parent&.label || "—" %></td>
+          <td class="px-5 py-3"><%= tag.active? ? "Sim" : "Não" %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Editar", edit_admin_tag_path(tag), class: "font-semibold text-vinho hover:underline" %>
+            <%= button_to "Remover", admin_tag_path(tag), method: :delete,
+                  data: { turbo_confirm: "Remover \"#{tag.label}\"?" },
+                  class: "ml-4 inline font-semibold text-terracota hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @tags.none? %>
+        <tr><td colspan="6" class="px-5 py-6 text-center text-presenca/60">Nenhuma tag cadastrada.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

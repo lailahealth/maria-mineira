@@ -1,0 +1,17 @@
+<% content_for :title, "Redefinir senha" %>
+
+<div class="mx-auto max-w-sm rounded-3xl border border-blush bg-white p-8">
+  <h1 class="font-display text-2xl font-semibold tracking-tight text-vinho">Esqueceu sua senha?</h1>
+  <p class="mt-2 text-sm text-presenca/70">Informe seu e-mail para receber as instruções de redefinição.</p>
+
+  <%= form_with url: admin_passwords_path, class: "mt-6 space-y-4" do |form| %>
+    <div>
+      <%= form.label :email_address, "E-mail", class: "text-sm font-semibold text-presenca" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username",
+            value: params[:email_address],
+            class: "mt-1.5 block w-full rounded-xl border border-blush px-3.5 py-2.5 text-sm text-presenca focus:border-vinho focus:outline-none" %>
+    </div>
+
+    <%= form.submit "Enviar instruções", class: "w-full cursor-pointer rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90" %>
+  <% end %>
+</div>

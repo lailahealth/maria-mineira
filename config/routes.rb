@@ -37,4 +37,20 @@ Rails.application.routes.draw do
 
   get "rede-maria-mineira", to: "partners/partners#index", as: :partners
   get "sobre", to: "pages#about", as: :about
+
+  # CMS interno (seção 3.7 do parecer técnico). Autenticação nativa do Rails 8,
+  # escopada só aqui — a usuária final nunca loga (ver ApplicationController).
+  namespace :admin do
+    resource :session
+    resources :passwords, param: :token
+
+    root "dashboard#index"
+    resources :pages
+    resources :tags
+    resources :facilities
+    resources :service_categories
+    resources :municipalities, only: %i[index show]
+    resources :partners
+    resources :users
+  end
 end

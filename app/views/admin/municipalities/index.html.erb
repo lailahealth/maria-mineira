@@ -1,0 +1,49 @@
+<% content_for :title, "Municípios" %>
+
+<div>
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Municípios</h1>
+  <p class="mt-1 max-w-xl text-sm text-presenca/70">
+    Só leitura — a lista vem da API do IBGE (seção 6.1 do parecer técnico), não é cadastrada aqui.
+    Cobertura de equipamentos por município ajuda a ver onde o fallback "ainda não temos informações suficientes" ainda está ativo.
+  </p>
+</div>
+
+<%= form_with url: admin_municipalities_path, method: :get, class: "mt-6 max-w-sm" do %>
+  <input type="text" name="q" value="<%= params[:q] %>" placeholder="Buscar município"
+    class="<%= AdminHelper::FIELD_INPUT %>">
+<% end %>
+
+<div class="mt-6 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">Nome</th>
+        <th class="px-5 py-3">Região</th>
+        <th class="px-5 py-3">Equipamentos</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @municipalities.each do |municipality| %>
+        <tr>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= municipality.name %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= municipality.region %></td>
+          <td class="px-5 py-3">
+            <% if municipality.facilities_count.to_i.zero? %>
+              <span class="text-presenca/40">0</span>
+            <% else %>
+              <span class="font-semibold text-vinho"><%= municipality.facilities_count %></span>
+            <% end %>
+          </td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Ver", admin_municipality_path(municipality), class: "font-semibold text-vinho hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @municipalities.none? %>
+        <tr><td colspan="4" class="px-5 py-6 text-center text-presenca/60">Nenhum município encontrado.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

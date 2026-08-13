@@ -1,0 +1,47 @@
+<%= form_with model: tag, scope: :taxonomy_tag, url: (tag.persisted? ? admin_tag_path(tag) : admin_tags_path),
+      method: (tag.persisted? ? :patch : :post), class: "mt-8 max-w-xl space-y-5" do |form| %>
+  <% if tag.errors.any? %>
+    <div class="rounded-xl bg-terracota/10 px-4 py-3 text-sm text-terracota">
+      <p class="font-semibold"><%= pluralize(tag.errors.count, "erro") %> impediram o salvamento:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% tag.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :label, "Label (nome legível)", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :label, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :slug, "Slug", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :slug, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :kind, "Tipo", class: AdminHelper::FIELD_LABEL %>
+    <%= form.select :kind, [["Geral", "general"], ["Tipo de violência", "violence_type"]], {}, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :parent_id, "Tag pai", class: AdminHelper::FIELD_LABEL %>
+    <%= form.collection_select :parent_id, Taxonomy::Tag.where.not(id: tag.id).order(:label), :id, :label,
+          { include_blank: "Nenhuma (tag raiz)" }, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :position, "Posição (ordem de exibição)", class: AdminHelper::FIELD_LABEL %>
+    <%= form.number_field :position, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <label class="flex items-center gap-2 text-sm text-presenca">
+    <%= form.check_box :active, class: AdminHelper::FIELD_CHECKBOX %>
+    Ativa
+  </label>
+
+  <div class="flex gap-3">
+    <%= form.submit "Salvar", class: AdminHelper::BUTTON_PRIMARY %>
+    <%= link_to "Cancelar", admin_tags_path, class: AdminHelper::BUTTON_SECONDARY %>
+  </div>
+<% end %>

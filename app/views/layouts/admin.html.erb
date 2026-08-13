@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) ? "#{content_for(:title)} · Admin · Maria Mineira" : "Admin · Maria Mineira" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="flex min-h-screen flex-col bg-blush/20 font-body text-presenca antialiased">
+    <% if authenticated? %>
+      <header class="border-b border-blush bg-white">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4">
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <%= link_to admin_root_path, class: "font-display text-lg font-semibold tracking-tight text-vinho" do %>
+              Maria <span class="text-terracota">Mineira</span> <span class="text-presenca/50">admin</span>
+            <% end %>
+            <nav class="flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold text-presenca/75">
+              <% admin_nav_links(current_admin_user).each do |item| %>
+                <%= link_to item[:label], item[:path], class: "hover:text-vinho" %>
+              <% end %>
+            </nav>
+          </div>
+
+          <div class="flex items-center gap-3 text-sm text-presenca/70">
+            <span><%= current_admin_user.email_address %></span>
+            <%= button_to "Sair", admin_session_path, method: :delete,
+                  class: "rounded-full border border-blush px-3 py-1.5 text-xs font-semibold text-presenca hover:border-vinho hover:text-vinho" %>
+          </div>
+        </div>
+      </header>
+    <% end %>
+
+    <main class="mx-auto w-full max-w-6xl flex-1 px-5 py-10">
+      <% if alert = flash[:alert] %>
+        <p class="mb-6 rounded-xl bg-terracota/10 px-4 py-3 text-sm font-semibold text-terracota" id="alert"><%= alert %></p>
+      <% end %>
+      <% if notice = flash[:notice] %>
+        <p class="mb-6 rounded-xl bg-vinho/10 px-4 py-3 text-sm font-semibold text-vinho" id="notice"><%= notice %></p>
+      <% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

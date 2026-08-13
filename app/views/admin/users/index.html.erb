@@ -1,0 +1,37 @@
+<% content_for :title, "Administradoras" %>
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Contas administrativas</h1>
+  </div>
+  <%= link_to "Nova administradora", new_admin_user_path, class: AdminHelper::BUTTON_PRIMARY %>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">E-mail</th>
+        <th class="px-5 py-3">Papel</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @users.each do |user| %>
+        <tr>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= user.email_address %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= AdminHelper::ROLE_LABELS.fetch(user.role) %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Editar", edit_admin_user_path(user), class: "font-semibold text-vinho hover:underline" %>
+            <% unless user == current_admin_user %>
+              <%= button_to "Remover", admin_user_path(user), method: :delete,
+                    data: { turbo_confirm: "Remover \"#{user.email_address}\"?" },
+                    class: "ml-4 inline font-semibold text-terracota hover:underline" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

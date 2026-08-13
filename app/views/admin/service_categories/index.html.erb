@@ -1,0 +1,42 @@
+<% content_for :title, "Categorias de serviço" %>
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Categorias de serviço</h1>
+  </div>
+  <%= link_to "Nova categoria", new_admin_service_category_path, class: AdminHelper::BUTTON_PRIMARY %>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">Nome</th>
+        <th class="px-5 py-3">Slug</th>
+        <th class="px-5 py-3">Tag de taxonomia</th>
+        <th class="px-5 py-3">Equipamentos</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @service_categories.each do |category| %>
+        <tr>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= category.name %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= category.slug %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= category.taxonomy_tag&.label || "—" %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= category.facilities.count %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Editar", edit_admin_service_category_path(category), class: "font-semibold text-vinho hover:underline" %>
+            <%= button_to "Remover", admin_service_category_path(category), method: :delete,
+                  data: { turbo_confirm: "Remover \"#{category.name}\"?" },
+                  class: "ml-4 inline font-semibold text-terracota hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @service_categories.none? %>
+        <tr><td colspan="5" class="px-5 py-6 text-center text-presenca/60">Nenhuma categoria cadastrada.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

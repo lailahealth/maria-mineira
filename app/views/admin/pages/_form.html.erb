@@ -1,0 +1,64 @@
+<%= form_with model: page, scope: :content_page, url: (page.persisted? ? admin_page_path(page) : admin_pages_path),
+      method: (page.persisted? ? :patch : :post), class: "mt-8 max-w-2xl space-y-5" do |form| %>
+  <% if page.errors.any? %>
+    <div class="rounded-xl bg-terracota/10 px-4 py-3 text-sm text-terracota">
+      <p class="font-semibold"><%= pluralize(page.errors.count, "erro") %> impediram o salvamento:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% page.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :content_type, "Tipo", class: AdminHelper::FIELD_LABEL %>
+    <%= form.select :content_type, AdminHelper::CONTENT_TYPE_LABELS.map { |value, label| [label, value] },
+          {}, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :title, "Título", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :title, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :slug, "Slug (usado na URL)", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :slug, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :summary, "Resumo (aparece nos cards de listagem)", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_area :summary, rows: 2, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :body, "Corpo do texto", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_area :body, rows: 8, class: AdminHelper::FIELD_INPUT %>
+    <p class="mt-1 text-xs text-presenca/60">Parágrafos separados por linha em branco.</p>
+  </div>
+
+  <div>
+    <%= form.label :taxonomy_tag_id, "Tag de taxonomia associada", class: AdminHelper::FIELD_LABEL %>
+    <%= form.collection_select :taxonomy_tag_id, Taxonomy::Tag.order(:label), :id, :label,
+          { include_blank: "Nenhuma" }, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div class="space-y-2">
+    <label class="flex items-center gap-2 text-sm text-presenca">
+      <%= check_box_tag "content_page[published]", "1", page.published_at.present?, class: AdminHelper::FIELD_CHECKBOX %>
+      Publicada (visível no site)
+    </label>
+    <label class="flex items-center gap-2 text-sm text-presenca">
+      <%= form.check_box :show_find_service_cta, class: AdminHelper::FIELD_CHECKBOX %>
+      Mostrar botão "Encontrar serviço próximo"
+    </label>
+    <label class="flex items-center gap-2 text-sm text-presenca">
+      <%= form.check_box :show_chat_cta, class: AdminHelper::FIELD_CHECKBOX %>
+      Mostrar botão "Conversar com a Maria Mineira"
+    </label>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit "Salvar", class: AdminHelper::BUTTON_PRIMARY %>
+    <%= link_to "Cancelar", admin_pages_path, class: AdminHelper::BUTTON_SECONDARY %>
+  </div>
+<% end %>

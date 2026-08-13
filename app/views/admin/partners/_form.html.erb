@@ -1,0 +1,57 @@
+<%= form_with model: partner, scope: :partners_partner, url: (partner.persisted? ? admin_partner_path(partner) : admin_partners_path),
+      method: (partner.persisted? ? :patch : :post), class: "mt-8 max-w-xl space-y-5" do |form| %>
+  <% if partner.errors.any? %>
+    <div class="rounded-xl bg-terracota/10 px-4 py-3 text-sm text-terracota">
+      <p class="font-semibold"><%= pluralize(partner.errors.count, "erro") %> impediram o salvamento:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% partner.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "Nome", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :name, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :partner_type, "Tipo (ex.: ONG, órgão público, empresa)", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :partner_type, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :description, "Descrição", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_area :description, rows: 3, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :url, "Site (link externo)", class: AdminHelper::FIELD_LABEL %>
+    <%= form.url_field :url, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :coverage_scope, "Área de atuação", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :coverage_scope, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :logo, "Logo", class: AdminHelper::FIELD_LABEL %>
+    <% if partner.logo.attached? %>
+      <div class="mt-2 flex items-center gap-3">
+        <%= image_tag partner.logo.variant(resize_to_limit: [56, 56]), class: "h-14 w-14 rounded-full object-cover" %>
+        <span class="text-xs text-presenca/60">Envie um novo arquivo para substituir.</span>
+      </div>
+    <% end %>
+    <%= form.file_field :logo, accept: "image/*", class: "mt-1.5 block w-full text-sm text-presenca" %>
+  </div>
+
+  <label class="flex items-center gap-2 text-sm text-presenca">
+    <%= form.check_box :active, class: AdminHelper::FIELD_CHECKBOX %>
+    Ativo (aparece na Rede Maria Mineira)
+  </label>
+
+  <div class="flex gap-3">
+    <%= form.submit "Salvar", class: AdminHelper::BUTTON_PRIMARY %>
+    <%= link_to "Cancelar", admin_partners_path, class: AdminHelper::BUTTON_SECONDARY %>
+  </div>
+<% end %>

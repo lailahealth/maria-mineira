@@ -1,0 +1,33 @@
+<%= form_with model: service_category, scope: :territorial_service_category,
+      url: (service_category.persisted? ? admin_service_category_path(service_category) : admin_service_categories_path),
+      method: (service_category.persisted? ? :patch : :post), class: "mt-8 max-w-xl space-y-5" do |form| %>
+  <% if service_category.errors.any? %>
+    <div class="rounded-xl bg-terracota/10 px-4 py-3 text-sm text-terracota">
+      <p class="font-semibold"><%= pluralize(service_category.errors.count, "erro") %> impediram o salvamento:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% service_category.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "Nome", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :name, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :slug, "Slug", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :slug, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :taxonomy_tag_id, "Tag de taxonomia associada", class: AdminHelper::FIELD_LABEL %>
+    <%= form.collection_select :taxonomy_tag_id, Taxonomy::Tag.order(:label), :id, :label,
+          { include_blank: "Nenhuma" }, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit "Salvar", class: AdminHelper::BUTTON_PRIMARY %>
+    <%= link_to "Cancelar", admin_service_categories_path, class: AdminHelper::BUTTON_SECONDARY %>
+  </div>
+<% end %>

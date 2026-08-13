@@ -1,0 +1,104 @@
+<%= form_with model: facility, scope: :territorial_facility, url: (facility.persisted? ? admin_facility_path(facility) : admin_facilities_path),
+      method: (facility.persisted? ? :patch : :post), class: "mt-8 max-w-2xl space-y-5" do |form| %>
+  <% if facility.errors.any? %>
+    <div class="rounded-xl bg-terracota/10 px-4 py-3 text-sm text-terracota">
+      <p class="font-semibold"><%= pluralize(facility.errors.count, "erro") %> impediram o salvamento:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% facility.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <%= form.label :name, "Nome", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :name, class: AdminHelper::FIELD_INPUT %>
+    </div>
+    <div>
+      <%= form.label :facility_type, "Tipo (ex.: DEAM, CRAS, Casa de Abrigo)", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :facility_type, class: AdminHelper::FIELD_INPUT %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :municipality_id, "Município", class: AdminHelper::FIELD_LABEL %>
+    <%= form.collection_select :municipality_id, Territorial::Municipality.order(:name), :id, :name,
+          { include_blank: false }, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :service_category_ids, "Categorias de serviço", class: AdminHelper::FIELD_LABEL %>
+    <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+      <% Territorial::ServiceCategory.order(:name).each do |category| %>
+        <label class="flex items-center gap-2 text-sm text-presenca">
+          <%= check_box_tag "territorial_facility[service_category_ids][]", category.id,
+                facility.service_category_ids.include?(category.id),
+                id: "service_category_#{category.id}", class: AdminHelper::FIELD_CHECKBOX %>
+          <%= category.name %>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <%= form.label :address, "Endereço", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :address, class: AdminHelper::FIELD_INPUT %>
+    </div>
+    <div>
+      <%= form.label :neighborhood, "Bairro", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :neighborhood, class: AdminHelper::FIELD_INPUT %>
+    </div>
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <%= form.label :cep, "CEP", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :cep, class: AdminHelper::FIELD_INPUT %>
+    </div>
+    <div>
+      <%= form.label :phone, "Telefone", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :phone, class: AdminHelper::FIELD_INPUT %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :opening_hours, "Horário de funcionamento", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_field :opening_hours, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <%= form.label :latitude, "Latitude", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :latitude, class: AdminHelper::FIELD_INPUT %>
+    </div>
+    <div>
+      <%= form.label :longitude, "Longitude", class: AdminHelper::FIELD_LABEL %>
+      <%= form.text_field :longitude, class: AdminHelper::FIELD_INPUT %>
+    </div>
+  </div>
+  <p class="-mt-3 text-xs text-presenca/60">
+    Sem geocodificação automática nesta fase (seção 5 do parecer técnico) — preencha manualmente se souber as coordenadas.
+    Sem elas, o equipamento não aparece no mapa, mas continua listado por município.
+  </p>
+
+  <div>
+    <%= form.label :access_info, "Como acessar", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_area :access_info, rows: 2, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :description, "Descrição", class: AdminHelper::FIELD_LABEL %>
+    <%= form.text_area :description, rows: 3, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <label class="flex items-center gap-2 text-sm text-presenca">
+    <%= form.check_box :active, class: AdminHelper::FIELD_CHECKBOX %>
+    Ativo (aparece nas buscas)
+  </label>
+
+  <div class="flex gap-3">
+    <%= form.submit "Salvar", class: AdminHelper::BUTTON_PRIMARY %>
+    <%= link_to "Cancelar", admin_facilities_path, class: AdminHelper::BUTTON_SECONDARY %>
+  </div>
+<% end %>

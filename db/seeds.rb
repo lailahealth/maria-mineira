@@ -177,3 +177,21 @@ puts "Seed concluído. Territorial::Facility permanece vazio de propósito (ver 
 # (PDF original); até lá, a página de Rede Maria Mineira cai no estado vazio honesto.
 # ---------------------------------------------------------------------------
 puts "Partners::Partner permanece vazio de propósito (ver comentário acima)."
+
+# ---------------------------------------------------------------------------
+# Admin::User inicial — só em desenvolvimento, para permitir o primeiro login
+# no CMS. Em produção, contas administrativas devem ser criadas manualmente
+# (bin/rails console) por alguém com acesso ao ambiente — nunca via seed.
+# ---------------------------------------------------------------------------
+if Rails.env.development? && Admin::User.count.zero?
+  password = SecureRandom.alphanumeric(14)
+  Admin::User.create!(
+    email_address: "admin@mariamineira.com.br",
+    password: password,
+    password_confirmation: password,
+    role: :super_admin
+  )
+  puts "Admin::User inicial criado (ambiente de desenvolvimento):"
+  puts "  e-mail: admin@mariamineira.com.br"
+  puts "  senha:  #{password}"
+end

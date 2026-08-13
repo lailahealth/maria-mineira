@@ -1,0 +1,25 @@
+<% content_for :title, @municipality.name %>
+
+<%= link_to "← Municípios", admin_municipalities_path, class: "text-sm font-semibold text-vinho hover:underline" %>
+
+<p class="mt-6 font-display text-sm font-semibold uppercase tracking-widest text-terracota"><%= @municipality.region %></p>
+<h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho"><%= @municipality.name %></h1>
+
+<div class="mt-8">
+  <% if @facilities.any? %>
+    <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@facilities.size, "equipamento") %></h2>
+    <ul class="mt-4 space-y-2">
+      <% @facilities.each do |facility| %>
+        <li class="rounded-xl border border-blush bg-white px-4 py-3 text-sm">
+          <%= link_to facility.name, edit_admin_facility_path(facility), class: "font-semibold text-vinho hover:underline" %>
+          <span class="text-presenca/60"> · <%= facility.facility_type %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
+      Nenhum equipamento cadastrado neste município ainda.
+      <%= link_to "Cadastrar equipamento", new_admin_facility_path, class: "font-semibold text-vinho underline" %>
+    </div>
+  <% end %>
+</div>

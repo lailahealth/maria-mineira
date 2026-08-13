@@ -1,0 +1,29 @@
+<% content_for :title, "Painel" %>
+
+<p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Painel</p>
+<h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Olá, <%= current_admin_user.email_address %></h1>
+<p class="mt-2 text-sm text-presenca/70"><%= AdminHelper::ROLE_LABELS.fetch(current_admin_user.role) %></p>
+
+<div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <% @counts.each do |label, count| %>
+    <div class="rounded-2xl border border-blush bg-white p-6">
+      <p class="font-display text-3xl font-semibold text-vinho"><%= count %></p>
+      <p class="mt-1 text-sm text-presenca/70"><%= label %></p>
+    </div>
+  <% end %>
+</div>
+
+<div class="mt-10 rounded-2xl border border-blush bg-white p-6">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Escuta digital (analytics)</p>
+  <p class="mt-1 text-xs text-presenca/60">
+    Leitura agregada de Journey::Event — inteligência territorial completa (seção 20 do parecer técnico) é uma fase futura.
+  </p>
+  <div class="mt-4 grid gap-4 sm:grid-cols-2">
+    <% @journey_counts.each do |label, count| %>
+      <div>
+        <p class="font-display text-2xl font-semibold text-presenca"><%= count %></p>
+        <p class="text-sm text-presenca/70"><%= label %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

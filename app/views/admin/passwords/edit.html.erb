@@ -1,0 +1,21 @@
+<% content_for :title, "Nova senha" %>
+
+<div class="mx-auto max-w-sm rounded-3xl border border-blush bg-white p-8">
+  <h1 class="font-display text-2xl font-semibold tracking-tight text-vinho">Defina uma nova senha</h1>
+
+  <%= form_with url: admin_password_path(params[:token]), method: :put, class: "mt-6 space-y-4" do |form| %>
+    <div>
+      <%= form.label :password, "Nova senha", class: "text-sm font-semibold text-presenca" %>
+      <%= form.password_field :password, required: true, autocomplete: "new-password", maxlength: 72,
+            class: "mt-1.5 block w-full rounded-xl border border-blush px-3.5 py-2.5 text-sm text-presenca focus:border-vinho focus:outline-none" %>
+    </div>
+
+    <div>
+      <%= form.label :password_confirmation, "Repita a nova senha", class: "text-sm font-semibold text-presenca" %>
+      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72,
+            class: "mt-1.5 block w-full rounded-xl border border-blush px-3.5 py-2.5 text-sm text-presenca focus:border-vinho focus:outline-none" %>
+    </div>
+
+    <%= form.submit "Salvar", class: "w-full cursor-pointer rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90" %>
+  <% end %>
+</div>

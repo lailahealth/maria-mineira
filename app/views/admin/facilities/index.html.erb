@@ -1,0 +1,50 @@
+<% content_for :title, "Equipamentos" %>
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">CMS</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho">Equipamentos</h1>
+  </div>
+  <%= link_to "Novo equipamento", new_admin_facility_path, class: AdminHelper::BUTTON_PRIMARY %>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-blush bg-white">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+      <tr>
+        <th class="px-5 py-3">Nome</th>
+        <th class="px-5 py-3">Tipo</th>
+        <th class="px-5 py-3">Município</th>
+        <th class="px-5 py-3">Coordenadas</th>
+        <th class="px-5 py-3">Ativo</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-blush">
+      <% @facilities.each do |facility| %>
+        <tr>
+          <td class="px-5 py-3 font-semibold text-presenca"><%= facility.name %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= facility.facility_type %></td>
+          <td class="px-5 py-3 text-presenca/70"><%= facility.municipality.name %></td>
+          <td class="px-5 py-3 text-presenca/70">
+            <% if facility.latitude.present? %>
+              <%= facility.latitude %>, <%= facility.longitude %>
+            <% else %>
+              <span class="text-presenca/40">não informadas</span>
+            <% end %>
+          </td>
+          <td class="px-5 py-3"><%= facility.active? ? "Sim" : "Não" %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Editar", edit_admin_facility_path(facility), class: "font-semibold text-vinho hover:underline" %>
+            <%= button_to "Remover", admin_facility_path(facility), method: :delete,
+                  data: { turbo_confirm: "Remover \"#{facility.name}\"?" },
+                  class: "ml-4 inline font-semibold text-terracota hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @facilities.none? %>
+        <tr><td colspan="6" class="px-5 py-6 text-center text-presenca/60">Nenhum equipamento cadastrado.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

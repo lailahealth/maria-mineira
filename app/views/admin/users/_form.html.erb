@@ -1,0 +1,36 @@
+<%= form_with model: user, scope: :admin_user, url: (user.persisted? ? admin_user_path(user) : admin_users_path),
+      method: (user.persisted? ? :patch : :post), class: "mt-8 max-w-sm space-y-5" do |form| %>
+  <% if user.errors.any? %>
+    <div class="rounded-xl bg-terracota/10 px-4 py-3 text-sm text-terracota">
+      <p class="font-semibold"><%= pluralize(user.errors.count, "erro") %> impediram o salvamento:</p>
+      <ul class="mt-1 list-disc pl-5">
+        <% user.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :email_address, "E-mail", class: AdminHelper::FIELD_LABEL %>
+    <%= form.email_field :email_address, autocomplete: "off", class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :role, "Papel", class: AdminHelper::FIELD_LABEL %>
+    <%= form.select :role, AdminHelper::ROLE_LABELS.map { |value, label| [label, value] }, {}, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :password, user.persisted? ? "Nova senha (deixe em branco para manter)" : "Senha", class: AdminHelper::FIELD_LABEL %>
+    <%= form.password_field :password, autocomplete: "new-password", maxlength: 72, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div>
+    <%= form.label :password_confirmation, "Repita a senha", class: AdminHelper::FIELD_LABEL %>
+    <%= form.password_field :password_confirmation, autocomplete: "new-password", maxlength: 72, class: AdminHelper::FIELD_INPUT %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit "Salvar", class: AdminHelper::BUTTON_PRIMARY %>
+    <%= link_to "Cancelar", admin_users_path, class: AdminHelper::BUTTON_SECONDARY %>
+  </div>
+<% end %>
