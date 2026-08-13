@@ -1,0 +1,38 @@
+<header data-controller="nav" class="sticky top-0 z-40 border-b border-blush bg-offwhite/95 backdrop-blur supports-[backdrop-filter]:bg-offwhite/80">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4">
+    <%= link_to root_path, class: "flex items-baseline gap-1.5 font-display text-xl font-semibold tracking-tight shrink-0" do %>
+      <span class="text-vinho">Maria</span><span class="text-terracota">Mineira</span>
+    <% end %>
+
+    <nav class="hidden md:flex md:items-center md:gap-6" aria-label="Navegação principal">
+      <% main_nav_links.each do |label, path| %>
+        <%= link_to label, path, class: "text-sm font-medium text-presenca/80 hover:text-vinho transition-colors" %>
+      <% end %>
+    </nav>
+
+    <div class="hidden md:block shrink-0">
+      <%= link_to "Conversar com a Maria Mineira", chat_path,
+            class: "inline-flex items-center rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90 transition-colors" %>
+    </div>
+
+    <button type="button" data-action="nav#toggle"
+      class="md:hidden inline-flex items-center justify-center rounded-full p-2 text-vinho hover:bg-blush/40" aria-label="Abrir menu" aria-expanded="false">
+      <svg data-nav-target="openIcon" class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+      </svg>
+      <svg data-nav-target="closeIcon" class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <div data-nav-target="panel" class="hidden md:hidden border-t border-blush bg-offwhite px-5 py-4">
+    <%= link_to "Conversar com a Maria Mineira", chat_path,
+          class: "mb-4 flex items-center justify-center rounded-full bg-vinho px-5 py-3 text-sm font-semibold text-offwhite" %>
+    <nav class="flex flex-col gap-1" aria-label="Navegação principal (mobile)">
+      <% main_nav_links.each do |label, path| %>
+        <%= link_to label, path, class: "rounded-lg px-3 py-2.5 text-base font-medium text-presenca hover:bg-blush/40" %>
+      <% end %>
+    </nav>
+  </div>
+</header>

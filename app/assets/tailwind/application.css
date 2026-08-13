@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/*
+  Maria Mineira — design tokens
+  Fonte: "Apresentação - Maria Mineira.pdf" (identidade visual fornecida pela equipe).
+  Cores e nomes seguem literalmente o material da marca — não inventar/alterar valores aqui.
+*/
+@theme {
+  --color-rosa: #cb7979; /* Rosa Acolhimento — cor principal da marca */
+  --color-terracota: #bb4b35; /* Terracota Mineiro */
+  --color-vinho: #6f2233; /* Vinho Proteção */
+  --color-blush: #eac6b7; /* Blush Humano */
+  --color-offwhite: #f1f1f1; /* Off-white Digital */
+  --color-presenca: #232323; /* Preto Presença */
+
+  --font-display: "Zilla Slab", ui-serif, Georgia, serif;
+  --font-body: "Public Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/*
+  Tipografia self-hosted (nenhuma fonte de UI foi especificada no material da marca —
+  o PDF só define o lettering manuscrito do logotipo em si, não uma fonte de textos).
+  Escolha: Zilla Slab (display) + Public Sans (corpo) — ver parecer técnico para justificativa.
+*/
+@font-face {
+  font-family: "Public Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("public-sans-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Public Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("public-sans-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Public Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("public-sans-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Public Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("public-sans-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Zilla Slab";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("zilla-slab-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Zilla Slab";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("zilla-slab-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Zilla Slab";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("zilla-slab-700.woff2") format("woff2");
+}
+
+/*
+  Convenções de contraste (WCAG AA), calculadas para a paleta acima:
+  - Texto de corpo: presenca sobre offwhite/branco (>13:1).
+  - Links e ênfase de marca em texto corrido: vinho sobre claro (>9:1) — nunca rosa como texto pequeno
+    (rosa sobre branco ≈ 3.2:1, falha AA para texto normal).
+  - Botões primários: fundo vinho + texto branco (>10:1).
+  - Superfícies suaves (cards, badges): fundo rosa/blush + texto presenca (>4.9:1).
+*/
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-offwhite);
+    color: var(--color-presenca);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-vinho);
+    outline-offset: 2px;
+  }
+}

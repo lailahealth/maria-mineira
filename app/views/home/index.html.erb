@@ -1,0 +1,60 @@
+<section class="relative overflow-hidden">
+  <div class="pointer-events-none absolute inset-x-0 -top-24 flex justify-center" aria-hidden="true">
+    <div class="h-[28rem] w-[28rem] rounded-[40%_60%_65%_35%/45%_45%_55%_55%] bg-gradient-to-br from-blush via-rosa/70 to-terracota/40 blur-3xl opacity-50"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-3xl px-5 pb-16 pt-16 text-center sm:pt-24">
+    <h1 class="font-display text-4xl font-semibold tracking-tight text-vinho sm:text-5xl">
+      Como a Maria Mineira pode te ajudar hoje?
+    </h1>
+    <p class="mx-auto mt-5 max-w-xl text-lg text-presenca/80">
+      Conte com suas próprias palavras o que você está buscando. A Maria Mineira te ajuda a
+      entender, orientar e encontrar informação e apoio perto de você.
+    </p>
+
+    <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      <%= link_to chat_path,
+            class: "inline-flex w-full items-center justify-center rounded-full bg-vinho px-7 py-3.5 text-base font-semibold text-offwhite shadow-sm hover:bg-vinho/90 transition-colors sm:w-auto" do %>
+        Conversar com a Maria Mineira
+      <% end %>
+      <%= link_to "Prefiro ver o mapa de serviços", map_page_path,
+            class: "text-sm font-semibold text-vinho underline decoration-vinho/40 underline-offset-4 hover:decoration-vinho" %>
+    </div>
+
+    <p class="mt-6 text-xs text-presenca/60">
+      Você não precisa saber qual órgão ou serviço procurar — nem se identificar para conversar.
+    </p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-5xl px-5 pb-20">
+  <h2 class="text-center font-display text-2xl font-semibold tracking-tight text-presenca sm:text-left">
+    Ou explore por conta própria
+  </h2>
+
+  <div class="mt-6 grid gap-5 sm:grid-cols-3">
+    <%= link_to violence_types_path, class: "group rounded-3xl bg-rosa p-6 transition-transform hover:-translate-y-0.5" do %>
+      <p class="font-display text-lg font-semibold text-presenca">Tipos de violência</p>
+      <p class="mt-2 text-sm text-presenca/80">Conceitos e informações educativas sobre os diferentes tipos de violência contra a mulher.</p>
+      <span class="mt-4 inline-flex items-center text-sm font-semibold text-presenca">
+        Conhecer <span class="ml-1 transition-transform group-hover:translate-x-0.5">→</span>
+      </span>
+    <% end %>
+
+    <%= link_to map_page_path, class: "group rounded-3xl bg-blush p-6 transition-transform hover:-translate-y-0.5" do %>
+      <p class="font-display text-lg font-semibold text-presenca">Encontre um serviço</p>
+      <p class="mt-2 text-sm text-presenca/80">Veja no mapa os equipamentos e serviços de apoio mais próximos de você em Minas Gerais.</p>
+      <span class="mt-4 inline-flex items-center text-sm font-semibold text-presenca">
+        Ver mapa <span class="ml-1 transition-transform group-hover:translate-x-0.5">→</span>
+      </span>
+    <% end %>
+
+    <%= link_to rights_path, class: "group rounded-3xl bg-terracota p-6 text-offwhite transition-transform hover:-translate-y-0.5" do %>
+      <p class="font-display text-lg font-semibold">Direitos</p>
+      <p class="mt-2 text-sm text-offwhite/85">Entenda seus direitos e as políticas públicas que existem para as mulheres em Minas Gerais.</p>
+      <span class="mt-4 inline-flex items-center text-sm font-semibold">
+        Entender <span class="ml-1 transition-transform group-hover:translate-x-0.5">→</span>
+      </span>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,43 @@
+<footer class="bg-vinho text-offwhite">
+  <div class="mx-auto max-w-6xl px-5 py-12">
+    <div class="grid gap-10 md:grid-cols-3">
+      <div>
+        <p class="font-display text-xl font-semibold tracking-tight">
+          <span>Maria</span> <span class="text-blush">Mineira</span>
+        </p>
+        <p class="mt-3 max-w-xs text-sm text-offwhite/80">
+          Informação, acolhimento e apoio para mulheres mineiras. Projeto independente de Minas Gerais.
+        </p>
+        <p class="mt-4 text-sm text-offwhite/70">
+          <a href="https://www.instagram.com/mariamineira.oficial" class="hover:text-offwhite" target="_blank" rel="noopener">@mariamineira.oficial</a>
+          <span class="mx-2">·</span>
+          <span>mariamineira.com.br</span>
+        </p>
+      </div>
+
+      <nav aria-label="Links do rodapé">
+        <p class="text-xs font-semibold uppercase tracking-widest text-offwhite/60">Navegue</p>
+        <ul class="mt-3 space-y-2 text-sm">
+          <% main_nav_links.each do |label, path| %>
+            <li><%= link_to label, path, class: "text-offwhite/85 hover:text-offwhite" %></li>
+          <% end %>
+        </ul>
+      </nav>
+
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-offwhite/60">Em caso de emergência</p>
+        <p class="mt-3 text-sm text-offwhite/85">
+          A Maria Mineira é um canal de informação e orientação — não substitui atendimento de emergência.
+        </p>
+        <p class="mt-3 text-sm text-offwhite/85">
+          Risco imediato: <strong class="text-offwhite">190</strong> (Polícia)<br>
+          Central de Atendimento à Mulher: <strong class="text-offwhite">180</strong>
+        </p>
+      </div>
+    </div>
+
+    <p class="mt-10 border-t border-offwhite/15 pt-6 text-xs text-offwhite/60">
+      © <%= Date.current.year %> Maria Mineira. Protótipo em desenvolvimento.
+    </p>
+  </div>
+</footer>
