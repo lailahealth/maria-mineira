@@ -1,0 +1,28 @@
+<div class="rounded-3xl border border-blush bg-white p-6">
+  <div class="flex items-center gap-3">
+    <% if partner.logo.attached? %>
+      <%= image_tag partner.logo.variant(resize_to_limit: [56, 56]), class: "h-14 w-14 rounded-full object-cover", alt: partner.name %>
+    <% else %>
+      <span class="flex h-14 w-14 items-center justify-center rounded-full bg-blush font-display text-lg font-semibold text-vinho">
+        <%= partner.name.first %>
+      </span>
+    <% end %>
+    <div>
+      <p class="font-display text-base font-semibold text-presenca"><%= partner.name %></p>
+      <p class="text-xs font-semibold uppercase tracking-widest text-terracota"><%= partner.partner_type %></p>
+    </div>
+  </div>
+
+  <% if partner.description.present? %>
+    <p class="mt-4 text-sm text-presenca/70"><%= truncate(partner.description, length: 140) %></p>
+  <% end %>
+
+  <% if partner.coverage_scope.present? %>
+    <p class="mt-3 text-xs text-presenca/60">Atuação: <%= partner.coverage_scope %></p>
+  <% end %>
+
+  <% if partner.url.present? %>
+    <%= link_to "Conhecer", partner.url, target: "_blank", rel: "noopener",
+          class: "mt-4 inline-flex items-center text-sm font-semibold text-vinho hover:underline" %>
+  <% end %>
+</div>

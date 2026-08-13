@@ -1,0 +1,22 @@
+<% content_for :title, "Rede Maria Mineira" %>
+
+<section class="mx-auto max-w-5xl px-5 py-14">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Quem caminha com a gente</p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-vinho sm:text-4xl">Rede Maria Mineira</h1>
+  <p class="mt-4 max-w-2xl text-base text-presenca/80">
+    Organizações, órgãos públicos e instituições parceiras que fortalecem a rede de apoio às mulheres mineiras.
+  </p>
+
+  <% if @partners.any? %>
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <% @partners.each do |partner| %>
+        <%= render "partners/partners/card", partner: partner %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mt-8 rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
+      Ainda não temos parceiros cadastrados nesta página. A rede de parceiros da Maria Mineira está sendo estruturada —
+      em breve você vai poder conhecê-la aqui.
+    </div>
+  <% end %>
+</section>

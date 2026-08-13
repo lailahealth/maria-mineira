@@ -35,6 +35,6 @@ Rails.application.routes.draw do
   get "politicas-e-programas", to: "content/pages#index", defaults: { section: "politicas-e-programas" }, as: :policies
   get "politicas-e-programas/:id", to: "content/pages#show", defaults: { section: "politicas-e-programas" }, as: :policy
 
-  get "rede-maria-mineira", to: "pages#partners", as: :partners
+  get "rede-maria-mineira", to: "partners/partners#index", as: :partners
   get "sobre", to: "pages#about", as: :about
 end

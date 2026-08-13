@@ -170,3 +170,10 @@ puts "  #{Content::Page.count} páginas de conteúdo."
 # toda busca deve cair no fluxo "ainda não temos informações suficientes" (seção 11).
 # ---------------------------------------------------------------------------
 puts "Seed concluído. Territorial::Facility permanece vazio de propósito (ver comentário acima)."
+
+# ---------------------------------------------------------------------------
+# Parceiros (Partners::Partner): mesma política do Territorial::Facility acima —
+# nenhum parceiro fictício é criado. A lista real "será fornecida pela equipe"
+# (PDF original); até lá, a página de Rede Maria Mineira cai no estado vazio honesto.
+# ---------------------------------------------------------------------------
+puts "Partners::Partner permanece vazio de propósito (ver comentário acima)."
