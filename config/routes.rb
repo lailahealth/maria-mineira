@@ -14,8 +14,12 @@ Rails.application.routes.draw do
   # Menu principal (seção 25 do parecer técnico). Cada rota aponta, por enquanto, para uma
   # tela "em construção" — mantém a navegação completa e clicável desde a fundação, sem
   # simular funcionalidades que ainda não foram implementadas.
-  get "converse", to: "pages#chat", as: :chat
-  get "encontre-um-servico", to: "pages#service_search", as: :service_search
+  get "converse", to: "chat/conversations#show", as: :chat
+  post "converse/mensagens", to: "chat/messages#create", as: :chat_messages
+
+  # "Encontrar um serviço" agora acontece dentro da própria conversa (Entrada 2 —
+  # ver seção 1 do parecer técnico), não numa tela de busca separada.
+  get "encontre-um-servico", to: redirect("/converse"), as: :service_search
   get "mapa", to: "pages#map", as: :map_page
   get "tipos-de-violencia", to: "pages#violence_types", as: :violence_types
   get "direitos", to: "pages#rights", as: :rights

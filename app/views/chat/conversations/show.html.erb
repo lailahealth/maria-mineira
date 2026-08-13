@@ -1,0 +1,16 @@
+<% content_for :title, "Converse com a Maria Mineira" %>
+
+<section class="mx-auto flex h-[calc(100vh-73px)] max-w-2xl flex-col px-0 sm:px-5">
+  <div class="border-b border-blush bg-offwhite px-5 py-4 sm:rounded-t-3xl sm:border-x sm:border-t">
+    <p class="font-display text-lg font-semibold text-vinho">Maria Mineira</p>
+    <p class="text-xs text-presenca/60">Orientação e informação — não é um canal de denúncia.</p>
+  </div>
+
+  <div id="messages" data-controller="chat-scroll" class="flex-1 space-y-3 overflow-y-auto bg-white px-4 py-5 sm:border-x">
+    <%= render @messages %>
+  </div>
+
+  <div id="composer" class="border-t border-blush bg-offwhite px-4 py-4 sm:rounded-b-3xl sm:border-x sm:border-b">
+    <%= render "chat/conversations/composer", conversation: @conversation %>
+  </div>
+</section>

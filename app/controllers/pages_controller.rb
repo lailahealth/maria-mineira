@@ -1,13 +1,5 @@
 class PagesController < ApplicationController
   COMING_SOON = {
-    chat: {
-      title: "Converse com a Maria Mineira",
-      description: "O chat da Maria Mineira está sendo construído. Em breve você vai poder contar, com suas próprias palavras, o que está buscando."
-    },
-    service_search: {
-      title: "Encontre um serviço",
-      description: "A busca por serviços e equipamentos próximos de você vai acontecer dentro da conversa com a Maria Mineira — essa tela ainda está sendo construída."
-    },
     map: {
       title: "Mapa",
       description: "O mapa com equipamentos e serviços em Minas Gerais está sendo construído."

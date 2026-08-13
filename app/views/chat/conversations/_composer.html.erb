@@ -1,0 +1,41 @@
+<% case conversation.stage.to_sym %>
+<% when :aguardando_motivo, :apresentando_resultado, :livre %>
+  <%= form_with url: chat_messages_path, method: :post, class: "flex items-end gap-2" do |f| %>
+    <label class="sr-only" for="chat_body">Sua mensagem</label>
+    <%= f.text_area :body, id: "chat_body", rows: 1, required: true, autofocus: true,
+          placeholder: conversation.aguardando_motivo? ? "Escreva o que você está buscando…" : "Continue a conversa…",
+          class: "flex-1 resize-none rounded-2xl border border-blush bg-white px-4 py-2.5 text-sm text-presenca placeholder:text-presenca/40 focus:border-vinho focus:outline-none" %>
+    <%= f.submit "Enviar", class: "shrink-0 rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90 cursor-pointer" %>
+  <% end %>
+
+<% when :aguardando_localizacao %>
+  <div class="space-y-3">
+    <div data-controller="geolocation" data-geolocation-url-value="<%= chat_messages_path %>">
+      <button type="button" data-action="geolocation#request" data-geolocation-target="button"
+        class="flex w-full items-center justify-center gap-2 rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90">
+        <span data-geolocation-target="label">Usar minha localização</span>
+      </button>
+      <p data-geolocation-target="error" class="mt-2 hidden text-xs text-terracota"></p>
+    </div>
+
+    <div class="flex items-center gap-3 text-xs text-presenca/50">
+      <span class="h-px flex-1 bg-blush"></span>ou<span class="h-px flex-1 bg-blush"></span>
+    </div>
+
+    <%= form_with url: chat_messages_path, method: :post, class: "flex items-center gap-2" do |f| %>
+      <label class="sr-only" for="chat_municipio">Seu município</label>
+      <%= f.text_field :municipio, id: "chat_municipio", list: "municipios", required: true,
+            placeholder: "Digite o nome do seu município",
+            class: "flex-1 rounded-full border border-blush bg-white px-4 py-2.5 text-sm text-presenca placeholder:text-presenca/40 focus:border-vinho focus:outline-none" %>
+      <datalist id="municipios">
+        <% Territorial::Municipality.order(:name).pluck(:name).each do |name| %>
+          <option value="<%= name %>">
+        <% end %>
+      </datalist>
+      <%= f.submit "Enviar", class: "shrink-0 rounded-full border border-vinho px-5 py-2.5 text-sm font-semibold text-vinho hover:bg-vinho hover:text-offwhite cursor-pointer" %>
+    <% end %>
+  </div>
+
+<% else %>
+  <p class="text-center text-xs text-presenca/50">Um momento…</p>
+<% end %>

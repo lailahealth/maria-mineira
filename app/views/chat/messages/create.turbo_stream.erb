@@ -1,0 +1,7 @@
+<%= turbo_stream.append "messages" do %>
+  <%= render @new_messages %>
+<% end %>
+
+<%= turbo_stream.update "composer" do %>
+  <%= render "chat/conversations/composer", conversation: @conversation %>
+<% end %>

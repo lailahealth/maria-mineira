@@ -1,0 +1,36 @@
+<% if message.user? %>
+  <div class="flex justify-end">
+    <div class="max-w-[85%] rounded-2xl rounded-br-sm bg-vinho px-4 py-2.5 text-sm text-offwhite">
+      <%= message.body %>
+    </div>
+  </div>
+<% elsif message.card_type_municipio_sem_cobertura? %>
+  <div class="flex justify-start gap-2">
+    <%= render "chat/messages/avatar" %>
+    <div class="max-w-[85%] rounded-2xl rounded-bl-sm border border-terracota/40 bg-blush/30 px-4 py-2.5 text-sm text-presenca">
+      <%= message.body %>
+    </div>
+  </div>
+<% elsif message.card_type_facility_results? %>
+  <% payload = JSON.parse(message.body) rescue { "text" => message.body, "facility_ids" => [] } %>
+  <div class="flex justify-start gap-2">
+    <%= render "chat/messages/avatar" %>
+    <div class="max-w-[85%] space-y-2">
+      <div class="rounded-2xl rounded-bl-sm bg-blush/40 px-4 py-2.5 text-sm text-presenca"><%= payload["text"] %></div>
+      <% Territorial::Facility.where(id: payload["facility_ids"]).each do |facility| %>
+        <div class="rounded-2xl border border-blush bg-white px-4 py-3 text-sm">
+          <p class="font-semibold text-presenca"><%= facility.name %></p>
+          <p class="text-presenca/70"><%= facility.facility_type %> · <%= facility.municipality.name %></p>
+          <p class="mt-1 text-presenca/70"><%= facility.address %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="flex justify-start gap-2">
+    <%= render "chat/messages/avatar" %>
+    <div class="max-w-[85%] rounded-2xl rounded-bl-sm bg-blush/40 px-4 py-2.5 text-sm text-presenca">
+      <%= message.body %>
+    </div>
+  </div>
+<% end %>
