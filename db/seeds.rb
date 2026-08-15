@@ -165,16 +165,86 @@ end
 puts "  #{Content::Page.count} páginas de conteúdo."
 
 # ---------------------------------------------------------------------------
-# Equipamentos (Territorial::Facility): propositalmente NENHUM equipamento fictício
-# é criado aqui. A base real "será fornecida pela equipe" (PDF original) — até lá,
-# toda busca deve cair no fluxo "ainda não temos informações suficientes" (seção 11).
+# Equipamentos (Territorial::Facility): amostra de 5 serviços públicos REAIS de
+# MG, pesquisados e conferidos (não são dados fictícios) — para validar a busca
+# por proximidade de ponta a ponta. Não é a base completa "que a equipe vai
+# fornecer" (PDF original); é uma amostra real, com fonte, para teste. Fora
+# desta amostra, a busca continua caindo em "ainda não temos informações
+# suficientes" normalmente (seção 11 do PDF). Coordenadas não são fixadas aqui:
+# nascem sem lat/lng e o GeocodeFacilityJob preenche a partir do endereço.
 # ---------------------------------------------------------------------------
-puts "Seed concluído. Territorial::Facility permanece vazio de propósito (ver comentário acima)."
+puts "Semeando amostra de equipamentos reais..."
+
+real_facilities = [
+  {
+    # https://www.sinjus.org.br/nm/deams.html
+    name: "DEAM Belo Horizonte", facility_type: "DEAM", municipality: "Belo Horizonte",
+    address: "Avenida Augusto de Lima, 1942", neighborhood: "Barro Preto", cep: "30190-002",
+    phone: "(31) 3337-4899",
+    opening_hours: "Segunda a sexta, 8h30 às 12h (DEPAM no mesmo endereço funciona 24h, todos os dias)",
+    description: "Delegacia Especializada de Atendimento à Mulher de Belo Horizonte.",
+    categories: %w[deam]
+  },
+  {
+    # https://www.pjf.mg.gov.br/noticias/view.php?modo=link2&idnoticia2=69532
+    name: "Casa da Mulher Maria da Conceição Lammoglia Jabour", facility_type: "Casa da Mulher",
+    municipality: "Juiz de Fora", address: "Avenida Garibaldi Campinhos, 169", neighborhood: "Vitorino Braga",
+    phone: "(32) 3690-7292", opening_hours: "Segunda a sexta, 8h às 17h",
+    description: "Centro de referência municipal de Juiz de Fora para atendimento humanizado a mulheres em " \
+      "situação de violência doméstica (assistência social e acompanhamento psicológico).",
+    categories: %w[atendimento-psicologico]
+  },
+  {
+    # https://www.acheiuberlandia.com/guiacomercial/delegacia-da-mulher/
+    name: "DEAM Uberlândia", facility_type: "DEAM", municipality: "Uberlândia",
+    address: "Rua Nicomedes Alves dos Santos, 727", neighborhood: "Lídice",
+    phone: "(34) 3210-8304", opening_hours: "Segunda a sexta, 8h às 18h",
+    description: "Delegacia Especializada de Atendimento à Mulher de Uberlândia.",
+    categories: %w[deam]
+  },
+  {
+    # https://agendamentocras.com.br/mg/contagem/cras-contagem-sede/
+    name: "CRAS Sede Contagem", facility_type: "CRAS", municipality: "Contagem",
+    address: "Rua Joaquim José, 128", neighborhood: "Fonte Grande",
+    phone: "(31) 3352-5361",
+    description: "Centro de Referência de Assistência Social sede de Contagem.",
+    categories: %w[cras]
+  },
+  {
+    # https://www.assistenciasocial.org/creas-betim-mg-endereco-e-atendimento/
+    name: "CREAS I Betim", facility_type: "CREAS", municipality: "Betim",
+    address: "Rua Carandaí, 87", neighborhood: "Chácara",
+    phone: "(31) 3591-1581", opening_hours: "Segunda a sexta, 8h às 17h",
+    description: "Centro de Referência Especializado de Assistência Social de Betim.",
+    categories: %w[creas]
+  }
+]
+
+real_facilities.each do |attrs|
+  municipality = Territorial::Municipality.find_by!(name: attrs[:municipality])
+
+  facility = Territorial::Facility.find_or_create_by!(name: attrs[:name]) do |f|
+    f.facility_type = attrs[:facility_type]
+    f.municipality = municipality
+    f.address = attrs[:address]
+    f.neighborhood = attrs[:neighborhood]
+    f.cep = attrs[:cep]
+    f.phone = attrs[:phone]
+    f.opening_hours = attrs[:opening_hours]
+    f.description = attrs[:description]
+  end
+
+  categories = Territorial::ServiceCategory.where(slug: attrs[:categories])
+  facility.service_categories = categories if facility.service_categories.empty?
+end
+
+puts "  #{Territorial::Facility.count} equipamentos cadastrados."
 
 # ---------------------------------------------------------------------------
-# Parceiros (Partners::Partner): mesma política do Territorial::Facility acima —
-# nenhum parceiro fictício é criado. A lista real "será fornecida pela equipe"
-# (PDF original); até lá, a página de Rede Maria Mineira cai no estado vazio honesto.
+# Parceiros (Partners::Partner): diferente dos equipamentos acima, nenhum
+# parceiro real foi levantado ainda — nenhum parceiro fictício é criado aqui.
+# A lista real "será fornecida pela equipe" (PDF original); até lá, a página
+# de Rede Maria Mineira cai no estado vazio honesto.
 # ---------------------------------------------------------------------------
 puts "Partners::Partner permanece vazio de propósito (ver comentário acima)."
 

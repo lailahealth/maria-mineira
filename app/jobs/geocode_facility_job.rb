@@ -11,7 +11,8 @@ class GeocodeFacilityJob < ApplicationJob
     facility = Territorial::Facility.find_by(id: facility_id)
     return if facility.nil? || facility.latitude.present?
 
-    result = Territorial::Geocoder.geocode(facility.geocoding_query)
+    result = Territorial::Geocoder.geocode(facility.geocoding_query) ||
+      Territorial::Geocoder.geocode(facility.geocoding_query(precision: :neighborhood))
     return if result.nil?
 
     facility.update!(latitude: result.latitude, longitude: result.longitude)

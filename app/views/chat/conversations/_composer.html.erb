@@ -23,9 +23,9 @@
     </div>
 
     <%= form_with url: chat_messages_path, method: :post, class: "flex items-center gap-2" do |f| %>
-      <label class="sr-only" for="chat_municipio">Seu município</label>
+      <label class="sr-only" for="chat_municipio">Seu município ou CEP</label>
       <%= f.text_field :municipio, id: "chat_municipio", list: "municipios", required: true,
-            placeholder: "Digite o nome do seu município",
+            placeholder: "Digite seu município ou CEP",
             class: "flex-1 rounded-full border border-blush bg-white px-4 py-2.5 text-sm text-presenca placeholder:text-presenca/40 focus:border-vinho focus:outline-none" %>
       <datalist id="municipios">
         <% Territorial::Municipality.order(:name).pluck(:name).each do |name| %>

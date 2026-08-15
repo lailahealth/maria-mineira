@@ -33,8 +33,7 @@ module Chat
         session: @journey_session, event_type: :motivo, tag: result.tag_slug, subtag: result.subtag_slug
       )
 
-      category = Territorial::ServiceCategory.find_by(taxonomy_tag_id: matched_tag(result)&.id)
-      @conversation.update!(context_tag: result.tag_slug, service_category: category, stage: :aguardando_localizacao)
+      @conversation.update!(context_tag: result.tag_slug, service_category: unambiguous_category_for(result), stage: :aguardando_localizacao)
 
       if result.classified?
         label = matched_tag(result)&.label&.downcase
@@ -67,7 +66,7 @@ module Chat
       @conversation.update!(municipality: municipality, stage: :apresentando_resultado)
 
       if facilities.any?
-        say_assistant("Encontrei estas opções perto de você:", card_type: :facility_results, facility_ids: facilities.map(&:id))
+        say_assistant("Encontrei estas opções perto de você:", card_type: :facility_results, facilities: facilities)
       else
         onde = municipality ? " em #{municipality.name}" : " nessa localização"
         say_assistant(
@@ -114,12 +113,26 @@ module Chat
       Taxonomy::Tag.find_by(slug: result.subtag_slug || result.tag_slug)
     end
 
+    # Só filtra a busca por uma categoria de serviço quando a tag encontrada aponta
+    # para exatamente uma categoria. Várias categorias (deam, casa-de-abrigo, cras,
+    # creas, central-180) compartilham a tag ampla "servicos_e_equipamentos" —
+    # escolher uma arbitrariamente (find_by pegando a primeira) excluiria da busca
+    # por proximidade equipamentos de categorias igualmente válidas para o mesmo motivo.
+    def unambiguous_category_for(result)
+      categories = Territorial::ServiceCategory.where(taxonomy_tag_id: matched_tag(result)&.id)
+      categories.count == 1 ? categories.first : nil
+    end
+
     def say_user(text)
       @conversation.messages.create!(role: :user, body: text)
     end
 
-    def say_assistant(text, card_type: nil, facility_ids: nil)
-      body = facility_ids ? { text: text, facility_ids: facility_ids }.to_json : text
+    # facilities: array já ordenado por Territorial::NearestFacilityFinder — os ids
+    # e distâncias são serializados juntos (mesmo índice) porque uma nova consulta
+    # ao renderizar a mensagem perderia tanto a ordem quanto o distance_meters
+    # (só existe no resultado anotado por Territorial::Facility.near, não na tabela).
+    def say_assistant(text, card_type: nil, facilities: nil)
+      body = facilities ? { text: text, facility_ids: facilities.map(&:id), distances_km: facilities.map(&:distance_km) }.to_json : text
       @conversation.messages.create!(role: :assistant, body: body, card_type: card_type)
     end
   end
