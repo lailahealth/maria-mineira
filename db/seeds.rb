@@ -689,6 +689,191 @@ real_facilities = [
     name: "DEAM Poços de Caldas", facility_type: "DEAM", municipality: "Poços de Caldas",
     description: "Inaugurada em setembro de 2021 em parceria com a Polícia Civil.",
     categories: %w[deam]
+  },
+
+  # docs/Análise dos links de politicas das mulheres em MG - Municipios Q até Z.pdf —
+  # mesma metodologia das duas anteriores: documento lido por completo, só itens
+  # confirmados como já existentes.
+  {
+    # Documento oficial da Câmara Municipal de Ribeirão das Neves (regulamenta a vinculação)
+    name: "Casa da Mulher Nevense (Ribeirão das Neves)", facility_type: "Casa de Apoio",
+    municipality: "Ribeirão das Neves",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Prefeitura de Sabará — Roda de Conversa sobre violência contra a mulher
+    name: "DEAM Sabará", facility_type: "DEAM", municipality: "Sabará",
+    address: "Rua João Pinheiro da Silva, 25", neighborhood: "Campo Santo Antônio",
+    phone: "(31) 3674-1528",
+    description: "E-mail: deamsabara@gmail.com. Funciona em dias úteis, horário comercial.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Santa Luzia — Entenda como funciona o Centro de Referência de Atendimento à Mulher
+    name: "CRAM Santa Luzia", facility_type: "CREAM/CRAM", municipality: "Santa Luzia",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Santa Luzia — renovação do consórcio Mulheres das Gerais
+    name: "Casa Sempre Viva (Santa Luzia)", facility_type: "Casa de Apoio", municipality: "Santa Luzia",
+    description: "Acolhimento temporário de mulheres em situação de violência de gênero e risco iminente de " \
+      "morte, mantida via consórcio regional.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios Q até Z.pdf
+    name: "DEAM Santa Luzia", facility_type: "DEAM", municipality: "Santa Luzia",
+    description: "Referência oficial em legislação municipal relacionada à Patrulha Guardiã Maria da Penha.",
+    categories: %w[deam]
+  },
+  {
+    # policiacivil.mg.gov.br (notícia da PCMG); sinjus.org.br
+    name: "DEAM São João del Rei (DACCM)", facility_type: "DEAM", municipality: "São João del Rei",
+    address: "Av. Leite de Castro, nº 1322", neighborhood: "Fábricas",
+    description: "Delegacia Adjunta de Repressão a Crimes Contra a Mulher (DACCM), em frente ao batalhão da " \
+      "PM. Nova sede inaugurada em 13/12/2024.",
+    categories: %w[deam]
+  },
+  {
+    # Instagram oficial — reinauguração da Casa de Passagem (maio de 2025)
+    name: "Casa de Passagem (São João del Rei)", facility_type: "Casa de Apoio",
+    municipality: "São João del Rei",
+    description: "Acolhimento de mulheres; reinaugurada em maio de 2025. Fonte de menor confiança (notícias " \
+      "locais, não site oficial da Prefeitura/Câmara).",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Instagram oficial @prefeituraslmg
+    name: "CRAM São Lourenço", facility_type: "CREAM/CRAM", municipality: "São Lourenço",
+    description: "Atendimento psicossocial, jurídico e gratuito, de segunda a sexta, das 8h às 17h. " \
+      "Atendimento sigiloso e humanizado por equipe multiprofissional.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de São Sebastião do Paraíso
+    name: "CREAM São Sebastião do Paraíso", facility_type: "CREAM/CRAM",
+    municipality: "São Sebastião do Paraíso",
+    address: "Rua Pimenta de Pádua, 1865", neighborhood: "Lagoinha", phone: "(35) 3558-7864",
+    description: "Assistência multidisciplinar (social, psicológica, jurídica e educativa) às mulheres em " \
+      "situação de violência.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Sericita — participação na inauguração do núcleo (26/05/2025)
+    name: "Núcleo Especializado de Atendimento à Mulher (Matipó)", facility_type: "DEAM",
+    municipality: "Matipó",
+    description: "Município citado no levantamento de Sericita: o núcleo fica em Matipó, município vizinho, " \
+      "não em Sericita.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Taiobeiras — inauguração da DEAM e PPI
+    name: "DEAM Taiobeiras", facility_type: "DEAM", municipality: "Taiobeiras",
+    description: "Inaugurada em 11 de março de 2025, parceria entre a Prefeitura e a Polícia Civil de Minas " \
+      "Gerais.",
+    categories: %w[deam]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios Q até Z.pdf
+    name: "CRAM Tamara Lenina (Tapira)", facility_type: "CREAM/CRAM", municipality: "Tapira",
+    categories: %w[cream-cram]
+  },
+  {
+    # Instagram — nova sede da DEAM em Três Corações
+    name: "DEAM Três Corações", facility_type: "DEAM", municipality: "Três Corações",
+    address: "Rua Édson Arantes do Nascimento, 127", neighborhood: "Centro",
+    categories: %w[deam]
+  },
+  {
+    # Instagram da Prefeitura de Ubá; Agência Minas — Proteja Minas em Ubá
+    name: "Casa Proteja Minas (Ubá)", facility_type: "Casa de Apoio", municipality: "Ubá",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Prefeitura de Uberaba — Centro Integrado da Mulher
+    name: "Centro Integrado da Mulher - CIM (Uberaba)", facility_type: "CREAM/CRAM", municipality: "Uberaba",
+    address: "Rua Luiz Próspero, 242", neighborhood: "Parque das Américas", phone: "(34) 3312-9161",
+    description: "Inaugurado em 23/01/2014, reúne no mesmo local o Centro de Referência da Mulher \"Naná " \
+      "Rodrigues da Cunha\", a Coordenadoria de Políticas Públicas para Mulheres e a Delegacia de Crimes " \
+      "Contra a Mulher. Atendimento psicossocial, acolhimento e orientação à vítima de violência doméstica.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Fluxograma de atendimento a vítima de violência doméstica - Prefeitura de Uberaba
+    name: "DOPF - Delegacia de Polícia e Proteção à Família (Uberaba)", facility_type: "DEAM",
+    municipality: "Uberaba",
+    address: "Rua Luiz Próspero, 242", neighborhood: "Parque das Américas",
+    description: "Inicialmente chamada \"Delegacia de Crimes Contra a Mulher\"; funciona no mesmo prédio do " \
+      "Centro Integrado da Mulher.",
+    categories: %w[deam]
+  },
+  {
+    # jmonline.com.br — abrigo de vítimas de violência doméstica em Uberaba terá sede própria
+    name: "Casa Abrigo Madre Teresa de Calcutá (Uberaba)", facility_type: "Casa de Apoio",
+    municipality: "Uberaba",
+    description: "OSC (IMAD) fundada em 2006 que acolhe mulheres vítimas de violência doméstica em risco " \
+      "iminente de morte. Capacidade de até 25 pessoas (mulheres e filhos), equipe multidisciplinar. Sede " \
+      "própria inaugurada em maio de 2023.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Prefeitura de Uberlândia — Proteção à Mulher
+    name: "Casa da Mulher (Uberlândia)", facility_type: "CREAM/CRAM", municipality: "Uberlândia",
+    address: "Avenida Nicomedes Alves dos Santos, 727", neighborhood: "Lídice", phone: "(34) 3231-3756",
+    description: "Unidade pública de atendimento (Centro Integrado): atendimento psicossocial, orientação " \
+      "jurídica, direcionamento para rede socioassistencial, mercado de trabalho e cursos profissionalizantes.",
+    categories: %w[cream-cram]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios Q até Z.pdf
+    name: "Casa Abrigo (Uberlândia)", facility_type: "Casa de Apoio", municipality: "Uberlândia",
+    description: "Abrigamento temporário de mulheres e seus filhos menores de 18 anos, em situação de risco " \
+      "pessoal.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios Q até Z.pdf
+    name: "Casa de Passagem (Uberlândia)", facility_type: "Casa de Apoio", municipality: "Uberlândia",
+    description: "Acolhimento emergencial e transitório no período noturno, feriados e finais de semana, " \
+      "mediante encaminhamento da Polícia Militar.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # sosmulheres.org.br/sobre
+    name: "SOS Mulheres Uberlândia", facility_type: "CREAM/CRAM", municipality: "Uberlândia",
+    description: "ONG fundada em 1997, atua como Centro de Referência especializado no acolhimento de " \
+      "mulheres em situação de violência, com acompanhamento social, jurídico e psicológico gratuito.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Instagram; Prefeitura de Unaí — parceria Polícia Civil e Prefeitura
+    name: "DEAM Unaí", facility_type: "DEAM", municipality: "Unaí",
+    address: "Rua Aldeia, 865", neighborhood: "Cachoeira",
+    description: "Inaugurada em 17 de maio de 2024.",
+    categories: %w[deam]
+  },
+  {
+    # mg.gov.br — Delegacia Especializada de Atendimento à Mulher (Varginha)
+    name: "DEAM Varginha", facility_type: "DEAM", municipality: "Varginha",
+    address: "Rua Coronel José Alves, 159", neighborhood: "Vila Pinto", phone: "(35) 3221-6217",
+    description: "Integrada ao CIAM (Centro Integrado de Atendimento à Mulher) local. E-mail: " \
+      "deamvarginha@gmail.com",
+    categories: %w[deam]
+  },
+  {
+    # Portal Oficial do Governo de MG
+    name: "DEAM Vespasiano", facility_type: "DEAM", municipality: "Vespasiano",
+    address: "Rua Coronel Inácio Murta, 16", neighborhood: "Jardim Itaú", phone: "(31) 3621 0661",
+    description: "Delegacia Especializada de Crimes Contra a Mulher de Vespasiano. Horário: 08:00 às 18:00.",
+    categories: %w[deam]
+  },
+  {
+    # Fonte: Convênio nº 082/2022 entre Prefeitura de Viçosa e UFV
+    name: "Programa Casa das Mulheres (Viçosa)", facility_type: "CREAM/CRAM", municipality: "Viçosa",
+    address: "Rua Augusta Siqueira, nº 54", neighborhood: "Centro", phone: "(31) 3611-2779",
+    description: "Criado em 08/03/2010. Acolhimento, orientação jurídica, psicológica e assistência social " \
+      "para mulheres em situação de violência. Atendimento: seg-sex, 13h-16h.",
+    categories: %w[cream-cram]
   }
 ]
 
