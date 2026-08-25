@@ -366,6 +366,76 @@ real_facilities = [
     name: "DEAM Bom Despacho", facility_type: "DEAM", municipality: "Bom Despacho",
     description: "Delegacia Especializada em Atendimento à Mulher, com atendimento multidisciplinar.",
     categories: %w[deam]
+  },
+
+  # Restante do mesmo PDF (seção anterior cobriu só uma amostra): municípios
+  # A-B que não tinham entrado na primeira leva. Conferido nome a nome contra
+  # a base do IBGE antes de cadastrar (evitou, por exemplo, duplicar Alfenas
+  # com Almenara — cidades distintas cujo levantamento aparece em sequência
+  # no PDF e cujo texto citava uma no lugar da outra numa primeira leitura).
+  {
+    # alfenas.mg.gov.br/noticias/prefeitura-divulga-7-pontos-de-acolhimento-para-mulheres-que-sofrem-violencia
+    name: "Centro de Referência Especializado no Atendimento às Mulheres (Alfenas)",
+    facility_type: "CREAM/CRAM", municipality: "Alfenas",
+    description: "Um dos 7 pontos de acolhimento para mulheres que sofrem violência divulgados pela prefeitura " \
+      "de Alfenas.",
+    categories: %w[cream-cram]
+  },
+  {
+    # legislacaodigital.com.br/Alfenas-MG/DecretosMunicipais/3770-2025
+    name: "Casa da Mulher Alfenas por Elas", facility_type: "Casa de Apoio", municipality: "Alfenas",
+    description: "Centro Integrado de Atendimento à Mulher (CIAM), nome social \"Casa da Mulher Alfenas por Elas\".",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # alfenas.mg.gov.br/noticias/prefeitura-divulga-7-pontos-de-acolhimento-para-mulheres-que-sofrem-violencia
+    name: "DEAM Alfenas", facility_type: "DEAM", municipality: "Alfenas",
+    description: "Delegacia Especializada de Atendimento à Mulher de Alfenas.",
+    categories: %w[deam]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "DEAM Almenara", facility_type: "DEAM", municipality: "Almenara",
+    address: "Rua Lívio Fróes Otoni, 96", neighborhood: "Centro", phone: "(33) 3721-1370",
+    description: "Delegacia Especializada de Atendimento à Mulher de Almenara.",
+    categories: %w[deam]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "14ª DEAM (Além Paraíba)", facility_type: "DEAM", municipality: "Além Paraíba",
+    description: "14ª Delegacia Especializada de Atendimento à Mulher, mencionada em atividades da Secretaria " \
+      "da Mulher de Além Paraíba (agosto de 2025).",
+    categories: %w[deam]
+  },
+  {
+    # andradas.mg.gov.br/noticia/4996/andradas-institui-politica-inedita-de-acolhimento-a-mulher-vitima-de-violencia-e-lanca-o-ciama
+    name: "Centro Integrado de Apoio à Mulher (CIAMA)", facility_type: "Casa de Apoio", municipality: "Andradas",
+    description: "Acolhimento humanizado a mulheres em situação de violência doméstica, com plantão inclusive " \
+      "noturno (Decreto nº 3.457/2026). Localização exata ainda não divulgada pelo município.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # andradas.mg.gov.br/noticia/4211/prefeita-margot-pioli-participa-da-inauguracao-do-nucleo-integrado-de-atendimento-a-mulher-em-andradas
+    name: "Núcleo Integrado de Atendimento à Mulher (Andradas)", facility_type: "DEAM", municipality: "Andradas",
+    address: "Rua Érico Buzato, 234", neighborhood: "Vila Buzato", phone: "(35) 3731-4264",
+    description: "Espaço reservado para atendimento humanizado às vítimas, na Delegacia de Polícia Civil de " \
+      "Andradas.",
+    categories: %w[deam]
+  },
+  {
+    # andradas.mg.gov.br/pagina/33/rede-de-protecao-a-vida
+    name: "CREAS Andradas", facility_type: "CREAS", municipality: "Andradas",
+    address: "Rua João Batista Sales, 99", neighborhood: "Jardim Nova Andradas", phone: "(35) 3731-7523",
+    description: "Centro de Referência Especializado de Assistência Social — 27 atendimentos a mulheres " \
+      "vítimas de violência em março/2026, 78 desde dezembro/2025 (dado do próprio levantamento).",
+    categories: %w[creas]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "Casa da Mulher (Barbacena)", facility_type: "CREAM/CRAM", municipality: "Barbacena",
+    description: "Atua como centro de referência de atendimento à mulher, com acompanhamento psicossocial, " \
+      "psicológico, jurídico e assistencial para mulheres vítimas de violência.",
+    categories: %w[cream-cram]
   }
 ]
 
@@ -394,8 +464,14 @@ puts "  #{Territorial::Facility.count} equipamentos cadastrados."
 # preso ao processo — como `db:seed` é um processo curto que termina logo em
 # seguida, o job nunca chega a rodar e o equipamento fica sem coordenadas.
 # Geocodificar de forma síncrona aqui garante que o seed sempre termina com
-# equipamentos já no mapa, independente do adapter de fila configurado.
-Territorial::Facility.where(latitude: nil).find_each { |f| GeocodeFacilityJob.perform_now(f.id) }
+# equipamentos já no mapa, independente do adapter de fila configurado. O
+# sleep respeita a política de uso da Nominatim (máx. ~1 req/s) — sem ele,
+# lotes de várias dezenas de equipamentos apanhavam rate limit e ficavam
+# sem coordenadas mesmo com endereços válidos.
+Territorial::Facility.where(latitude: nil).find_each do |f|
+  sleep 1
+  GeocodeFacilityJob.perform_now(f.id)
+end
 puts "  #{Territorial::Facility.where.not(latitude: nil).count} equipamentos geocodificados."
 
 # ---------------------------------------------------------------------------
