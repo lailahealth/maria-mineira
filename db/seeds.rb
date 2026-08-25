@@ -436,6 +436,259 @@ real_facilities = [
     description: "Atua como centro de referência de atendimento à mulher, com acompanhamento psicossocial, " \
       "psicológico, jurídico e assistencial para mulheres vítimas de violência.",
     categories: %w[cream-cram]
+  },
+
+  # docs/Análise dos links de politicas das mulheres em MG - Municipios I até P.pdf —
+  # mesma metodologia: documento lido por completo (não só busca por palavra-chave),
+  # só itens confirmados como já existentes (não propostas/"em tramitação"/"em
+  # articulação"). Nomes com sufixo "(Município)" adicionado quando o levantamento usa
+  # um nome genérico (ex.: "Casa da Mulher", "DEAM") que colidiria com outra cidade —
+  # find_or_create_by! casa por nome, então nomes genéricos duplicados silenciosamente
+  # se perderiam.
+  {
+    # Agência Minas — inauguração da nova sede da DEAM Ibirité (2025)
+    name: "DEAM Ibirité", facility_type: "DEAM", municipality: "Ibirité",
+    description: "Nova sede mais estruturada e humanizada, inaugurada no segundo semestre de 2025.",
+    categories: %w[deam]
+  },
+  {
+    # Instagram oficial da Prefeitura de Ibirité — anúncio da Casa da Mulher (2025)
+    name: "Helena Casa da Mulher (Ibirité)", facility_type: "Casa de Apoio", municipality: "Ibirité",
+    description: "Parceria entre a Prefeitura Municipal, a Fundação Helena Antipoff e a Secretaria de Estado " \
+      "de Políticas para as Mulheres.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios I até P.pdf
+    name: "CREAM Itabira", facility_type: "CREAM/CRAM", municipality: "Itabira",
+    description: "Passou a realizar atendimentos físicos diretamente nas dependências da Delegacia " \
+      "Especializada de Atendimento à Mulher, facilitando o acolhimento.",
+    categories: %w[cream-cram]
+  },
+  {
+    # TRT-MG; Agência Minas — projeto "Chame a Frida"
+    name: "DEAM Itabira", facility_type: "DEAM", municipality: "Itabira",
+    address: "Avenida Prefeito Li Guerra, 1751", neighborhood: "Praia", phone: "(31) 3839-2709",
+    description: "O município também aderiu ao projeto \"Chame a Frida\", assistente virtual via WhatsApp " \
+      "para acolher vítimas de violência doméstica.",
+    categories: %w[deam]
+  },
+  {
+    # Lei Municipal Nº 3568 (Diário Oficial de Itajubá)
+    name: "Centro Especializado de Atendimento e Acolhimento à Mulher (Itajubá)", facility_type: "CREAM/CRAM",
+    municipality: "Itajubá",
+    description: "Criado pela Lei Municipal Nº 3568. O município também conta com a \"Sala Lilás\" no " \
+      "Hospital de Clínicas de Itajubá (HCI) para acolhimento.",
+    categories: %w[cream-cram]
+  },
+  {
+    # ACIEI — notícia institucional sobre a DEAM Itajubá
+    name: "DEAM Itajubá", facility_type: "DEAM", municipality: "Itajubá",
+    address: "Rua Oliveira Marques, 189", neighborhood: "Oriente",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Itaúna — inauguração do CRAM Aurora
+    name: "CRAM Aurora (Itaúna)", facility_type: "CREAM/CRAM", municipality: "Itaúna",
+    description: "Centro de Referência de Atendimento à Mulher, inaugurado pela Prefeitura para oferecer " \
+      "acolhimento, proteção e fortalecimento às mulheres.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Lista de DEAMs - PCMG (PDF)
+    name: "DEAM Itaúna", facility_type: "DEAM", municipality: "Itaúna",
+    address: "Praça Dona Macrina, s/nº", neighborhood: "Bairro Das Graças",
+    description: "Referência de localização: ao lado da Associação dos Contabilistas.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Ituiutaba — inauguração do CRAMI (julho de 2024)
+    name: "CRAMI Áurea Guedes (Ituiutaba)", facility_type: "CREAM/CRAM", municipality: "Ituiutaba",
+    description: "Centro de Referência em Atendimento à Mulher Ituiutabana, inaugurado em julho de 2024.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Agência Minas — inauguração da nova sede da DEAM em Ituiutaba
+    name: "DEAM Ituiutaba", facility_type: "DEAM", municipality: "Ituiutaba",
+    categories: %w[deam]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios I até P.pdf
+    name: "Clínica da Mulher Iolanda Magalhães (Jesuânia)", facility_type: "Clínica da Mulher",
+    municipality: "Jesuânia",
+    description: "Equipamento voltado à saúde feminina mantido pela prefeitura de Jesuânia.",
+    categories: %w[atendimento-psicologico]
+  },
+  {
+    # Prefeitura de Lagoa Santa — Centro de Referência Especializado de Atendimento à Mulher
+    name: "CREAM Lagoa Santa", facility_type: "CREAM/CRAM", municipality: "Lagoa Santa",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Lagoa Santa — Polícia Civil cria espaço para mulher vítima de violência
+    name: "Espaço Mulher Legal (Lagoa Santa)", facility_type: "DEAM", municipality: "Lagoa Santa",
+    description: "Local de atendimento especializado para acolher mulheres vítimas de violência doméstica " \
+      "dentro da delegacia, criado pela Polícia Civil em parceria com a Prefeitura.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Lavras — Semana de Conscientização sobre Violência Doméstica
+    name: "Centro Integrado das Mulheres Irene Aparecida Borges (Lavras)", facility_type: "CREAM/CRAM",
+    municipality: "Lavras",
+    categories: %w[cream-cram]
+  },
+  {
+    # Instagram — Mariana inaugura unidade de acolhimento para mulheres vítimas de violência
+    name: "Unidade de Acolhimento (Mariana)", facility_type: "Casa de Apoio", municipality: "Mariana",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # jornalvozativa.com — Mariana inaugura núcleo de atendimento especializado à mulher
+    name: "Núcleo de Atendimento Especializado à Mulher (Mariana)", facility_type: "DEAM",
+    municipality: "Mariana",
+    description: "Núcleo dentro da Delegacia local de Mariana.",
+    categories: %w[deam]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios I até P.pdf
+    name: "Casa Rosa (Mariana)", facility_type: "Clínica da Mulher", municipality: "Mariana",
+    description: "Centro de Referência Municipal em Saúde da Mulher de Mariana, conhecido como \"Casa Rosa\".",
+    categories: %w[atendimento-psicologico]
+  },
+  {
+    # Prefeitura de Monte Carmelo — Casa da Mulher
+    name: "Casa da Mulher Valda de Oliveira (Monte Carmelo)", facility_type: "Casa de Apoio",
+    municipality: "Monte Carmelo",
+    description: "Espaço de acolhimento e apoio a mulheres em situação de violência doméstica.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Prefeitura de Montes Claros — Semana de Combate à Violência Contra a Mulher
+    name: "Centro de Referência em Atendimento à Mulher (Montes Claros)", facility_type: "CREAM/CRAM",
+    municipality: "Montes Claros",
+    categories: %w[cream-cram]
+  },
+  {
+    # Câmara Municipal de Montes Claros — homenagem à Delegacia da Mulher
+    name: "DEAM Montes Claros", facility_type: "DEAM", municipality: "Montes Claros",
+    categories: %w[deam]
+  },
+  {
+    # G1 — Muriaé terá Delegacia Especializada de Atendimento à Mulher
+    name: "Casa da Mulher Maria da Penha (Muriaé)", facility_type: "CREAM/CRAM", municipality: "Muriaé",
+    address: "Antigo Terminal Rodoviário, Praça João Pinheiro", neighborhood: "Centro",
+    description: "Espaço de acolhimento, escuta especializada e orientação, vinculado à Secretaria Municipal " \
+      "de Direitos Humanos e Cidadania. Inaugurada em 16/11/2021, registra milhares de atendimentos anuais.",
+    categories: %w[cream-cram]
+  },
+  {
+    # G1 — Muriaé terá Delegacia Especializada de Atendimento à Mulher
+    name: "DEAM Muriaé", facility_type: "DEAM", municipality: "Muriaé",
+    address: "Antigo Terminal Rodoviário, Praça João Pinheiro", neighborhood: "Centro",
+    description: "Instalada na Casa da Mulher Maria da Penha, inaugurada em 16/11/2021.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Nova Lima — Centro de Referência da Mulher
+    name: "Centro de Referência da Mulher (Nova Lima)", facility_type: "CREAM/CRAM", municipality: "Nova Lima",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Nova Lima — Delegacia da Mulher é inaugurada em Nova Lima
+    name: "DEAM Nova Lima", facility_type: "DEAM", municipality: "Nova Lima",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Nova Serrana — CRAM Casa Mais Mulher
+    name: "Casa Mais Mulher (Nova Serrana)", facility_type: "CREAM/CRAM", municipality: "Nova Serrana",
+    description: "Centro de Referência de Atendimento à Mulher em Situação de Violência de Nova Serrana.",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Nova Serrana — inauguração da DEAM
+    name: "DEAM Nova Serrana", facility_type: "DEAM", municipality: "Nova Serrana",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Ouro Preto — Delegacia da Mulher
+    name: "DEAM Ouro Preto", facility_type: "DEAM", municipality: "Ouro Preto",
+    description: "Delegacia Especializada de Atendimento à Mulher de Ouro Preto (DEAM-OP).",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Paracatu — CRAM
+    name: "CRAM Paracatu", facility_type: "CREAM/CRAM", municipality: "Paracatu",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Paracatu — Delegacia Especializada de Atendimento à Mulher
+    name: "DEAM Paracatu", facility_type: "DEAM", municipality: "Paracatu",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Passos — CRAMP
+    name: "CRAMP - Centro de Referência e Atendimento à Mulher de Passos", facility_type: "CREAM/CRAM",
+    municipality: "Passos",
+    description: "Também referenciado em algumas publicações como CREAM (Casa Rosa).",
+    categories: %w[cream-cram]
+  },
+  {
+    # Delegacia Especializada de Crimes Contra a Mulher de Passos
+    name: "DEAM Passos", facility_type: "DEAM", municipality: "Passos",
+    description: "Delegacia Especializada de Crimes Contra a Mulher, integrada à rede de proteção estadual.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Patos de Minas — Centro de Referência da Mulher
+    name: "Centro de Referência da Mulher (CRM) - Patos de Minas", facility_type: "CREAM/CRAM",
+    municipality: "Patos de Minas",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Patos de Minas — Casa da Mulher
+    name: "Casa da Mulher (Patos de Minas)", facility_type: "Casa de Apoio", municipality: "Patos de Minas",
+    description: "Espaço dedicado ao acolhimento e atendimento integral de mulheres em situação de violência " \
+      "ou vulnerabilidade.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Delegacia Especializada de Crimes Contra a Mulher de Patos de Minas
+    name: "DEAM Patos de Minas", facility_type: "DEAM", municipality: "Patos de Minas",
+    description: "Delegacia Especializada de Crimes Contra a Mulher, integrada à Polícia Civil do Estado.",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Patrocínio — reforma da Delegacia Especializada em Atendimento à Mulher
+    name: "DEAM Patrocínio", facility_type: "DEAM", municipality: "Patrocínio",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Piranguinho — inauguração da Casa de Apoio
+    name: "Casa de Apoio à Mulher (Piranguinho)", facility_type: "Casa de Apoio", municipality: "Piranguinho",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Prefeitura de Pirapora — CREMP
+    name: "CREMP - Centro de Referência da Mulher de Pirapora", facility_type: "CREAM/CRAM",
+    municipality: "Pirapora",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Pirapora — inauguração da DEAM
+    name: "DEAM Pirapora", facility_type: "DEAM", municipality: "Pirapora",
+    categories: %w[deam]
+  },
+  {
+    # Prefeitura de Pouso Alegre — Centro Integrado de Apoio a Mulher
+    name: "Centro Integrado de Apoio à Mulher (Pouso Alegre)", facility_type: "CREAM/CRAM",
+    municipality: "Pouso Alegre",
+    categories: %w[cream-cram]
+  },
+  {
+    # Prefeitura de Poços de Caldas — inauguração da DEAM (setembro de 2021)
+    name: "DEAM Poços de Caldas", facility_type: "DEAM", municipality: "Poços de Caldas",
+    description: "Inaugurada em setembro de 2021 em parceria com a Polícia Civil.",
+    categories: %w[deam]
   }
 ]
 
