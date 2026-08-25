@@ -12,7 +12,8 @@ class GeocodeFacilityJob < ApplicationJob
     return if facility.nil? || facility.latitude.present?
 
     result = Territorial::Geocoder.geocode(facility.geocoding_query) ||
-      Territorial::Geocoder.geocode(facility.geocoding_query(precision: :neighborhood))
+      Territorial::Geocoder.geocode(facility.geocoding_query(precision: :neighborhood)) ||
+      Territorial::Geocoder.geocode(facility.geocoding_query(precision: :municipality))
     return if result.nil?
 
     facility.update!(latitude: result.latitude, longitude: result.longitude)

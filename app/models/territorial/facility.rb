@@ -39,12 +39,16 @@ module Territorial
     end
 
     # Endereço em formato de busca livre para a Nominatim (Territorial::Geocoder).
-    # precision: :neighborhood cai para bairro+município quando a Nominatim não
-    # reconhece o logradouro exato (comum fora dos grandes centros) — ainda é um
-    # ponto real geocodificado, só mais impreciso; GeocodeFacilityJob tenta o
-    # endereço completo primeiro e só usa isso como segunda tentativa.
+    # precision cai de :address para :neighborhood e depois :municipality quando a
+    # Nominatim não reconhece o logradouro/bairro exato (comum fora dos grandes
+    # centros) — ainda é um ponto real geocodificado, só mais impreciso;
+    # GeocodeFacilityJob tenta cada nível em ordem, do mais preciso ao mais amplo.
     def geocoding_query(precision: :address)
-      parts = precision == :neighborhood ? [neighborhood, municipality&.name] : [address, neighborhood, municipality&.name]
+      parts = case precision
+      when :municipality then [municipality&.name]
+      when :neighborhood then [neighborhood, municipality&.name]
+      else [address, neighborhood, municipality&.name]
+      end
       (parts + ["MG", "Brasil"]).select(&:present?).join(", ")
     end
 

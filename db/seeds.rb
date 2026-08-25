@@ -55,6 +55,7 @@ service_categories = [
   { slug: "cras", name: "Centro de Referência de Assistência Social (CRAS)", tag: servicos_tag },
   { slug: "creas", name: "Centro de Referência Especializado de Assistência Social (CREAS)", tag: servicos_tag },
   { slug: "central-180", name: "Central de Atendimento à Mulher (180)", tag: servicos_tag },
+  { slug: "cream-cram", name: "Centro de Referência de Atendimento à Mulher (CREAM/CRAM)", tag: servicos_tag },
   { slug: "atendimento-psicologico", name: "Atendimento psicológico", tag: saude_tag },
   { slug: "orientacao-juridica", name: "Orientação jurídica", tag: direitos_tag }
 ]
@@ -217,6 +218,154 @@ real_facilities = [
     phone: "(31) 3591-1581", opening_hours: "Segunda a sexta, 8h às 17h",
     description: "Centro de Referência Especializado de Assistência Social de Betim.",
     categories: %w[creas]
+  },
+
+  # A partir daqui: levantamento de políticas e equipamentos para mulheres em
+  # municípios de MG (letras A-G), "docs/Análise dos links de politicas das
+  # mulheres em MG - Municipios A até G.pdf". Endereço/telefone só quando o
+  # levantamento os informa; sem eles, o equipamento é geocodificado no nível
+  # do município (ver Territorial::Facility#geocoding_query) em vez de
+  # inventar um logradouro.
+  {
+    # araguari.mg.gov.br/noticias/centro-de-apoio-municipal-a-mulher-vitima-de-violencia-domestica-e-uma-realidade-importante-para-araguari
+    name: "Creas Mulher Araguari", facility_type: "CREAM/CRAM", municipality: "Araguari",
+    description: "Centro de apoio municipal à mulher vítima de violência doméstica, também chamado de Creas Mulher.",
+    categories: %w[cream-cram]
+  },
+  {
+    # https://cram.araxa.mg.gov.br/
+    name: "CRAM Araxá", facility_type: "CREAM/CRAM", municipality: "Araxá",
+    description: "Centro de Referência de Atendimento à Mulher de Araxá, com portal próprio (cram.araxa.mg.gov.br).",
+    categories: %w[cream-cram]
+  },
+  {
+    # Lei Nº 1.688/2022 - Prefeitura Municipal de Areado
+    name: "Sala de Atendimento à Mulher Racielle Moreira de Sousa", facility_type: "DEAM",
+    municipality: "Areado",
+    description: "Sala de atendimento à mulher no prédio da Delegacia de Polícia Civil da Comarca de Areado " \
+      "(equipamento equivalente a uma DEAM, criado pela Lei nº 1.688/2022).",
+    categories: %w[deam]
+  },
+  {
+    # facebook.com/PrefeituraMunicipaldeCaete/posts/751382187033355/
+    name: "Espaço Mulher+", facility_type: "Casa de Apoio", municipality: "Caeté",
+    description: "Oferece acolhimento, auxílio-aluguel e abrigo seguro para mulheres vítimas de violência em Caeté.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # agenciaminas.mg.gov.br/noticia/policia-civil-de-minas-gerais-inaugura-delegacias-da-mulher-e-rural-em-campo-belo
+    name: "DEAM Campo Belo", facility_type: "DEAM", municipality: "Campo Belo",
+    address: "Rua Arthur Bernardes, 9", neighborhood: "Centro",
+    description: "Inaugurada em 06/06/2025 pela Polícia Civil de Minas Gerais.",
+    categories: %w[deam]
+  },
+  {
+    # Fonte: Portal TRT-MG / TRT-3
+    name: "DEAM Caratinga", facility_type: "DEAM", municipality: "Caratinga",
+    address: "Rua João Caetano Nascimento, 717", neighborhood: "Limoeiro", phone: "(33) 3322-6500",
+    description: "Um dos poucos municípios da região com Delegacia Especializada de Atendimento à Mulher própria.",
+    categories: %w[deam]
+  },
+  {
+    # carmodacachoeira.mg.gov.br/portal/telefones
+    name: "Clínica da Mulher", facility_type: "Clínica da Mulher", municipality: "Carmo da Cachoeira",
+    phone: "(35) 9 9841-8956",
+    description: "Atendimento de ginecologia, pré-natal, odontologia e psicologia para mulheres do município, " \
+      "inaugurada em 2022.",
+    categories: %w[atendimento-psicologico]
+  },
+  {
+    # conselheirolafaiete.mg.gov.br/v2/contatos/
+    name: "Centro de Referência da Mulher (CRM)", facility_type: "CREAM/CRAM",
+    municipality: "Conselheiro Lafaiete",
+    description: "Estrutura municipal de acolhimento e atendimento às mulheres de Conselheiro Lafaiete.",
+    categories: %w[cream-cram]
+  },
+  {
+    # portal.contagem.mg.gov.br/politica-publica-municipal-para-mulheres-de-contagem
+    name: "CEAM Bem-Me-Quero", facility_type: "CREAM/CRAM", municipality: "Contagem",
+    description: "Centro Especializado de Atendimento à Mulher em Situação de Violência Doméstica e Familiar, " \
+      "vinculado à Secretaria Municipal da Mulher e da Juventude de Contagem.",
+    categories: %w[cream-cram]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "DEAM Contagem", facility_type: "DEAM", municipality: "Contagem",
+    description: "Delegacia Especializada de Atendimento à Mulher, citada em material institucional da rede " \
+      "municipal de proteção à mulher de Contagem.",
+    categories: %w[deam]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "Casa de Apoio à Mulher – Sala Borboleta", facility_type: "Casa de Apoio", municipality: "Extrema",
+    address: "Estrada Municipal Fazenda Fabiano, 159", neighborhood: "Ponte Nova",
+    description: "Programa municipal \"Casa de Apoio à Mulher – Sala Borboleta por Daniela Pinheiro da Silva\": " \
+      "acolhimento humanizado, orientação jurídica e articulação com a rede de proteção, inaugurada em 05/03/2026.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # Fonte: TRT-MG
+    name: "DEAM Formiga", facility_type: "DEAM", municipality: "Formiga",
+    address: "Rua Joaquim Fernandes Sobrinho, 150", neighborhood: "Del Rey", phone: "(37) 3329-2350",
+    categories: %w[deam]
+  },
+  {
+    # policiacivil.mg.gov.br/noticia/exibir?id=4043779
+    name: "DEAM Frutal", facility_type: "DEAM", municipality: "Frutal",
+    description: "Delegacia da Mulher em funcionamento na nova Delegacia Regional de Polícia Civil de Frutal " \
+      "(inaugurada em 16/04/2026), com jurisdição também sobre Comendador Gomes, Planura, Fronteira, Itapagipe " \
+      "e São Francisco de Sales.",
+    categories: %w[deam]
+  },
+  {
+    # camaraguaxupe.mg.gov.br/noticia/guaxupe-ganha-nova-sede-da-delegacia-especializada-de-atendimento-a-mulher-47
+    name: "DEAM Guaxupé", facility_type: "DEAM", municipality: "Guaxupé",
+    address: "Alameda das Rosas, 10", neighborhood: "Parque das Orquídeas",
+    opening_hours: "Segunda a sexta, 8h às 12h e 14h às 18h",
+    description: "Nova sede inaugurada em 07/03/2024, parceria entre a Polícia Civil e o município.",
+    categories: %w[deam]
+  },
+  {
+    # valadares.mg.gov.br/organograma
+    name: "Casa de Passagem Feminina", facility_type: "Casa de Apoio", municipality: "Governador Valadares",
+    description: "Acolhimento temporário a adolescentes e mulheres em situação de risco pessoal, social ou de " \
+      "abandono, unidade da Secretaria de Assistência Social de Governador Valadares.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # valadares.mg.gov.br/organograma
+    name: "Conselho da Mulher (Governador Valadares)", facility_type: "Conselho da Mulher",
+    municipality: "Governador Valadares",
+    address: "Rua Pedro Lessa, 364", neighborhood: "Lourdes", phone: "(33) 3272-2613",
+    description: "Unidade da Secretaria de Assistência Social onde mulheres podem apresentar denúncias de " \
+      "violência ou discriminação.",
+    categories: []
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "Centro Especializado de Atendimento à Mulher – Benvinda", facility_type: "CREAM/CRAM",
+    municipality: "Belo Horizonte",
+    description: "Acolhimento e acompanhamento interdisciplinar (psicológico, social e orientação jurídica) " \
+      "para mulheres em situação de violência em Belo Horizonte.",
+    categories: %w[cream-cram]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "CREAM Betim", facility_type: "CREAM/CRAM", municipality: "Betim",
+    description: "Centro de Referência Especializado de Atendimento à Mulher de Betim.",
+    categories: %w[cream-cram]
+  },
+  {
+    # docs/Análise dos links de politicas das mulheres em MG - Municipios A até G.pdf
+    name: "Casa Jackeline Oliveira", facility_type: "Casa de Apoio", municipality: "Betim",
+    description: "Primeira Unidade de Acolhimento Institucional para Mulheres Vítimas de Violência de Betim.",
+    categories: %w[casa-de-abrigo]
+  },
+  {
+    # bomdespacho.mg.gov.br/noticias/esta-inaugurada-a-delegacia-especializada-em-atendimento-a-mulher/
+    name: "DEAM Bom Despacho", facility_type: "DEAM", municipality: "Bom Despacho",
+    description: "Delegacia Especializada em Atendimento à Mulher, com atendimento multidisciplinar.",
+    categories: %w[deam]
   }
 ]
 
