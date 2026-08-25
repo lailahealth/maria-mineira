@@ -240,6 +240,15 @@ end
 
 puts "  #{Territorial::Facility.count} equipamentos cadastrados."
 
+# GeocodeFacilityJob é enfileirado via after_commit (perform_later), mas o
+# adapter :async padrão do ambiente de desenvolvimento roda num thread pool
+# preso ao processo — como `db:seed` é um processo curto que termina logo em
+# seguida, o job nunca chega a rodar e o equipamento fica sem coordenadas.
+# Geocodificar de forma síncrona aqui garante que o seed sempre termina com
+# equipamentos já no mapa, independente do adapter de fila configurado.
+Territorial::Facility.where(latitude: nil).find_each { |f| GeocodeFacilityJob.perform_now(f.id) }
+puts "  #{Territorial::Facility.where.not(latitude: nil).count} equipamentos geocodificados."
+
 # ---------------------------------------------------------------------------
 # Parceiros (Partners::Partner): diferente dos equipamentos acima, nenhum
 # parceiro real foi levantado ainda — nenhum parceiro fictício é criado aqui.
