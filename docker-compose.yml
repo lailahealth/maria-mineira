@@ -11,7 +11,7 @@ services:
     volumes:
       - maria_mineira_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U maria_mineira"]
+      test: ["CMD-SHELL", "pg_isready -U maria_mineira -d maria_mineira_development"]
       interval: 5s
       timeout: 5s
       retries: 10

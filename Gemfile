@@ -59,6 +59,11 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  # Runs Procfile.dev (bin/dev). Declared here so it's installed by `bundle
+  # install` instead of bin/dev's on-the-fly `gem install foreman` fallback,
+  # which needs network + write access to the system gem dir on every boot
+  # of a fresh container.
+  gem "foreman"
 end
 
 group :test do
