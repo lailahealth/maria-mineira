@@ -23,8 +23,10 @@ servers:
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
 proxy:
-  host: <%= ENV["SERVER_IP"] %>
-  app_port: 3000
+  ssl: true
+  hosts:
+    - mariamineiramg.com.br
+    - www.mariamineiramg.com.br
 
 # Where you keep your container images.
 registry:
