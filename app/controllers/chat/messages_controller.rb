@@ -46,7 +46,7 @@ module Chat
       return {} unless result
 
       municipality = Territorial::Municipality.find_by(ibge_code: result.ibge_code)
-      address_query = [result.street, result.neighborhood, result.city, result.state, "Brasil"].select(&:present?).join(", ")
+      address_query = [ result.street, result.neighborhood, result.city, result.state, "Brasil" ].select(&:present?).join(", ")
       geocoded = Territorial::Geocoder.geocode(address_query)
 
       geocoded ? { lat: geocoded.latitude, lng: geocoded.longitude, municipality: municipality } : { municipality: municipality }

@@ -1,0 +1,28 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "1f465d9ea3962a8120f8bb9efcd5fc16683a9e37304fe4c6d855f83ce722c3bd",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/admin/users_controller.rb",
+      "line": 56,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:admin_user).permit(:email_address, :role, :password, :password_confirmation)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Admin::UsersController",
+        "method": "user_params"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [
+        915
+      ],
+      "note": "Intentional: Admin::UsersController is gated by require_role!(\"super_admin\") and its sole purpose is for a super admin to manage other admin accounts, including their role. No self-service signup exists."
+    }
+  ],
+  "brakeman_version": "8.0.6"
+}

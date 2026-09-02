@@ -23,7 +23,7 @@ module Taxonomy
     # [tag_slug, subtag_slug] no formato usado por tag_origem/tag_motivo/tag_chat
     # (seção 7 do parecer técnico): subtag é o próprio nó quando ele tem um pai.
     def origin_pair
-      parent ? [parent.slug, slug] : [slug, nil]
+      parent ? [ parent.slug, slug ] : [ slug, nil ]
     end
   end
 end

@@ -32,7 +32,7 @@ class ApplicationController < ActionController::Base
   # primeira vez, para manter o "primeiro toque") e sempre um Journey::Event de
   # página consultada, independentemente de já haver origem definida.
   def record_content_origin(page)
-    tag, subtag = page.taxonomy_tag&.origin_pair || [nil, nil]
+    tag, subtag = page.taxonomy_tag&.origin_pair || [ nil, nil ]
 
     session = current_journey_session
     if session.tag_origem.blank? && tag.present?

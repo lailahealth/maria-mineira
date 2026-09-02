@@ -45,11 +45,11 @@ module Territorial
     # GeocodeFacilityJob tenta cada nível em ordem, do mais preciso ao mais amplo.
     def geocoding_query(precision: :address)
       parts = case precision
-      when :municipality then [municipality&.name]
-      when :neighborhood then [neighborhood, municipality&.name]
-      else [address, neighborhood, municipality&.name]
+      when :municipality then [ municipality&.name ]
+      when :neighborhood then [ neighborhood, municipality&.name ]
+      else [ address, neighborhood, municipality&.name ]
       end
-      (parts + ["MG", "Brasil"]).select(&:present?).join(", ")
+      (parts + [ "MG", "Brasil" ]).select(&:present?).join(", ")
     end
 
     private

@@ -27,7 +27,7 @@ module Classification
     }.freeze
 
     KEYWORDS_BY_TAG = {
-      "direitos" => ["direito", "direitos", "lei maria da penha", "pensão", "pensao", "guarda", "filhos"],
+      "direitos" => [ "direito", "direitos", "lei maria da penha", "pensão", "pensao", "guarda", "filhos" ],
       "saude" => %w[saúde saude psicológico psicologico terapia atendimento médico medico],
       "autonomia_economica" => %w[trabalho emprego renda microcrédito microcredito independência financeira independencia financeira],
       "servicos_e_equipamentos" => %w[delegacia abrigo cras creas atendimento perto serviço servico]
@@ -58,13 +58,13 @@ module Classification
     def best_match(normalized_text, dictionary)
       scores = dictionary.transform_values { |words| words.count { |w| normalized_text.include?(normalize(w)) } }
       best_key, best_score = scores.max_by { |_, score| score }
-      return [nil, 0] if best_score.to_i.zero?
+      return [ nil, 0 ] if best_score.to_i.zero?
 
-      [best_key, best_score]
+      [ best_key, best_score ]
     end
 
     def confidence_for(score)
-      [score / 3.0, 1.0].min
+      [ score / 3.0, 1.0 ].min
     end
 
     def normalize(text)
