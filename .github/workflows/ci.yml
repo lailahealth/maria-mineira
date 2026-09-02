@@ -202,5 +202,9 @@ jobs:
           # the server's ed25519 key against an rsa/ecdsa line and cry mismatch.
           ssh-keyscan -t ed25519 "$SERVER_IP" >> ~/.ssh/known_hosts
 
+      - name: Write the Rails master key (.kamal/secrets reads this file)
+        run: |
+          printf '%s' "$RAILS_MASTER_KEY" > config/master.key
+
       - name: Deploy with Kamal
         run: bin/kamal deploy
