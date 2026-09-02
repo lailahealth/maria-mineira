@@ -877,6 +877,8 @@ real_facilities = [
   }
 ]
 
+sample_facility_ids = []
+
 real_facilities.each do |attrs|
   municipality = Territorial::Municipality.find_by!(name: attrs[:municipality])
 
@@ -893,6 +895,7 @@ real_facilities.each do |attrs|
 
   categories = Territorial::ServiceCategory.where(slug: attrs[:categories])
   facility.service_categories = categories if facility.service_categories.empty?
+  sample_facility_ids << facility.id
 end
 
 puts "  #{Territorial::Facility.count} equipamentos cadastrados."
@@ -902,15 +905,159 @@ puts "  #{Territorial::Facility.count} equipamentos cadastrados."
 # preso ao processo — como `db:seed` é um processo curto que termina logo em
 # seguida, o job nunca chega a rodar e o equipamento fica sem coordenadas.
 # Geocodificar de forma síncrona aqui garante que o seed sempre termina com
-# equipamentos já no mapa, independente do adapter de fila configurado. O
-# sleep respeita a política de uso da Nominatim (máx. ~1 req/s) — sem ele,
-# lotes de várias dezenas de equipamentos apanhavam rate limit e ficavam
-# sem coordenadas mesmo com endereços válidos.
-Territorial::Facility.where(latitude: nil).find_each do |f|
+# a AMOSTRA (real_facilities acima) já no mapa, independente do adapter de
+# fila. O sleep respeita a política de uso da Nominatim (máx. ~1 req/s) — sem
+# ele, lotes de várias dezenas de equipamentos apanhavam rate limit e ficavam
+# sem coordenadas mesmo com endereços válidos. A base ampla dos CSVs abaixo
+# NÃO é geocodificada aqui (seriam ~1,7 mil requisições); fica para o
+# BackfillFacilityGeocodingJob, em segundo plano e com o mesmo limite.
+Territorial::Facility.where(id: sample_facility_ids, latitude: nil).find_each do |f|
   sleep 1
   GeocodeFacilityJob.perform_now(f.id)
 end
-puts "  #{Territorial::Facility.where.not(latitude: nil).count} equipamentos geocodificados."
+puts "  #{Territorial::Facility.where(id: sample_facility_ids).where.not(latitude: nil).count}/#{sample_facility_ids.size} equipamentos da amostra geocodificados."
+
+# ---------------------------------------------------------------------------
+# Base ampla de equipamentos públicos de MG, carregada de CSVs versionados em
+# db/seeds/ (não inline: são ~1,7 mil linhas):
+#   - facilities_deam_pcmg.csv     : DEAMs da Polícia Civil de MG, com endereço
+#                                    ("RELAÇÃO DE DEAMS E ENDEREÇOS PCMG.pdf")
+#   - facilities_cras_creas_mg.csv : CRAS e CREAS de MG (fonte MDS/SAGI/CadSUAS,
+#                                    extração 28/06/2026)
+# Idempotente e conservador contra duplicatas: pula quando já existe equipamento
+# de mesmo nome; para DEAM, quando já existe qualquer DEAM no mesmo município
+# (raramente há mais de uma); para CRAS/CREAS, quando já existe uma do mesmo
+# tipo no mesmo município e mesmo endereço. Quando pula mas o registro existente
+# está sem endereço/telefone, completa esses campos com o dado do CSV em vez de
+# criar uma duplicata.
+# ---------------------------------------------------------------------------
+require "csv"
+
+puts "Semeando base ampla de equipamentos (CSV)..."
+
+seed_norm = ->(value) { I18n.transliterate(value.to_s).downcase.gsub(/[^a-z0-9]+/, " ").strip }
+# logradouro sem o número final, para comparar "mesma rua" entre fontes
+seed_street = ->(address) {
+  seed_norm.call(address.to_s.sub(/,\s*s\/?\s*n.*\z/i, "").sub(/,\s*\d+.*\z/, ""))
+}
+
+muni_by_name = Territorial::Municipality.all.index_by { |m| seed_norm.call(m.name) }
+categories_by_slug = Territorial::ServiceCategory.all.index_by(&:slug)
+
+facilities_by_name = Territorial::Facility.includes(:municipality).to_a.index_by { |f| seed_norm.call(f.name) }
+siblings_key = ->(municipality_id, facility_type) { "#{municipality_id}/#{facility_type.to_s.upcase}" }
+siblings_by_muni_type = Hash.new { |h, k| h[k] = [] }
+facilities_by_name.each_value do |f|
+  siblings_by_muni_type[siblings_key.call(f.municipality_id, f.facility_type)] << f
+end
+
+csv_created = 0
+csv_completed = 0
+csv_existing = 0
+csv_no_muni = Hash.new(0)
+
+# after_commit :enqueue_geocoding enfileiraria um job por linha; desligado no
+# bloco para não despejar ~1,7 mil jobs de uma vez (ver comentário acima).
+Territorial::Facility.skip_callback(:commit, :after, :enqueue_geocoding, raise: false)
+begin
+  %w[facilities_deam_pcmg.csv facilities_cras_creas_mg.csv].each do |filename|
+    path = Rails.root.join("db", "seeds", filename)
+    unless File.exist?(path)
+      puts "  Aviso: #{filename} não encontrado — pulando."
+      next
+    end
+
+    CSV.foreach(path, headers: true) do |row|
+      municipality = muni_by_name[seed_norm.call(row["municipality"])]
+      if municipality.nil?
+        csv_no_muni[row["municipality"]] += 1
+        next
+      end
+
+      name = row["name"].to_s.strip
+      ftype = row["facility_type"].to_s.strip
+      address = row["address"].presence
+      phone = row["phone"].presence
+      siblings = siblings_by_muni_type[siblings_key.call(municipality.id, ftype)]
+
+      duplicate =
+        facilities_by_name[seed_norm.call(name)] ||
+        if ftype.casecmp?("DEAM")
+          siblings.first
+        elsif address
+          siblings.find { |f| seed_norm.call(f.address) == seed_norm.call(address) }
+        end
+
+      if duplicate
+        changes = {}
+        changes[:address] = address if duplicate.address.blank? && address
+        changes[:neighborhood] = row["neighborhood"].presence if duplicate.neighborhood.blank? && row["neighborhood"].present?
+        changes[:cep] = row["cep"].presence if duplicate.cep.blank? && row["cep"].present?
+        changes[:phone] = phone if duplicate.phone.blank? && phone
+        changes[:opening_hours] = row["opening_hours"].presence if duplicate.opening_hours.blank? && row["opening_hours"].present?
+        if changes.any?
+          duplicate.update!(changes)
+          csv_completed += 1
+        else
+          csv_existing += 1
+        end
+        next
+      end
+
+      description_parts = []
+      description_parts << "Fonte: #{row["source"]}." if row["source"].present?
+      description_parts << "E-mail: #{row["email"]}." if row["email"].present?
+      description = description_parts.join(" ")
+
+      facility = Territorial::Facility.create!(
+        name: name,
+        facility_type: ftype,
+        municipality: municipality,
+        address: address,
+        neighborhood: row["neighborhood"].presence,
+        cep: row["cep"].presence,
+        phone: phone,
+        opening_hours: row["opening_hours"].presence,
+        description: description.presence
+      )
+
+      slugs = row["categories"].to_s.split(/[;,\s]+/).reject(&:blank?)
+      cats = slugs.filter_map { |slug| categories_by_slug[slug] }
+      facility.service_categories = cats if cats.any?
+
+      facilities_by_name[seed_norm.call(name)] = facility
+      siblings << facility
+      csv_created += 1
+    end
+  end
+ensure
+  Territorial::Facility.set_callback(:commit, :after, :enqueue_geocoding, on: %i[create update])
+end
+
+puts "  CSV: +#{csv_created} criados, #{csv_completed} completados com dados novos, #{csv_existing} já existiam."
+csv_no_muni.each { |muni, count| puts "  Aviso: município não encontrado no IBGE para #{count}x #{muni.inspect}." }
+puts "  #{Territorial::Facility.count} equipamentos no total."
+
+# Geocodificação da base ampla: em segundo plano, em lotes, respeitando ~1 req/s
+# (ver BackfillFacilityGeocodingJob). Só enfileira se não houver um já pendente,
+# para `db:seed` repetido não empilhar. Se a fila não estiver disponível (ex.:
+# dev sem worker), o aviso lembra de rodar `rails territorial:backfill_geocoding`.
+pending_backfill =
+  begin
+    SolidQueue::Job.where(class_name: "BackfillFacilityGeocodingJob", finished_at: nil).exists?
+  rescue StandardError
+    false
+  end
+
+if Territorial::Facility.where(latitude: nil).exists?
+  if pending_backfill
+    puts "  Backfill de geocodificação já está na fila."
+  else
+    BackfillFacilityGeocodingJob.perform_later
+    puts "  BackfillFacilityGeocodingJob enfileirado (geocodifica o restante em segundo plano)."
+    puts "  Sem worker de fila? Rode: bin/rails territorial:backfill_geocoding"
+  end
+end
 
 # ---------------------------------------------------------------------------
 # Parceiros (Partners::Partner): diferente dos equipamentos acima, nenhum

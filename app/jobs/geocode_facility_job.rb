@@ -11,11 +11,21 @@ class GeocodeFacilityJob < ApplicationJob
     facility = Territorial::Facility.find_by(id: facility_id)
     return if facility.nil? || facility.latitude.present?
 
-    result = Territorial::Geocoder.geocode(facility.geocoding_query) ||
+    result =
+      Territorial::Geocoder.geocode(facility.geocoding_query) ||
+      geocode_by_cep(facility) ||
       Territorial::Geocoder.geocode(facility.geocoding_query(precision: :neighborhood)) ||
       Territorial::Geocoder.geocode(facility.geocoding_query(precision: :municipality))
-    return if result.nil?
+    return if result.blank?
 
     facility.update!(latitude: result.latitude, longitude: result.longitude)
+  end
+
+  private
+
+  def geocode_by_cep(facility)
+    return nil if facility.cep.blank?
+
+    Territorial::Geocoder.geocode_postalcode(facility.cep, city: facility.municipality&.name)
   end
 end
