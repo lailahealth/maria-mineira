@@ -1,13 +1,15 @@
+<% require "dotenv"; Dotenv.load(".env") %>
+
 # Name of your application. Used to uniquely configure containers.
-service: maria_mineira
+service: maria-mineira
 
 # Name of the container image (use your-user/app-name on external registries).
-image: maria_mineira
+image: lailahealth/maria-mineira
 
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - <%= ENV["SERVER_IP"] %>
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -20,14 +22,17 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-# proxy:
-#   ssl: true
-#   host: app.example.com
+proxy:
+  host: <%= ENV["SERVER_IP"] %>
+  app_port: 3000
 
 # Where you keep your container images.
 registry:
   # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  server: ghcr.io
+  username: <%= ENV["GHCR_USERNAME"] %>
+  password: 
+    - GHCR_TOKEN
 
   # Needed for authenticated registries.
   # username: your-user
@@ -40,10 +45,13 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - POSTGRES_PASSWORD
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
+
+    DB_HOST: maria-mineira-postgres
 
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
@@ -79,6 +87,11 @@ asset_path: /rails/public/assets
 # Configure the image builder.
 builder:
   arch: amd64
+  # Build straight from the working dir. Kamal's default git-clone builder
+  # breaks when the project path contains spaces / non-ASCII ("Programação/
+  # maria mineira") — it builds a broken nested clone path. Setting `context`
+  # disables the clone.
+  context: .
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
   # remote: ssh://docker@docker-builder-server
@@ -91,8 +104,8 @@ builder:
   #   - RAILS_MASTER_KEY
 
 # Use a different ssh user than root
-# ssh:
-#   user: app
+ssh:
+  user: app
 
 # Use accessory services (secrets come from .kamal/secrets).
 # accessories:
@@ -117,3 +130,20 @@ builder:
 #     port: 6379
 #     directories:
 #       - data:/data
+
+accessories:
+  postgres:
+    # PostGIS build — db/structure.sql does `CREATE EXTENSION postgis`, which the
+    # stock postgres:17 image doesn't ship. Same PG 17 data format, so the
+    # existing postgres_data volume carries over.
+    image: postgis/postgis:17-3.5
+    host: <%= ENV["SERVER_IP"] %>
+    port: 5432
+    env:
+      clear:
+        POSTGRES_DB: maria_mineira_production
+        POSTGRES_USER: postgres
+      secret:
+        - POSTGRES_PASSWORD
+    volumes:
+      - postgres_data:/var/lib/postgresql/data

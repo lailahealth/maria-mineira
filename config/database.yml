@@ -23,7 +23,6 @@ default: &default
   username: <%= ENV.fetch("DATABASE_USERNAME", "maria_mineira") %>
   password: <%= ENV.fetch("DATABASE_PASSWORD", "maria_mineira") %>
 
-
 # "analytics" mantém os sinais de jornada (Journey::Session, Journey::Event) fisicamente
 # separados dos dados operacionais (conteúdo, território, conversas) — ver seção 2 do
 # parecer técnico. Mesma instância Postgres por simplicidade no dev; bancos distintos.
@@ -77,9 +76,13 @@ test:
 production:
   primary: &primary_production
     <<: *default
+    adapter: postgresql
+    encoding: unicode
     database: maria_mineira_production
-    username: maria_mineira
-    password: <%= ENV["MARIA_MINEIRA_DATABASE_PASSWORD"] %>
+    username: postgres
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] %>
+    port: 5432
   cache:
     <<: *primary_production
     database: maria_mineira_production_cache
