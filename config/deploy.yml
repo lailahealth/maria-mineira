@@ -1,4 +1,6 @@
-<% require "dotenv"; Dotenv.load(".env") %>
+# ERB (runs before YAML parse) loads .env so ENV[...] below and $VARs in
+# .kamal/secrets resolve. Kept in a comment so editors do not flag the file.
+#<% require "dotenv"; Dotenv.load(".env") -%>
 
 # Name of your application. Used to uniquely configure containers.
 service: maria-mineira
@@ -48,6 +50,7 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - POSTGRES_PASSWORD
+    - ANTHROPIC_API_KEY
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
