@@ -197,7 +197,10 @@ jobs:
       - name: Trust the server host key
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          ssh-keyscan -H "$SERVER_IP" >> ~/.ssh/known_hosts
+          # Only the ed25519 key: net-ssh (used by Kamal) matches known_hosts by
+          # hostname, not key type, so a multi-type known_hosts makes it compare
+          # the server's ed25519 key against an rsa/ecdsa line and cry mismatch.
+          ssh-keyscan -t ed25519 "$SERVER_IP" >> ~/.ssh/known_hosts
 
       - name: Deploy with Kamal
         run: bin/kamal deploy
