@@ -42,6 +42,9 @@
           <%= link_to facility.name, territorial_facility_path(facility),
                 class: "font-semibold text-vinho hover:underline" %>
           <p class="text-presenca/70"><%= facility.facility_type %> · <%= facility.municipality.name %></p>
+          <% if (explanation = facility_type_explanation(facility)).present? %>
+            <p class="mt-1 text-xs leading-snug text-presenca/60"><%= explanation %></p>
+          <% end %>
           <% if distance %>
             <p class="mt-1 text-xs font-semibold text-vinho">A aproximadamente <%= distance %> km de você</p>
           <% end %>
