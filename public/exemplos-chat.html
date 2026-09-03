@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Maria Mineira — exemplos para testar a conversa</title>
+  <style>
+    :root {
+      --terracota: #bb4b35;
+      --vinho: #6f2233;
+      --blush: #eac6b7;
+      --offwhite: #f1f1f1;
+      --presenca: #232323;
+      --serif: "Zilla Slab", ui-serif, Georgia, "Times New Roman", serif;
+      --sans: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--presenca);
+      background: var(--offwhite);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    header.page {
+      border-bottom: 1px solid var(--blush);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      color: var(--vinho);
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .lede {
+      font-size: 1.05rem;
+      color: #444;
+      margin: 0 0 20px;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--vinho);
+      color: var(--offwhite);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 22px;
+      border-radius: 999px;
+    }
+    .cta:hover { background: #5c1c2a; }
+
+    h2 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.35rem;
+      color: var(--vinho);
+      margin: 44px 0 14px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      margin: 0 0 8px;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+    .flow li {
+      background: #fff;
+      border: 1px solid var(--blush);
+      border-radius: 16px;
+      padding: 16px 16px 16px 46px;
+      position: relative;
+      font-size: 0.92rem;
+    }
+    .flow li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--vinho);
+      color: #fff;
+      font-family: var(--serif);
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .note {
+      background: rgba(187, 75, 53, 0.09);
+      border: 1px solid rgba(187, 75, 53, 0.35);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 0.92rem;
+      margin: 16px 0 0;
+    }
+    .note strong { color: var(--terracota); }
+
+    .scenario {
+      background: #fff;
+      border: 1px solid var(--blush);
+      border-radius: 18px;
+      padding: 20px 20px 22px;
+      margin: 18px 0;
+    }
+    .scenario h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.12rem;
+      margin: 0 0 4px;
+      color: var(--presenca);
+    }
+    .scenario .tests {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--terracota);
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .step {
+      margin: 12px 0;
+    }
+    .step .label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .say {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .say code {
+      flex: 1 1 260px;
+      background: var(--offwhite);
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+      color: var(--presenca);
+      word-break: break-word;
+    }
+    .copy {
+      flex: 0 0 auto;
+      border: 1px solid var(--vinho);
+      background: #fff;
+      color: var(--vinho);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .copy:hover { background: var(--vinho); color: #fff; }
+    .copy.done { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+
+    .expect {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--blush);
+      font-size: 0.92rem;
+    }
+    .expect .label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .expect .pill {
+      display: inline-block;
+      background: var(--blush);
+      color: var(--presenca);
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin: 2px 4px 2px 0;
+    }
+    .expect .pill.alert { background: var(--terracota); color: #fff; }
+
+    ul.plain { padding-left: 18px; margin: 8px 0; }
+    ul.plain li { margin: 4px 0; font-size: 0.92rem; }
+
+    footer.page {
+      margin-top: 48px;
+      padding-top: 22px;
+      border-top: 1px solid var(--blush);
+      font-size: 0.86rem;
+      color: #555;
+    }
+    footer.page code {
+      background: var(--offwhite);
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-size: 0.82rem;
+    }
+
+    a { color: var(--vinho); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="page">
+      <h1>Testar a conversa da Maria Mineira</h1>
+      <p class="lede">
+        Roteiros prontos para experimentar o chat de orientação. Cada cenário testa uma
+        parte diferente: card de emergência, distância até o serviço, rota no mapa e telefone.
+      </p>
+      <a class="cta" href="/converse">Abrir o chat &rarr;</a>
+    </header>
+
+    <h2>Como a conversa funciona</h2>
+    <ol class="flow">
+      <li>A Maria Mineira pergunta o que você procura. Você escreve <strong>o motivo</strong> com suas palavras.</li>
+      <li>Ela entende o assunto e pergunta se pode procurar um serviço perto. A barra de baixo passa a ter o botão <strong>“Usar minha localização”</strong> e o campo de <strong>município ou CEP</strong>.</li>
+      <li>Você informa a localização e ela mostra os <strong>serviços</strong>, com distância, telefone e rota.</li>
+    </ol>
+    <p class="note">
+      <strong>Antes de cada teste:</strong> clique em <strong>“Encerrar conversa”</strong> no topo do chat
+      para voltar ao começo. Sem isso, a conversa anterior continua de onde parou (ela fica salva por 1 hora).
+    </p>
+
+    <h2>Cenário 1 — Emergência + serviço completo</h2>
+    <div class="scenario">
+      <h3>Risco de vida na mensagem, depois busca por CEP</h3>
+      <p class="tests">Testa: card de emergência 190/180 · distância · “Como chegar” · telefone</p>
+
+      <div class="step">
+        <span class="label">1. Motivo</span>
+        <div class="say">
+          <code id="s1a">ele pegou a arma e disse que vai me matar, preciso de uma delegacia</code>
+          <button class="copy" data-copy="s1a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Localização — campo de CEP</span>
+        <div class="say">
+          <code id="s1b">38400-100</code>
+          <button class="copy" data-copy="s1b">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        Logo após a sua mensagem aparece um bloco destacado
+        <span class="pill alert">Se você está em risco agora</span>
+        com <span class="pill alert">Ligar 190</span> <span class="pill alert">Ligar 180</span>.
+        Depois vem a lista de serviços, com <span class="pill">A aproximadamente 0.9 km de você</span>
+        na DEAM Uberlândia e os botões <span class="pill">Como chegar</span>
+        <span class="pill">Ligar (34) 3210-8304</span>.
+      </div>
+    </div>
+
+    <h2>Cenário 2 — Distância por CEP, sem emergência</h2>
+    <div class="scenario">
+      <h3>Busca comum em Belo Horizonte</h3>
+      <p class="tests">Testa: lista ordenada por distância · telefone · rota</p>
+
+      <div class="step">
+        <span class="label">1. Motivo</span>
+        <div class="say">
+          <code id="s2a">meu companheiro me bateu ontem e me empurrou</code>
+          <button class="copy" data-copy="s2a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Localização — campo de CEP</span>
+        <div class="say">
+          <code id="s2b">30190-002</code>
+          <button class="copy" data-copy="s2b">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        Nenhum card vermelho. A lista vem ordenada por distância
+        (<span class="pill">0.6 km</span> <span class="pill">1.2 km</span> <span class="pill">13.2 km</span>…),
+        com <span class="pill">Ligar (31) 3337-4899</span> na DEAM Belo Horizonte e
+        <span class="pill">Como chegar</span> abrindo a rota no Google Maps.
+      </div>
+    </div>
+
+    <h2>Cenário 3 — Localização só pelo nome da cidade</h2>
+    <div class="scenario">
+      <h3>Quando não dá para calcular distância</h3>
+      <p class="tests">Testa: card sem distância, mas ainda com telefone e rota</p>
+
+      <div class="step">
+        <span class="label">1. Motivo</span>
+        <div class="say">
+          <code id="s3a">sofri abuso sexual do meu ex</code>
+          <button class="copy" data-copy="s3a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Localização — campo de município</span>
+        <div class="say">
+          <code id="s3b">Viçosa</code>
+          <button class="copy" data-copy="s3b">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        O card do <em>Programa Casa das Mulheres (Viçosa)</em> aparece <strong>sem</strong> a linha
+        de distância — digitar só o nome da cidade não dá um ponto de referência — mas ainda traz
+        <span class="pill">Como chegar</span> e <span class="pill">Ligar (31) 3611-2779</span>.
+        Compare com o Cenário 2: CEP dá distância, nome de cidade não.
+      </div>
+    </div>
+
+    <h2>Cenário 4 — Usar o GPS do navegador</h2>
+    <div class="scenario">
+      <h3>Localização automática</h3>
+      <p class="tests">Testa: botão “Usar minha localização” · distância a partir da posição real</p>
+
+      <div class="step">
+        <span class="label">1. Motivo</span>
+        <div class="say">
+          <code id="s4a">meu marido controla todo o dinheiro e não me deixa trabalhar</code>
+          <button class="copy" data-copy="s4a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Localização</span>
+        <p style="margin:0;font-size:0.92rem">Clique em <strong>“Usar minha localização”</strong> e permita no navegador.</p>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        A lista vem com distâncias calculadas a partir de onde você está.
+        <span class="pill">Dica</span> se o navegador estiver atrás de VPN a posição pode vir errada —
+        para um teste previsível, use o CEP (Cenário 1 ou 2).
+      </div>
+    </div>
+
+    <h2>Cenário 5 — Cidade sem serviço para aquele assunto</h2>
+    <div class="scenario">
+      <h3>Resposta honesta quando não há equipamento cadastrado</h3>
+      <p class="tests">Testa: mensagem de “sem cobertura” em vez de resultado forçado</p>
+
+      <div class="step">
+        <span class="label">1. Motivo</span>
+        <div class="say">
+          <code id="s5a">quero saber meus direitos sobre pensão e guarda dos filhos</code>
+          <button class="copy" data-copy="s5a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Localização — campo de município</span>
+        <div class="say">
+          <code id="s5b">Viçosa</code>
+          <button class="copy" data-copy="s5b">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        Aparece <span class="pill">Ainda não temos informações suficientes sobre serviços cadastrados em Viçosa…</span>
+        Isso é esperado: “direitos” procura serviços de orientação jurídica, e ainda não há nenhum
+        cadastrado na base de teste. É um buraco de <strong>dados</strong>, não um erro do chat.
+      </div>
+    </div>
+
+    <h2>Cenário 6 — Emergência no meio da conversa</h2>
+    <div class="scenario">
+      <h3>O alerta também aparece depois, no texto livre</h3>
+      <p class="tests">Testa: detecção de risco fora do primeiro turno · não repetir o alerta</p>
+
+      <div class="step">
+        <span class="label">Depois de já ter recebido uma lista de serviços, escreva:</span>
+        <div class="say">
+          <code id="s6a">ele voltou e está me batendo agora, socorro</code>
+          <button class="copy" data-copy="s6a">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        O bloco de emergência com <span class="pill alert">Ligar 190</span> <span class="pill alert">Ligar 180</span>
+        aparece de novo — e <strong>só uma vez</strong>: se você repetir a frase, ele não se duplica.
+      </div>
+    </div>
+
+    <h2>Outras frases para experimentar</h2>
+    <ul class="plain">
+      <li><code>estou com medo, ele me ameaça toda hora</code> — violência psicológica</li>
+      <li><code>ele espalhou mentiras sobre mim no trabalho</code> — violência moral</li>
+      <li><code>preciso de um abrigo, não tenho para onde ir</code> — serviços e equipamentos</li>
+      <li><code>quero atendimento psicológico</code> — saúde</li>
+      <li><code>oi, tudo bem?</code> — mensagem sem sinal claro (a Maria Mineira pede para reformular)</li>
+    </ul>
+
+    <footer class="page">
+      <p><strong>Sobre a base de teste:</strong></p>
+      <ul class="plain">
+        <li>A distância só aparece quando a localização vem de <strong>CEP</strong> ou <strong>GPS</strong>. Nome de município sozinho não gera distância.</li>
+        <li><strong>Viçosa</strong> tem só um equipamento cadastrado, então listas nessa cidade ficam curtas.</li>
+        <li>Assuntos de <strong>“direitos”</strong> não retornam serviço porque não há equipamento de orientação jurídica na base ainda.</li>
+        <li>Esta página é um guia interno de testes (<code>/exemplos-chat.html</code>) e não é indexada por buscadores.</li>
+      </ul>
+    </footer>
+  </div>
+
+  <script>
+    document.querySelectorAll(".copy").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var el = document.getElementById(btn.dataset.copy);
+        if (!el) return;
+        var text = el.textContent.trim();
+        var done = function () {
+          var original = btn.textContent;
+          btn.textContent = "Copiado";
+          btn.classList.add("done");
+          setTimeout(function () {
+            btn.textContent = original;
+            btn.classList.remove("done");
+          }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () {});
+        } else {
+          var r = document.createRange();
+          r.selectNodeContents(el);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(r);
+          try { document.execCommand("copy"); done(); } catch (e) {}
+          sel.removeAllRanges();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
