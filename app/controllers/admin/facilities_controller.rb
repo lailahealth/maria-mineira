@@ -7,7 +7,7 @@ module Admin
     before_action :set_facility, only: %i[ edit update destroy ]
 
     def index
-      @facilities = Territorial::Facility.includes(:municipality).order(:name)
+      @pagy, @facilities = pagy(Territorial::Facility.includes(:municipality).order(:name))
     end
 
     def new

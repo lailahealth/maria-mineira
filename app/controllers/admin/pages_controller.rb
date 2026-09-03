@@ -8,7 +8,7 @@ module Admin
     before_action :set_page, only: %i[ edit update destroy ]
 
     def index
-      @pages = Content::Page.order(:content_type, :title)
+      @pagy, @pages = pagy(Content::Page.order(:content_type, :title))
     end
 
     def new

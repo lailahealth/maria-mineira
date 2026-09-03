@@ -13,6 +13,10 @@ services:
     # top-level shims/ dir. Caching only the former left `bin/dev` unable to
     # find `foreman` after every container recreation.
     - bundle-cache:/home/vscode/.local/share/mise
+    # Keeps the Claude Code login (~/.claude/.credentials.json etc.) so it
+    # survives "Rebuild Container", not just restarts. devcontainer.json's
+    # postCreateCommand chowns it to vscode on first creation.
+    - claude-config:/home/vscode/.claude
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -46,3 +50,4 @@ services:
 volumes:
   postgres-data:
   bundle-cache:
+  claude-config:

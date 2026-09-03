@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include Pagy::Frontend
+
   # Menu principal da Maria Mineira (seção 25 do parecer técnico).
   # "Converse com a Maria Mineira" tem CTA própria no header, por isso não repete aqui.
   def main_nav_links

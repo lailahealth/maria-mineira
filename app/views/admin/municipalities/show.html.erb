@@ -7,7 +7,7 @@
 
 <div class="mt-8">
   <% if @facilities.any? %>
-    <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@facilities.size, "equipamento") %></h2>
+    <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@pagy.count, "equipamento") %></h2>
     <ul class="mt-4 space-y-2">
       <% @facilities.each do |facility| %>
         <li class="rounded-xl border border-blush bg-white px-4 py-3 text-sm">
@@ -16,6 +16,7 @@
         </li>
       <% end %>
     </ul>
+    <%= render "shared/pagination", pagy: @pagy %>
   <% else %>
     <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
       Nenhum equipamento cadastrado neste município ainda.

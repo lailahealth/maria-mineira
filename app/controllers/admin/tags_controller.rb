@@ -4,7 +4,7 @@ module Admin
     before_action :set_tag, only: %i[ edit update destroy ]
 
     def index
-      @tags = Taxonomy::Tag.includes(:parent).order(:kind, :position, :label)
+      @pagy, @tags = pagy(Taxonomy::Tag.includes(:parent).order(:kind, :position, :label))
     end
 
     def new

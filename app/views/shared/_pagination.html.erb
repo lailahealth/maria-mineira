@@ -1,0 +1,27 @@
+<%# Navegação de paginação (Pagy). Uso: render "shared/pagination", pagy: @pagy
+    Não renderiza nada quando há uma página só. %>
+<% if pagy.pages > 1 %>
+  <nav class="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm" aria-label="Paginação">
+    <span class="text-presenca/60">
+      <%= pagy.from %>–<%= pagy.to %> de <%= pagy.count %>
+    </span>
+
+    <div class="flex items-center gap-2">
+      <% if pagy.prev %>
+        <%= link_to "← Anterior", pagy_url_for(pagy, pagy.prev),
+              class: "rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca hover:border-vinho hover:text-vinho" %>
+      <% else %>
+        <span class="rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca/30">← Anterior</span>
+      <% end %>
+
+      <span class="px-1 text-presenca/60">Página <%= pagy.page %> de <%= pagy.pages %></span>
+
+      <% if pagy.next %>
+        <%= link_to "Próxima →", pagy_url_for(pagy, pagy.next),
+              class: "rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca hover:border-vinho hover:text-vinho" %>
+      <% else %>
+        <span class="rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca/30">Próxima →</span>
+      <% end %>
+    </div>
+  </nav>
+<% end %>

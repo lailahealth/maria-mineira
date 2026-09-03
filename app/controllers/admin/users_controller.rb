@@ -6,7 +6,7 @@ module Admin
     before_action :set_user, only: %i[ edit update destroy ]
 
     def index
-      @users = Admin::User.order(:email_address)
+      @pagy, @users = pagy(Admin::User.order(:email_address))
     end
 
     def new
