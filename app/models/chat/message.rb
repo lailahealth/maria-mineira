@@ -11,7 +11,8 @@ module Chat
     enum :card_type, {
       location_prompt: 0,
       facility_results: 1,
-      municipio_sem_cobertura: 2
+      municipio_sem_cobertura: 2,
+      emergencia: 3
     }, prefix: true, allow_nil: true
 
     belongs_to :conversation, class_name: "Chat::Conversation", foreign_key: :chat_conversation_id

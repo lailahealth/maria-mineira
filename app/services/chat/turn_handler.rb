@@ -4,6 +4,22 @@ module Chat
   # Não pede para a pessoa repetir a história: o contexto de origem/motivo já
   # coletado é reaproveitado nos turnos seguintes.
   class TurnHandler
+    # Sinais de risco iminente à vida. Quando aparecem no texto livre, a Maria Mineira
+    # não tenta "resolver" a situação — mostra na hora o direcionamento de emergência
+    # (190 / 180), como orienta o rodapé do site, antes de qualquer classificação ou
+    # busca por serviço (seção do PDF original sobre "não substituir atendimento de
+    # emergência"). Lista propositalmente restrita a perigo físico imediato para não
+    # disparar o card em toda mensagem urgente; deve ser revista com a equipe.
+    EMERGENCY_PHRASES = [
+      "vai me matar", "quer me matar", "ele vai me matar", "me matar", "vai me bater",
+      "ameaca de morte", "ameacando de morte", "ameacou de morte", "morrer",
+      "arma", "arma de fogo", "revolver", "faca", "esta armado", "ta armado", "pegou a arma",
+      "socorro", "risco de vida", "correndo risco", "minha vida corre perigo", "estou em perigo",
+      "trancada", "presa em casa", "nao consigo sair", "me trancou",
+      "ele esta aqui agora", "ele ta aqui agora", "batendo em mim agora", "esta me batendo",
+      "acabou de me bater", "me perseguindo agora"
+    ].freeze
+
     def initialize(conversation:, journey_session:)
       @conversation = conversation
       @journey_session = journey_session
@@ -27,6 +43,7 @@ module Chat
       return if text.blank?
 
       say_user(text)
+      warn_emergency_if_needed(text)
       result = Classification::Classifier.classify(text)
 
       Journey::EventRecorder.record(
@@ -83,6 +100,7 @@ module Chat
       return if text.blank?
 
       say_user(text)
+      warn_emergency_if_needed(text)
       result = Classification::Classifier.classify(text)
 
       if result.classified?
@@ -108,6 +126,31 @@ module Chat
     end
 
     private
+
+    # Mostra o direcionamento de emergência no máximo uma vez por conversa — repetir
+    # o alerta a cada mensagem afobaria a leitura sem acrescentar informação.
+    def warn_emergency_if_needed(text)
+      return unless emergency?(text)
+      return if @conversation.messages.card_type_emergencia.exists?
+
+      say_assistant(
+        "Se você está em perigo agora, ligue 190 — a Polícia Militar atende 24 horas. " \
+        "A Central de Atendimento à Mulher (180) também funciona 24 horas, é gratuita e orienta o que fazer. " \
+        "A Maria Mineira é um canal de informação e não substitui o atendimento de emergência.",
+        card_type: :emergencia
+      )
+    end
+
+    def emergency?(text)
+      normalized = text.to_s.downcase.unicode_normalize(:nfkd).gsub(/[^\x00-\x7F]/, "")
+      words = normalized.split(/[^a-z0-9]+/)
+
+      EMERGENCY_PHRASES.any? do |phrase|
+        # Frases (com espaço) casam por substring; palavras isoladas ("arma", "faca")
+        # casam só como token inteiro, para não pegar "armario", "alarma", "farmacia".
+        phrase.include?(" ") ? normalized.include?(phrase) : words.include?(phrase)
+      end
+    end
 
     def matched_tag(result)
       Taxonomy::Tag.find_by(slug: result.subtag_slug || result.tag_slug)
