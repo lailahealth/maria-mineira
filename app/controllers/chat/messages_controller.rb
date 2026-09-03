@@ -53,8 +53,7 @@ module Chat
     end
 
     def find_municipality(query)
-      Territorial::Municipality.find_by("lower(name) = ?", query.to_s.strip.downcase) ||
-        Territorial::Municipality.where("name ILIKE ?", "%#{query.to_s.strip}%").first
+      Territorial::Municipality.search_by_name(query)
     end
   end
 end
