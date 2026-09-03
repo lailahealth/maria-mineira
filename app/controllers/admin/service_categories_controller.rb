@@ -4,7 +4,7 @@ module Admin
     before_action :set_service_category, only: %i[ edit update destroy ]
 
     def index
-      @service_categories = Territorial::ServiceCategory.includes(:taxonomy_tag).order(:name)
+      @pagy, @service_categories = pagy(Territorial::ServiceCategory.includes(:taxonomy_tag).order(:name))
     end
 
     def new

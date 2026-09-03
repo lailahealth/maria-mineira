@@ -8,10 +8,17 @@
 
   // libvips and postgresql-client are baked into .devcontainer/Dockerfile
   // itself (so plain `docker compose up` gets them too) rather than added
-  // here as features. What's left are VS Code/Codespaces-only conveniences.
+  // here as features. What's left are dev-tooling conveniences that only the
+  // Dev Containers flow needs — including Claude Code (`node` is its runtime;
+  // the base image ships none since the app uses importmap). These are baked
+  // into the built image, so they survive restarts and only reinstall on a
+  // "Rebuild Container". The login is kept in the `claude-config` volume
+  // (see compose.yaml), so it also survives rebuilds.
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {"moby":false}
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {"moby":false},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
   },
 
   "containerEnv": {
@@ -32,5 +39,7 @@
 
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bin/setup --skip-server"
+  // The chown makes the freshly-created `claude-config` volume writable by the
+  // non-root `vscode` user (Docker creates named-volume mount points as root).
+  "postCreateCommand": "sudo chown vscode:vscode /home/vscode/.claude && bin/setup --skip-server"
 }

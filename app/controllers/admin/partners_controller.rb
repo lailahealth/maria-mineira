@@ -4,7 +4,7 @@ module Admin
     before_action :set_partner, only: %i[ edit update destroy ]
 
     def index
-      @partners = Partners::Partner.order(:name)
+      @pagy, @partners = pagy(Partners::Partner.order(:name))
     end
 
     def new

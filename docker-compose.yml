@@ -1,4 +1,31 @@
+# Opção A do README: `docker compose up` sobe o app inteiro (Rails + Postgres/PostGIS)
+# em http://localhost:3000, sem Ruby/Postgres instalados na máquina. A imagem é a mesma
+# do Dev Containers (.devcontainer/Dockerfile). Para editar dentro do container use a
+# Opção B (VS Code Dev Containers); esta aqui é só "rodar".
 services:
+  web:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    # bin/setup: bundle install (1ª vez) -> db:prepare (primary + analytics) -> bin/dev
+    # (Rails server + Tailwind watch). Idempotente, roda a cada `up`.
+    command: bin/setup
+    working_dir: /rails
+    volumes:
+      - ".:/rails:cached"
+      # mesma cache de gems do Dev Containers (mise gere o Ruby e os gems instalados)
+      - bundle-cache:/home/vscode/.local/share/mise
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USERNAME: maria_mineira
+      DATABASE_PASSWORD: maria_mineira
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    tty: true
+
   db:
     image: imresamu/postgis:17-3.5-alpine
     restart: unless-stopped
@@ -18,3 +45,4 @@ services:
 
 volumes:
   maria_mineira_postgres_data:
+  bundle-cache:

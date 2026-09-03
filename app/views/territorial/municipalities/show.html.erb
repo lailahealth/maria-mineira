@@ -8,12 +8,13 @@
 
   <div class="mt-8">
     <% if @facilities.any? %>
-      <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@facilities.size, "equipamento cadastrado", plural: "equipamentos cadastrados") %></h2>
+      <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@pagy.count, "equipamento cadastrado", plural: "equipamentos cadastrados") %></h2>
       <div class="mt-4 grid gap-4 sm:grid-cols-2">
         <% @facilities.each do |facility| %>
           <%= render "territorial/facilities/card", facility: facility %>
         <% end %>
       </div>
+      <%= render "shared/pagination", pagy: @pagy %>
     <% else %>
       <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
         Ainda não temos informações suficientes sobre serviços cadastrados em <%= @municipality.name %>.

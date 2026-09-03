@@ -6,18 +6,20 @@ module Admin
     before_action { require_role!("content_editor", "data_analyst") }
 
     def index
-      @municipalities = Territorial::Municipality
+      scope = Territorial::Municipality
         .left_joins(:facilities)
         .select("territorial_municipalities.*, COUNT(territorial_facilities.id) AS facilities_count")
         .group("territorial_municipalities.id")
         .order(:name)
 
-      @municipalities = @municipalities.where("territorial_municipalities.name ILIKE ?", "%#{params[:q]}%") if params[:q].present?
+      scope = scope.where("territorial_municipalities.name ILIKE ?", "%#{params[:q]}%") if params[:q].present?
+
+      @pagy, @municipalities = pagy(scope)
     end
 
     def show
       @municipality = Territorial::Municipality.find_by!(ibge_code: params[:id])
-      @facilities = @municipality.facilities.order(:name)
+      @pagy, @facilities = pagy(@municipality.facilities.order(:name))
     end
   end
 end
