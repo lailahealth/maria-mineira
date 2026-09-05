@@ -498,6 +498,42 @@
       </div>
     </div>
 
+    <h2>Cenário 9 — Cidade ou CEP digitado direto no chat (sem usar o botão)</h2>
+    <div class="scenario">
+      <h3>Também funciona com erro de digitação no nome da cidade</h3>
+      <p class="tests">Testa: detecção de localização dentro do texto livre · tolerância a erro de digitação</p>
+
+      <div class="step">
+        <span class="label">1. Motivo</span>
+        <div class="say">
+          <code id="s9a">meu companheiro me ameaça e me controla</code>
+          <button class="copy" data-copy="s9a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Sem clicar em “Buscar serviço perto de você”, digite direto o CEP</span>
+        <div class="say">
+          <code id="s9b">30190-002</code>
+          <button class="copy" data-copy="s9b">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">3. Encerre e repita o motivo, agora digitando a cidade com erro de digitação</span>
+        <div class="say">
+          <code id="s9c">Jaboticatuba</code>
+          <button class="copy" data-copy="s9c">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        Em ambos os casos aparecem os cards de serviço (<span class="pill">Como chegar</span>
+        <span class="pill">Ligar</span>), igual ao usar o formulário dedicado — mesmo faltando o
+        "s" de "Jaboticatubas". A mensagem digitada <strong>não</strong> deve receber uma resposta
+        de bate-papo genérica sobre a cidade.
+      </div>
+    </div>
+
     <h2>Outras frases para experimentar</h2>
     <ul class="plain">
       <li><code>estou com medo, ele me ameaça toda hora</code> — violência psicológica</li>
