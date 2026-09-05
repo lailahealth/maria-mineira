@@ -69,3 +69,110 @@
     </div>
   <% end %>
 </div>
+
+<div class="mt-10 grid gap-6 lg:grid-cols-2">
+  <div class="rounded-2xl border border-blush bg-white p-6">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Movimento por dia</p>
+    <p class="mt-1 text-xs text-presenca/60">Sessões iniciadas nos últimos <%= @sessions_by_day.size %> dias (horário de MG).</p>
+    <% max_day = @sessions_by_day.map { |d| d[:count] }.max.to_i %>
+    <ul class="mt-4 space-y-1.5">
+      <% @sessions_by_day.each do |day| %>
+        <li class="flex items-center gap-3 text-sm">
+          <span class="w-14 shrink-0 text-presenca/70"><%= day[:date].strftime("%d/%m") %></span>
+          <span class="h-2 flex-1 rounded bg-blush/40">
+            <span class="block h-2 rounded bg-vinho" style="width: <%= admin_bar_width(day[:count], max_day) %>%"></span>
+          </span>
+          <span class="w-8 shrink-0 text-right font-semibold text-presenca"><%= day[:count] %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="rounded-2xl border border-blush bg-white p-6">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Por horário do dia</p>
+    <p class="mt-1 text-xs text-presenca/60">Sessões por hora (0–23), horário de MG, sobre toda a base.</p>
+    <% max_hour = @sessions_by_hour.map { |h| h[:count] }.max.to_i %>
+    <ul class="mt-4 space-y-1">
+      <% @sessions_by_hour.each do |slot| %>
+        <li class="flex items-center gap-3 text-sm">
+          <span class="w-10 shrink-0 text-presenca/70"><%= format("%02dh", slot[:hour]) %></span>
+          <span class="h-2 flex-1 rounded bg-blush/40">
+            <span class="block h-2 rounded bg-terracota" style="width: <%= admin_bar_width(slot[:count], max_hour) %>%"></span>
+          </span>
+          <span class="w-8 shrink-0 text-right font-semibold text-presenca"><%= slot[:count] %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<div class="mt-10 grid gap-6 lg:grid-cols-2">
+  <div class="rounded-2xl border border-blush bg-white p-6">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Principais motivos</p>
+    <p class="mt-1 text-xs text-presenca/60">O que a pessoa disse que buscava (eventos de motivo classificados).</p>
+    <% if @top_motivos.empty? %>
+      <p class="mt-4 text-sm text-presenca/70">Nenhum motivo registrado ainda.</p>
+    <% else %>
+      <ul class="mt-4 space-y-2 text-sm">
+        <% @top_motivos.each do |motivo| %>
+          <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+            <span><%= motivo[:label] %></span>
+            <span class="font-semibold text-vinho"><%= motivo[:count] %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <div class="rounded-2xl border border-blush bg-white p-6">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Principais municípios</p>
+    <p class="mt-1 text-xs text-presenca/60">Cidades mais procuradas na busca por serviço (uma contagem por sessão).</p>
+    <% if @top_municipios.empty? %>
+      <p class="mt-4 text-sm text-presenca/70">Nenhuma busca por município ainda.</p>
+    <% else %>
+      <ul class="mt-4 space-y-2 text-sm">
+        <% @top_municipios.each do |cidade| %>
+          <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+            <span><%= cidade[:municipio] %></span>
+            <span class="font-semibold text-vinho"><%= cidade[:count] %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-10 rounded-2xl border border-blush bg-white p-6">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Últimas conversas</p>
+  <p class="mt-1 text-xs text-presenca/60">
+    Data/hora (MG), assunto e — quando a pessoa buscou um serviço — o município e a origem da sessão.
+    Só o dado estruturado: o texto da conversa não é guardado.
+  </p>
+
+  <% if @recent_conversas.empty? %>
+    <p class="mt-4 text-sm text-presenca/70">Nenhuma conversa registrada ainda.</p>
+  <% else %>
+    <div class="mt-4 overflow-x-auto">
+      <table class="w-full min-w-[560px] text-left text-sm">
+        <thead>
+          <tr class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
+            <th class="py-2 pr-4">Data/hora</th>
+            <th class="py-2 pr-4">Motivo</th>
+            <th class="py-2 pr-4">Município</th>
+            <th class="py-2">Origem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_conversas.each do |conversa| %>
+            <tr class="border-b border-blush/50">
+              <td class="py-2 pr-4 whitespace-nowrap text-presenca/70"><%= admin_local_time(conversa[:at]) %></td>
+              <td class="py-2 pr-4"><%= conversa[:motivo] %></td>
+              <td class="py-2 pr-4"><%= conversa[:municipio] || "—" %></td>
+              <td class="py-2 text-presenca/70"><%= conversa[:origem] || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
