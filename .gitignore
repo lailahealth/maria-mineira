@@ -42,3 +42,10 @@
 
 # macOS Finder metadata.
 .DS_Store
+
+# Material de referência pesado (cartilhas, PDFs de análise, planilhas .numbers):
+# fica só na máquina de quem trabalha nele, fora do histórico do git. Ver docs/
+# para os .html/.md versionados normalmente.
+docs/**/*.pdf
+docs/**/*.numbers
+docs/Cartilhas/
