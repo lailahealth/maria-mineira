@@ -11,7 +11,9 @@
           class: "shrink-0 whitespace-nowrap text-xs font-semibold text-presenca/60 hover:text-vinho hover:underline" %>
   </div>
 
-  <div id="messages" data-controller="chat-scroll" class="flex-1 space-y-3 overflow-y-auto bg-white px-4 py-5 sm:border-x">
+  <div id="messages" data-controller="chat-scroll chat-typing"
+       data-action="turbo:submit-start@document->chat-typing#start turbo:submit-end@document->chat-typing#end"
+       class="flex-1 space-y-3 overflow-y-auto bg-white px-4 py-5 sm:border-x">
     <%= render @messages %>
   </div>
 

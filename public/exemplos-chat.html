@@ -252,8 +252,13 @@
     <h2>Como a conversa funciona</h2>
     <ol class="flow">
       <li>A Maria Mineira pergunta o que você procura. Você escreve <strong>o motivo</strong> com suas palavras.</li>
-      <li>Ela entende o assunto e pergunta se pode procurar um serviço perto. A barra de baixo passa a ter o botão <strong>“Usar minha localização”</strong> e o campo de <strong>município ou CEP</strong>.</li>
-      <li>Você informa a localização e ela mostra os <strong>serviços</strong>, com distância, telefone e rota.</li>
+      <li>Ela responde de verdade (com base no que já sabe) e avisa que pode procurar um serviço perto de você
+        <strong>quando você quiser</strong> — não é mais um passo obrigatório logo de cara, porque às vezes você só
+        quer tirar uma dúvida.</li>
+      <li>Clicando em <strong>“📍 Buscar serviço perto de você”</strong>, embaixo do campo de mensagem, a barra passa a
+        ter o botão <strong>“Usar minha localização”</strong> e o campo de <strong>município ou CEP</strong>. Dá para
+        voltar a só conversar a qualquer momento em <strong>“‹ Voltar, só quero conversar”</strong>.</li>
+      <li>Ao informar a localização, ela mostra os <strong>serviços</strong>, com distância, telefone e rota.</li>
     </ol>
     <p class="note">
       <strong>Antes de cada teste:</strong> clique em <strong>“Encerrar conversa”</strong> no topo do chat
@@ -273,7 +278,10 @@
         </div>
       </div>
       <div class="step">
-        <span class="label">2. Localização — campo de CEP</span>
+        <span class="label">2. Clique em “📍 Buscar serviço perto de você” (embaixo do campo de mensagem)</span>
+      </div>
+      <div class="step">
+        <span class="label">3. Localização — campo de CEP</span>
         <div class="say">
           <code id="s1b">38400-100</code>
           <button class="copy" data-copy="s1b">Copiar</button>
@@ -284,7 +292,8 @@
         <span class="label">O que deve acontecer</span>
         Logo após a sua mensagem aparece um bloco destacado
         <span class="pill alert">Se você está em risco agora</span>
-        com <span class="pill alert">Ligar 190</span> <span class="pill alert">Ligar 180</span>.
+        com <span class="pill alert">Ligar 190</span> <span class="pill alert">Ligar 180</span>, seguido de uma
+        resposta de orientação (o texto varia, é gerado — o importante é não citar nenhuma fonte).
         Depois vem a lista de serviços, com <span class="pill">A aproximadamente 0.9 km de você</span>
         na DEAM Uberlândia e os botões <span class="pill">Como chegar</span>
         <span class="pill">Ligar (34) 3210-8304</span>.
@@ -304,7 +313,10 @@
         </div>
       </div>
       <div class="step">
-        <span class="label">2. Localização — campo de CEP</span>
+        <span class="label">2. Clique em “📍 Buscar serviço perto de você” (embaixo do campo de mensagem)</span>
+      </div>
+      <div class="step">
+        <span class="label">3. Localização — campo de CEP</span>
         <div class="say">
           <code id="s2b">30190-002</code>
           <button class="copy" data-copy="s2b">Copiar</button>
@@ -333,7 +345,10 @@
         </div>
       </div>
       <div class="step">
-        <span class="label">2. Localização — campo de município</span>
+        <span class="label">2. Clique em “📍 Buscar serviço perto de você” (embaixo do campo de mensagem)</span>
+      </div>
+      <div class="step">
+        <span class="label">3. Localização — campo de município</span>
         <div class="say">
           <code id="s3b">Viçosa</code>
           <button class="copy" data-copy="s3b">Copiar</button>
@@ -362,7 +377,10 @@
         </div>
       </div>
       <div class="step">
-        <span class="label">2. Localização</span>
+        <span class="label">2. Clique em “📍 Buscar serviço perto de você” (embaixo do campo de mensagem)</span>
+      </div>
+      <div class="step">
+        <span class="label">3. Localização</span>
         <p style="margin:0;font-size:0.92rem">Clique em <strong>“Usar minha localização”</strong> e permita no navegador.</p>
       </div>
 
@@ -387,7 +405,10 @@
         </div>
       </div>
       <div class="step">
-        <span class="label">2. Localização — campo de município</span>
+        <span class="label">2. Clique em “📍 Buscar serviço perto de você” (embaixo do campo de mensagem)</span>
+      </div>
+      <div class="step">
+        <span class="label">3. Localização — campo de município</span>
         <div class="say">
           <code id="s5b">Viçosa</code>
           <button class="copy" data-copy="s5b">Copiar</button>
@@ -419,6 +440,61 @@
         <span class="label">O que deve acontecer</span>
         O bloco de emergência com <span class="pill alert">Ligar 190</span> <span class="pill alert">Ligar 180</span>
         aparece de novo — e <strong>só uma vez</strong>: se você repetir a frase, ele não se duplica.
+      </div>
+    </div>
+
+    <h2>Cenário 7 — Pergunta livre depois da busca de serviço</h2>
+    <div class="scenario">
+      <h3>Resposta baseada na base de conhecimento, sem citar fonte</h3>
+      <p class="tests">Testa: resposta gerada pela IA a partir do conteúdo das cartilhas</p>
+
+      <div class="step">
+        <span class="label">Depois de já ter recebido uma lista de serviços (ex.: Cenário 2), escreva:</span>
+        <div class="say">
+          <code id="s7a">quais são os sinais de que um relacionamento é abusivo?</code>
+          <button class="copy" data-copy="s7a">Copiar</button>
+        </div>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        A resposta é substantiva, em português simples, em poucas frases — nunca a mensagem genérica
+        de "ainda estou aprendendo". <strong>Ela nunca deve citar</strong> a palavra "cartilha", "documento",
+        "material" ou qualquer nome de arquivo/fonte: a informação deve soar como conhecimento próprio da
+        Maria Mineira. Sem a variável <code>ANTHROPIC_API_KEY</code> configurada, a mensagem genérica de hoje
+        continua aparecendo — a conversa não deve quebrar.
+      </div>
+    </div>
+
+    <h2>Cenário 8 — Busca de serviço é opcional, não obrigatória</h2>
+    <div class="scenario">
+      <h3>A mulher só quer tirar dúvidas, sem informar localização</h3>
+      <p class="tests">Testa: motivo não força a tela de localização · botão “Voltar” funciona</p>
+
+      <div class="step">
+        <span class="label">1. Motivo (uma dúvida, não um pedido de serviço)</span>
+        <div class="say">
+          <code id="s8a">quais são os sinais de que um relacionamento é abusivo?</code>
+          <button class="copy" data-copy="s8a">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">2. Sem clicar em nada, continue perguntando</span>
+        <div class="say">
+          <code id="s8b">e sobre autonomia financeira, como faço pra abrir um negócio?</code>
+          <button class="copy" data-copy="s8b">Copiar</button>
+        </div>
+      </div>
+      <div class="step">
+        <span class="label">3. Mude de ideia: clique em “📍 Buscar serviço perto de você” e depois em “‹ Voltar, só quero conversar”</span>
+      </div>
+
+      <div class="expect">
+        <span class="label">O que deve acontecer</span>
+        Depois do passo 1, o campo de mensagem <strong>continua disponível</strong> — nunca é substituído pela tela
+        de CEP/localização. As duas perguntas recebem respostas de verdade. No passo 3, clicar em “Buscar serviço”
+        troca a barra de baixo pela tela de localização; “Voltar” traz o campo de mensagem de volta, sem perder o
+        histórico da conversa.
       </div>
     </div>
 

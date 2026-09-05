@@ -68,7 +68,7 @@
   <div class="flex justify-start gap-2">
     <%= render "chat/messages/avatar" %>
     <div class="max-w-[85%] rounded-2xl rounded-bl-sm bg-blush/40 px-4 py-2.5 text-sm text-presenca">
-      <%= message.body %>
+      <%= simple_format(message.body) %>
     </div>
   </div>
 <% end %>

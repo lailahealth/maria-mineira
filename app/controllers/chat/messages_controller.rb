@@ -9,13 +9,19 @@ module Chat
       when :aguardando_motivo
         handler.receive_motivo(params[:body])
       when :aguardando_localizacao
-        if params[:lat].present? && params[:lng].present?
+        if params[:cancel_location].present?
+          handler.cancel_location_request
+        elsif params[:lat].present? && params[:lng].present?
           handler.receive_location(lat: params[:lat], lng: params[:lng])
         else
           handler.receive_location(**resolve_location(params[:municipio]))
         end
       else
-        handler.receive_free_text(params[:body])
+        if params[:want_location].present?
+          handler.request_location
+        else
+          handler.receive_free_text(params[:body])
+        end
       end
 
       @conversation.reload

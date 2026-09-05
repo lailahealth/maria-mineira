@@ -50,16 +50,34 @@ module Chat
         session: @journey_session, event_type: :motivo, tag: result.tag_slug, subtag: result.subtag_slug
       )
 
-      @conversation.update!(context_tag: result.tag_slug, service_category: unambiguous_category_for(result), stage: :aguardando_localizacao)
+      # Vai direto para o estágio livre em vez de forçar a localização: às vezes a
+      # mulher só quer tirar uma dúvida, não buscar um serviço. A busca por
+      # proximidade fica disponível a qualquer momento pelo botão "Buscar serviço
+      # perto de você" do composer (ver #request_location), não como próximo passo
+      # obrigatório.
+      @conversation.update!(context_tag: result.tag_slug, service_category: unambiguous_category_for(result), stage: :livre)
 
-      if result.classified?
-        label = matched_tag(result)&.label&.downcase
-        say_assistant("Entendi. Isso pode estar relacionado a #{label}. Vou te ajudar a encontrar orientação e serviços sobre isso.")
-      else
-        say_assistant("Entendi. Vou te ajudar a encontrar orientação e serviços que possam ajudar.")
-      end
+      say_answer_or_fallback(text, result)
+      say_assistant(
+        "Quando quiser, posso procurar um serviço perto de você — é só clicar em " \
+        "\"Buscar serviço perto de você\", aqui embaixo.",
+        card_type: :location_prompt
+      )
+    end
 
-      say_assistant("Quer que eu procure um serviço perto de você?", card_type: :location_prompt)
+    # Acionado pelo botão "Buscar serviço perto de você" do composer (disponível a
+    # qualquer momento na conversa livre) — não é mais um passo forçado logo após o
+    # motivo, para não interromper quem só quer conversar/tirar dúvidas.
+    def request_location
+      @conversation.update!(stage: :aguardando_localizacao)
+      say_assistant("Claro! Me diga sua cidade, CEP, ou clique em \"Usar minha localização\".")
+    end
+
+    # Desiste da busca por localização e volta para a conversa livre — a única porta
+    # de entrada em :aguardando_localizacao agora é #request_location, então precisa
+    # de uma porta de saída caso a pessoa mude de ideia.
+    def cancel_location_request
+      @conversation.update!(stage: :livre)
     end
 
     def receive_location(lat: nil, lng: nil, municipality: nil)
@@ -110,7 +128,21 @@ module Chat
 
       @conversation.update!(stage: :livre)
 
-      if result.classified?
+      say_answer_or_fallback(text, result)
+    end
+
+    private
+
+    # Responde com base nas cartilhas (Chat::KnowledgeAnswerer) sempre que possível;
+    # cai numa mensagem honesta quando a IA não está configurada/disponível ou não
+    # tem uma resposta — usado tanto no motivo quanto no texto livre, para que a
+    # primeira mensagem já receba uma resposta de verdade, não só um redirecionamento.
+    def say_answer_or_fallback(text, result)
+      answer = Chat::KnowledgeAnswerer.answer(text)
+
+      if answer.present?
+        say_assistant(answer)
+      elsif result.classified?
         label = matched_tag(result)&.label&.downcase
         say_assistant(
           "Percebi que isso tem a ver com #{label}. Ainda estou aprendendo a explicar esse assunto com mais " \
@@ -124,8 +156,6 @@ module Chat
         )
       end
     end
-
-    private
 
     # Mostra o direcionamento de emergência no máximo uma vez por conversa — repetir
     # o alerta a cada mensagem afobaria a leitura sem acrescentar informação.
