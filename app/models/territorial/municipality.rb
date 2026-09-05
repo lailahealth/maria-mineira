@@ -1,3 +1,5 @@
+require "did_you_mean"
+
 module Territorial
   class Municipality < ApplicationRecord
     self.table_name = "territorial_municipalities"
@@ -43,6 +45,36 @@ module Territorial
 
     def self.normalize(query)
       query.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").strip.downcase
+    end
+
+    # Tolera erro de digitação de 1-2 letras (ex.: "Jaboticatuba" por "Jaboticatubas"),
+    # usada como último recurso pela detecção de localização no texto livre do chat
+    # (Territorial::LocationResolver), depois que exact_match já falhou. A distância
+    # aceita cresce com o tamanho do nome — nomes curtos toleram menos, para não
+    # confundir uma palavra comum de poucas letras com uma cidade. Só aceita quando
+    # há um único candidato mais próximo (sem empate), para não chutar entre duas
+    # cidades igualmente parecidas.
+    def self.fuzzy_match(query)
+      normalized = normalize(query)
+      return nil if normalized.blank?
+
+      by_distance = pluck(:id, :name)
+        .map { |id, name| [ id, DidYouMean::Levenshtein.distance(normalized, normalize(name)) ] }
+        .sort_by { |_, distance| distance }
+
+      best_id, best_distance = by_distance.first
+      return nil if best_distance > allowed_distance(normalized.length)
+      return nil if by_distance.second&.last == best_distance
+
+      find(best_id)
+    end
+
+    def self.allowed_distance(length)
+      case length
+      when 0..4 then 0
+      when 5..8 then 1
+      else 2
+      end
     end
   end
 end

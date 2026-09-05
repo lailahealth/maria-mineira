@@ -5,8 +5,9 @@ module Territorial
   # automática de localização dentro do texto livre do chat (#resolve_strict).
   #
   # #resolve_strict é deliberadamente rígida: só reconhece a mensagem inteira como
-  # localização quando ela é só um CEP ou bate exatamente com um nome de município —
-  # nunca por "contém", para não confundir "moro em Uberlândia, quais meus direitos?"
+  # localização quando ela é só um CEP, bate exatamente com um nome de município, ou
+  # tem 1-2 letras de diferença dele (erro de digitação — ver Municipality#fuzzy_match).
+  # Nunca por "contém", para não confundir "moro em Uberlândia, quais meus direitos?"
   # ou "tem muita formiga aqui" com um pedido de busca por região.
   module LocationResolver
     CEP_ONLY = /\A\d{5}-?\d{3}\z/
@@ -27,7 +28,7 @@ module Territorial
 
       return resolve_cep(trimmed.gsub(/\D/, "")) if CEP_ONLY.match?(trimmed)
 
-      municipality = Territorial::Municipality.exact_match(trimmed)
+      municipality = Territorial::Municipality.exact_match(trimmed) || Territorial::Municipality.fuzzy_match(trimmed)
       municipality ? { municipality: municipality } : {}
     end
 
