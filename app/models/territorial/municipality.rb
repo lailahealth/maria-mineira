@@ -23,11 +23,26 @@ module Territorial
     # mapa: ignora acento e caixa, tenta igualdade exata antes de cair para
     # "contém" (menor nome primeiro, para o parcial não puxar um município maior).
     def self.search_by_name(query)
-      normalized = query.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").strip.downcase
+      normalized = normalize(query)
       return nil if normalized.blank?
 
-      where("#{DEACCENT_SQL} = ?", normalized).first ||
+      exact_match(query) ||
         where("#{DEACCENT_SQL} LIKE ?", "%#{sanitize_sql_like(normalized)}%").order(Arel.sql("length(name)")).first
+    end
+
+    # Só a igualdade exata (sem o fallback "contém") — usada para reconhecer um
+    # nome de município dentro de uma mensagem livre do chat (Territorial::LocationResolver),
+    # onde a intenção é ambígua e um "contém" arriscaria confundir uma frase comum
+    # com o nome de uma cidade.
+    def self.exact_match(query)
+      normalized = normalize(query)
+      return nil if normalized.blank?
+
+      where("#{DEACCENT_SQL} = ?", normalized).first
+    end
+
+    def self.normalize(query)
+      query.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").strip.downcase
     end
   end
 end

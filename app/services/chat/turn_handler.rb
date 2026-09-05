@@ -119,6 +119,15 @@ module Chat
 
       say_user(text)
       warn_emergency_if_needed(text)
+
+      # Se ela digitar só uma cidade ou um CEP na própria conversa (em vez de usar o
+      # botão "Buscar serviço perto de você"), trata como localização em vez de
+      # tentar responder como se fosse uma pergunta — resolve_strict só reconhece
+      # quando a mensagem inteira é isso, para não confundir uma frase comum com
+      # nome de cidade (ver Territorial::LocationResolver).
+      location = Territorial::LocationResolver.resolve_strict(text)
+      return receive_location(**location) if location.present?
+
       result = Classification::Classifier.classify(text)
 
       if result.classified?
