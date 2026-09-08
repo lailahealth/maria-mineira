@@ -20,7 +20,7 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 
 # Paginação (listagens do CMS e do mapa) [https://github.com/ddnexus/pagy]
-gem "pagy", "~> 9.3"
+gem "pagy", "~> 43.6"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
