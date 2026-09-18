@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# Apaga TODOS os dados de "escuta digital" (Journey::Session, Journey::Event,
+# Journey::ChatTurn) usados pelo painel admin — um reset completo, não um
+# filtro por dado de teste (não existe essa distinção no banco hoje).
+
+require_relative "../config/environment"
+
+sessions_count = Journey::Session.count
+events_count = Journey::Event.count
+chat_turns_count = Journey::ChatTurn.count
+
+if sessions_count.zero? && events_count.zero? && chat_turns_count.zero?
+  puts "Nada para apagar — o painel já está zerado."
+  exit 0
+end
+
+puts "Isto vai apagar PERMANENTEMENTE do painel:"
+puts "  #{sessions_count} sessões"
+puts "  #{events_count} eventos"
+puts "  #{chat_turns_count} turnos de chat"
+print 'Digite "sim" para confirmar: '
+$stdout.flush
+
+resposta = $stdin.gets.to_s.strip.downcase
+
+unless resposta == "sim"
+  puts "Cancelado. Nada foi apagado."
+  exit 0
+end
+
+AnalyticsRecord.transaction do
+  Journey::ChatTurn.delete_all
+  Journey::Event.delete_all
+  Journey::Session.delete_all
+end
+
+puts "Pronto: painel zerado (#{sessions_count} sessões, #{events_count} eventos, #{chat_turns_count} turnos de chat apagados)."
