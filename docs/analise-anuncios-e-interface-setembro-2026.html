@@ -1,0 +1,590 @@
+<title>Análise: Anúncios, Métricas e Interface</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #f1f1f1;
+    --surface: #ffffff;
+    --surface-soft: #f7e9e3;
+    --border: #e8d3c8;
+    --text: #232323;
+    --text-muted: #6b5854;
+    --heading: #6f2233;
+    --accent: #bb4b35;
+    --accent-soft: #f1cfc4;
+    --tag-bg: #cb7979;
+    --tag-text: #ffffff;
+    --ok-bg: #dfe9dc;
+    --ok-text: #3c5e35;
+    --warn-bg: #f8e3c6;
+    --warn-text: #7a5518;
+
+    --font-display: "Zilla Slab", ui-serif, Georgia, serif;
+    --font-body: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1315;
+      --surface: #271a1c;
+      --surface-soft: #342224;
+      --border: #4a3236;
+      --text: #f2e8e5;
+      --text-muted: #c4a9a3;
+      --heading: #eba99b;
+      --accent: #e2846c;
+      --accent-soft: #432723;
+      --tag-bg: #a85f5f;
+      --tag-text: #fbeceb;
+      --ok-bg: #2a3a26;
+      --ok-text: #b7d2ac;
+      --warn-bg: #4a3820;
+      --warn-text: #f0c98a;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #1c1315;
+    --surface: #271a1c;
+    --surface-soft: #342224;
+    --border: #4a3236;
+    --text: #f2e8e5;
+    --text-muted: #c4a9a3;
+    --heading: #eba99b;
+    --accent: #e2846c;
+    --accent-soft: #432723;
+    --tag-bg: #a85f5f;
+    --tag-text: #fbeceb;
+    --ok-bg: #2a3a26;
+    --ok-text: #b7d2ac;
+    --warn-bg: #4a3820;
+    --warn-text: #f0c98a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 56px 24px 88px;
+  }
+
+  header.doc { margin-bottom: 36px; }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--heading);
+    margin-bottom: 18px;
+  }
+
+  .eyebrow .mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--heading);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 2.6rem);
+    color: var(--heading);
+    margin: 0 0 12px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .dek {
+    font-size: 1.08rem;
+    color: var(--text-muted);
+    max-width: 66ch;
+    margin: 0 0 20px;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 18px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+
+  .pill.status-warn { background: var(--warn-bg); color: var(--warn-text); }
+  .pill.status-done { background: var(--ok-bg); color: var(--ok-text); }
+  .pill.status-recommended { background: var(--tag-bg); color: var(--tag-text); }
+
+  .callout.info { background: var(--ok-bg); color: var(--ok-text); }
+
+  section.intro { margin-bottom: 32px; }
+  section.intro p { max-width: 70ch; }
+
+  .headline-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 24px 0 40px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+  }
+
+  .stat-card .num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.7rem;
+    color: var(--heading);
+    line-height: 1.1;
+  }
+
+  .stat-card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .stat-card.alert .num { color: var(--accent); }
+
+  .callout {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin: 0 0 40px;
+    font-size: 0.94rem;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .callout strong { color: inherit; }
+
+  h2.section-title {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 16px;
+  }
+
+  section.block { margin-bottom: 44px; }
+
+  h2.block-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--heading);
+    margin: 0 0 16px;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  article.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px 24px;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .card-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--accent-soft);
+    -webkit-text-stroke: 1.3px var(--accent);
+    line-height: 1;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  h3.card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .card p { margin: 0 0 8px; max-width: 68ch; }
+  .card p:last-child { margin-bottom: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 4px;
+    font-size: 0.88rem;
+  }
+
+  table caption {
+    text-align: left;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--heading);
+  }
+
+  ul.plain, ol.plain {
+    margin: 8px 0 0;
+    padding-left: 20px;
+  }
+
+  ul.plain li, ol.plain li { margin: 6px 0; max-width: 68ch; }
+
+  .limitations {
+    background: var(--surface-soft);
+    border-radius: 18px;
+    padding: 26px 28px;
+    margin-bottom: 40px;
+  }
+
+  .limitations h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--heading);
+    margin: 0 0 10px;
+  }
+
+  .limitations ul { margin: 0; padding-left: 20px; }
+  .limitations li { margin: 8px 0; max-width: 68ch; }
+
+  footer.doc {
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  a { color: var(--heading); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--surface-soft);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+
+  @media (max-width: 640px) {
+    .headline-stats { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 520px) {
+    .page { padding: 40px 18px 64px; }
+    article.card { padding: 18px 16px 20px; }
+    table { font-size: 0.8rem; }
+    th, td { padding: 7px 8px; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="doc">
+    <div class="eyebrow"><span class="mark">M</span> Maria Mineira · Tráfego pago &amp; interface</div>
+    <h1>Anúncios, Métricas e Interface</h1>
+    <p class="dek">
+      Leitura cruzada dos criativos e métricas do Meta Ads (08–17/09/2026) com o painel
+      administrativo do Maria Mineira, para entender quem clica no anúncio, por que a conversão
+      no chat é baixa, e o que ajustar na interface.
+    </p>
+    <div class="meta">
+      <span class="pill status-warn">Achado principal: funil de atribuição quebrado</span>
+      <span>Período: 08–18 de setembro de 2026</span>
+      <span>Fontes: Meta Ads Manager, Facebook Insights, Meta Business Suite, painel admin</span>
+    </div>
+  </header>
+
+  <div class="headline-stats">
+    <div class="stat-card">
+      <div class="num">4.155</div>
+      <div class="label">Cliques reportados pelo Meta (visualizações da página de destino)</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">194</div>
+      <div class="label">Sessões registradas no painel Maria Mineira (14 dias, todas as origens)</div>
+    </div>
+    <div class="stat-card alert">
+      <div class="num">1</div>
+      <div class="label">Dessas sessões com UTM de campanha identificado</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span>⚠️</span>
+    <span>
+      <strong>O maior problema encontrado não é de interface — é de instrumentação.</strong>
+      Só 1 das 194 sessões internas chegou com <code>utm_source</code>/<code>utm_campaign</code>.
+      Isso significa que, hoje, não dá para saber com precisão quem entrou pelo anúncio e não
+      converteu — o resto desta análise é a melhor leitura possível com os dados disponíveis,
+      mas parte das conclusões abaixo é inferência, não medição direta.
+    </span>
+  </div>
+
+  <div class="callout info">
+    <span>✓</span>
+    <span>
+      <strong>Atualização (anúncio "04", Meta Business Suite):</strong> um 4º anúncio, não visto
+      antes, explica quase todo o gasto que faltava — e corrige a leitura de público: ponderado
+      pelo volume real de cada anúncio (não pela média simples entre os 4), o público que clica é
+      cerca de <strong>67% mulheres</strong>, não majoritariamente homens como a leitura anterior
+      sugeria. Ver seções 1 e 2 abaixo para os números.
+    </span>
+  </div>
+
+  <section class="block">
+    <h2 class="block-title">1. Padrões nos criativos e no comportamento</h2>
+    <div class="cards">
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">01</span>
+          <h3 class="card-title">Engajamento é quase 100% de tráfego pago, não orgânico</h3>
+        </div>
+        <p>98,6% do engajamento e 99,9% das visualizações vêm de não seguidores; 98,6% do conteúdo consumido é do tipo "Link". Os posts publicados na mesma noite (07/09, 20:59–21:18) somam 0–1 engajamento cada por conta própria — o pouco engajamento que existe (136 reações, 3 comentários, 5 compartilhamentos em 28 dias) é reflexo quase puro da verba de mídia.</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">02</span>
+          <h3 class="card-title">Um anúncio concentra ~77% de todo o investimento</h3>
+        </div>
+        <table>
+          <caption>Os 4 anúncios individuais ativos no período (Gerenciador de Anúncios + Business Suite)</caption>
+          <thead>
+            <tr><th>Criativo</th><th>Público dominante</th><th class="num">Custo/visualização</th><th class="num">Gasto</th><th class="num">% do total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>"Nem sempre é fácil falar..." <span class="badge">anúncio 04</span></td><td>Mulheres (66,5%)</td><td class="num">R$ 0,20</td><td class="num">R$ 673,61</td><td class="num">76,7%</td></tr>
+            <tr><td>"Chegou a Maria Mineira"</td><td>Mulheres 45–65+ (67%)</td><td class="num">R$ 0,26</td><td class="num">R$ 142,78</td><td class="num">16,3%</td></tr>
+            <tr><td>"Se você precisasse de apoio hoje..."</td><td>Homens 18–34 (66%)</td><td class="num">R$ 0,20</td><td class="num">R$ 39,81</td><td class="num">4,5%</td></tr>
+            <tr><td>"Nem sempre é fácil falar..." (variante menor)</td><td>Homens 45–54 (66%)</td><td class="num">R$ 0,23</td><td class="num">R$ 22,29</td><td class="num">2,5%</td></tr>
+            <tr><td><strong>Total</strong></td><td>—</td><td class="num">—</td><td class="num"><strong>R$ 878,49</strong></td><td class="num"><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+        <p>Os 4 valores somam <strong>exatamente</strong> o total da campanha (R$ 878,49, visto na visão geral do conjunto) — confirma que faltava esse 4º anúncio na leitura anterior, que só tinha 3. Ele também responde por ~3.300 das 4.155 visualizações de página de destino da campanha (~79%). Duas linhas têm o mesmo texto de anúncio ("Nem sempre é fácil falar...") mas são objetos de anúncio distintos, com desempenho muito diferente — provavelmente uma variante de teste antiga e a versão que o Advantage+ passou a priorizar.</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">03</span>
+          <h3 class="card-title">Reels e Stories dominam o alcance — formato de rolagem rápida</h3>
+        </div>
+        <p>Do anúncio 04 (77% do investimento): CTR de <strong>6,41%</strong> (3.783 cliques em 59,1 mil visualizações) — bom para tráfego frio. Mas por posicionamento, o alcance é quase todo em formatos de rolagem passiva: Reels do Instagram (18.162), Reels do Facebook (7.882), Stories do Facebook (5.585), Status do WhatsApp (2.268), Feed do Facebook (1.695). Mais de 70% do alcance vem de Reels — clique fácil de dar rolando o feed, sem necessariamente parar para decidir buscar ajuda. É consistente com um CTR alto e uma taxa de escrita no chat baixíssima ao mesmo tempo.</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">04</span>
+          <h3 class="card-title">Anúncios reais não aparecem na tabela de campanhas do painel</h3>
+        </div>
+        <p>A única linha de "Campanhas e origem (UTM)" do painel é <code>instagram / teste_setembro / story_link</code>, com 1 sessão e 0 conversões — não corresponde a nenhum dos 4 anúncios ativos. Isso indica que as URLs de destino configuradas no Gerenciador de Anúncios provavelmente não levam <code>utm_source</code>/<code>utm_campaign</code>/<code>utm_content</code>, ou os parâmetros se perdem antes do primeiro carregamento da página. Com o anúncio 04 sozinho gerando ~3.300 visualizações de página de destino e o painel mostrando só 194 sessões no total (todas as origens, 14 dias), a lacuna de instrumentação é ainda maior do que a leitura anterior sugeria.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">2. Perfil provável de quem clicou</h2>
+    <div class="cards">
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">01</span>
+          <h3 class="card-title">Pelo anúncio, ponderado por volume: maioria é mulher</h3>
+        </div>
+        <p>Olhando anúncio por anúncio sem ponderar, 2 dos 4 pareciam majoritariamente masculinos — foi essa a leitura anterior. Mas somando pessoas reais (não anúncios) pelos 4: aprox. 2.664 mulheres e 1.329 homens visualizaram a página de destino (~67% / ~33%), porque o anúncio 04 — 77% de todo o investimento e majoritariamente feminino (66,5%) — domina o total. O público pago já é majoritariamente alinhado ao serviço; o segmento masculino jovem (~33%, puxado pelos 2 anúncios menores) é a parte que vale questionar, não a maioria.</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">02</span>
+          <h3 class="card-title">Pelo produto: quando alguém escreve, o motivo tende a ser legítimo</h3>
+        </div>
+        <table>
+          <caption>Principais motivos classificados no chat (todas as origens, 14 dias)</caption>
+          <thead><tr><th>Motivo</th><th class="num">Eventos</th></tr></thead>
+          <tbody>
+            <tr><td>Violência contra a mulher · Violência física</td><td class="num">9</td></tr>
+            <tr><td><span class="badge">Não classificado</span></td><td class="num">7</td></tr>
+            <tr><td>Violência contra a mulher · Violência psicológica</td><td class="num">6</td></tr>
+            <tr><td>Violência contra a mulher · Violência patrimonial</td><td class="num">6</td></tr>
+            <tr><td>Violência contra a mulher (geral)</td><td class="num">3</td></tr>
+            <tr><td>Direitos</td><td class="num">3</td></tr>
+            <tr><td>Serviços e equipamentos</td><td class="num">2</td></tr>
+            <tr><td>Políticas públicas</td><td class="num">1</td></tr>
+            <tr><td>Violência contra a mulher · Violência sexual</td><td class="num">1</td></tr>
+          </tbody>
+        </table>
+        <p>"Não classificado" é a 2ª categoria mais frequente (~18% dos eventos com motivo) — sinal de ambiguidade na primeira mensagem, não necessariamente de desinteresse.</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">03</span>
+          <h3 class="card-title">Horário de pico é atípico: meio-dia, não à noite</h3>
+        </div>
+        <p>Pico às 12h (40 sessões) e 11h (20) — muito acima de qualquer outro horário. Revelação de violência doméstica costuma concentrar-se à noite/fim de semana, quando há privacidade em casa. O padrão observado é mais compatível com cliques de curiosidade em horário comercial ou tráfego de teste da própria equipe (picos isolados em 13/09 e 18/09 merecem checagem manual).</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <span class="card-num">04</span>
+          <h3 class="card-title">Origem da conversa nunca é registrada individualmente</h3>
+        </div>
+        <p>Na tabela "Últimas conversas" do painel, a coluna Origem está vazia em 100% das linhas — mesmo quando a sessão tem UTM, o dado não é propagado para a conversa. Município identificado em só 13 das 194 sessões, concentrado em Belo Horizonte (5).</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">3. Hipóteses para a baixa conversão e engajamento</h2>
+    <ol class="plain">
+      <li><strong>Instrumentação quebrada é a hipótese mais provável — e mais forte após o anúncio 04.</strong> Sem UTM chegando corretamente, não dá para saber se a queda de 4.155 cliques → 194 sessões é real ou um artefato de medição. Um único anúncio (04) já respondia por ~3.300 dessas visualizações de página de destino; o painel mostrando só 194 sessões no total (todas as fontes, 14 dias) é dificilmente explicável só por baixo interesse.</li>
+      <li><strong>Formato de rolagem rápida (Reels/Stories) pode gerar cliques automáticos, não decisão consciente.</strong> Mais de 70% do alcance do anúncio 04 é Reels do Instagram/Facebook — clique fácil de dar sem parar para avaliar; CTR alto (6,41%) não implica intenção real de buscar ajuda.</li>
+      <li><strong>Fricção de navegação em página cheia.</strong> O clique no CTA da home navega para <code>/converse</code> como página inteira, não como widget inline — cada salto de página é um ponto a mais de abandono, especialmente em mobile com conexão instável.</li>
+      <li><strong>Sem evento "abriu o chat".</strong> O código não registra nenhum evento de jornada ao carregar <code>/converse</code> — só ao carregar a home e ao enviar a primeira mensagem. O funil interno pula direto de "sessão criada" para "escreveu mensagem", sem visibilidade de quantas pessoas abriram o chat e não digitaram nada.</li>
+      <li><strong>~18% de "não classificado" indica ambiguidade na primeira interação</strong>, seja por mensagens de teste/exploração, seja porque o classificador não cobre bem formas indiretas de pedir ajuda.</li>
+      <li><strong>Desalinhamento de público é uma hipótese mais fraca do que parecia.</strong> Ponderado por volume real, ~67% de quem clica é mulher — já razoavelmente alinhado ao serviço. Vale revisar só a fatia (~33%) puxada pelos 2 anúncios menores/masculinos, não a segmentação inteira.</li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">4. Recomendações práticas para a interface</h2>
+    <div class="cards">
+      <article class="card">
+        <div class="card-head">
+          <h3 class="card-title">Instrumentação (pré-requisito)</h3>
+          <span class="pill status-recommended">Fazer primeiro</span>
+        </div>
+        <ul class="plain">
+          <li>Registrar evento ao abrir <code>/converse</code>, separado do evento de primeira mensagem enviada.</li>
+          <li>Confirmar que as URLs de destino no Gerenciador de Anúncios incluem <code>utm_source</code>/<code>utm_campaign</code>/<code>utm_content</code> de fato.</li>
+          <li>Propagar a origem/UTM da sessão para cada conversa individual — hoje some no caminho.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="card-head"><h3 class="card-title">Reduzir fricção de entrada</h3></div>
+        <ul class="plain">
+          <li>Testar abrir o chat já com uma pergunta/estágio ativo, em vez da tela neutra de hero + CTA.</li>
+          <li>Avaliar apontar o anúncio direto para <code>/converse</code>, eliminando um salto de página.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="card-head"><h3 class="card-title">Confiança logo na entrada</h3></div>
+        <ul class="plain">
+          <li>Reforçar sinalização explícita de sigilo/anonimato acima da dobra, tanto na home quanto no início do chat.</li>
+          <li>Revisar o fluxo do primeiro turno para reduzir a fatia de "não classificado".</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="card-head"><h3 class="card-title">Segmentação de mídia (ajuste pontual, não overhaul)</h3></div>
+        <ul class="plain">
+          <li>O público pago já é ~67% mulheres — não é preciso reformular a segmentação inteira. Focar em avaliar/reduzir só os 2 anúncios menores puxados por público masculino jovem (~7% do investimento total).</li>
+          <li>Testar reduzir a dependência de Reels/Stories no anúncio 04 (ex. mais peso em Feed) para checar se a taxa "clicou → escreveu" muda com formatos de menor rolagem.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">5. Testes e experimentos sugeridos</h2>
+    <ol class="plain">
+      <li><strong>Auditoria de UTM</strong> nos links ativos do Gerenciador de Anúncios — antes de qualquer outro teste, já que sem isso nada abaixo é mensurável com confiança.</li>
+      <li><strong>Evento "chat aberto"</strong>: implementar e, após 1–2 semanas, comparar sessões → chat aberto → escreveram para localizar a maior perda.</li>
+      <li><strong>A/B no ponto de entrada</strong>: metade do tráfego pago para a home (fluxo atual) vs. metade direto para <code>/converse</code>.</li>
+      <li><strong>A/B de formato</strong>: variante do anúncio 04 com menos peso em Reels/Stories vs. a atual, para ver se a taxa "clicou → escreveu" melhora com formatos de rolagem mais lenta.</li>
+      <li><strong>Revisão qualitativa das conversas "não classificado"</strong> em tempo real (o texto da conversa não é retido, então não dá para reprocessar retroativamente).</li>
+      <li><strong>Checagem de tráfego de teste interno</strong> nos picos de 13/09 (26 sessões) e 18/09 (14), para não inflar a base usada nos experimentos acima.</li>
+    </ol>
+  </section>
+
+  <div class="limitations">
+    <h2>Limitações dos dados atuais</h2>
+    <ul>
+      <li>A atribuição campanha → comportamento no produto está quebrada (1 de 194 sessões com UTM) — a seção 2 combina dados agregados do Meta com uso geral do painel, não uma análise real de "quem clicou no anúncio especificamente".</li>
+      <li>Amostras pequenas: 38 eventos de motivo classificado e 13 sessões com município no período — qualquer distribuição tem margem de erro alta.</li>
+      <li>O perfil "67% mulheres / 33% homens" (seções 1 e 2) é estimado: o anúncio 04 só mostra percentuais de gênero, não contagem absoluta de pessoas como os outros 3 — a contagem foi reconstruída multiplicando o percentual pelas visualizações de página de destino (3.300). Direção do achado (maioria mulher) é sólida; o número exato tem margem de erro.</li>
+      <li>Não há como isolar tráfego de teste/equipe interna dos dados reais de usuário — os picos horários atípicos merecem checagem antes de virarem premissa de design.</li>
+      <li>O painel não mostra taxa de abandono nem tempo de permanência em <code>/converse</code> — faltam eventos client-side (scroll, tempo até primeira digitação, abandono antes de enviar) para diagnosticar fricção de UI de forma direta.</li>
+    </ul>
+  </div>
+
+  <footer class="doc">
+    <span>Maria Mineira — análise de tráfego pago e interface</span>
+    <span>Fontes: Meta Ads Manager · Facebook Insights · Meta Business Suite · Painel admin (08–18/09/2026)</span>
+  </footer>
+
+</div>
