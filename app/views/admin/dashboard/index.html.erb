@@ -32,8 +32,8 @@
   <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Campanhas e origem (UTM)</p>
   <p class="mt-1 text-xs text-presenca/60">
     Sessões anônimas que chegaram por link com <code>utm_source</code> (plataforma), <code>utm_campaign</code>
-    (campanha) e <code>utm_content</code> (conteúdo). Primeiro toque: o UTM é gravado só na primeira visita
-    de cada sessão. Ex.: <code>mariamineiramg.com.br/converse?utm_source=instagram&amp;utm_campaign=agosto_lilas&amp;utm_content=story</code>
+    (campanha) e <code>utm_content</code> (conteúdo). Último toque: cada nova chegada com UTM atualiza a
+    origem da sessão. Ex.: <code>mariamineiramg.com.br/converse?utm_source=instagram&amp;utm_campaign=agosto_lilas&amp;utm_content=story</code>
   </p>
 
   <% if @campaign_rows.empty? %>
@@ -47,6 +47,7 @@
             <th class="py-2 pr-4">Campanha</th>
             <th class="py-2 pr-4">Conteúdo</th>
             <th class="py-2 pr-4 text-right">Sessões</th>
+            <th class="py-2 pr-4 text-right">Abriram o chat</th>
             <th class="py-2 pr-4 text-right">Escreveram no chat</th>
             <th class="py-2 pr-4 text-right">Buscaram serviço</th>
             <th class="py-2 text-right">Serviço encontrado</th>
@@ -59,6 +60,7 @@
               <td class="py-2 pr-4"><%= row[:campanha] %></td>
               <td class="py-2 pr-4 text-presenca/70"><%= row[:conteudo] %></td>
               <td class="py-2 pr-4 text-right font-semibold text-vinho"><%= row[:sessoes] %></td>
+              <td class="py-2 pr-4 text-right"><%= row[:abriram_chat] %></td>
               <td class="py-2 pr-4 text-right"><%= row[:escreveram] %></td>
               <td class="py-2 pr-4 text-right"><%= row[:buscaram] %></td>
               <td class="py-2 text-right"><%= row[:encontraram] %></td>

@@ -11,7 +11,8 @@ module Journey
       busca_servico: 2,
       resultado_busca: 3,
       chatbot: 4,
-      pagina_conteudo: 5
+      pagina_conteudo: 5,
+      chat_aberto: 6
     }
 
     enum :resultado, { encontrado: 0, nao_encontrado: 1 }, prefix: true, allow_nil: true

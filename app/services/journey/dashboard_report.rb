@@ -16,6 +16,7 @@ module Journey
       return [] if sessions.none?
 
       ids = sessions.ids
+      abriram_chat = session_ids_with_event(ids, :chat_aberto)
       escreveram = session_ids_with_event(ids, :motivo, :chatbot)
       buscaram = session_ids_with_event(ids, :busca_servico)
       encontraram = Event.resultado_busca.resultado_encontrado
@@ -30,6 +31,7 @@ module Journey
             campanha: campanha || "—",
             conteudo: conteudo || "—",
             sessoes: group_ids.size,
+            abriram_chat: group_ids.count { |id| abriram_chat.include?(id) },
             escreveram: group_ids.count { |id| escreveram.include?(id) },
             buscaram: group_ids.count { |id| buscaram.include?(id) },
             encontraram: group_ids.count { |id| encontraram.include?(id) }

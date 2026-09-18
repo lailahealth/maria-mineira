@@ -31,11 +31,18 @@ class ApplicationController < ActionController::Base
 
   # Entrada 1 (origem por conteúdo — seção 1 do parecer técnico): quando a pessoa
   # navega por uma página de conteúdo, registramos o tema como tag_origem (só na
-  # primeira vez, para manter o "primeiro toque") e sempre um Journey::Event de
-  # página consultada, independentemente de já haver origem definida.
+  # primeira vez, para manter o "primeiro toque" de conteúdo) e sempre um
+  # Journey::Event de página consultada, independentemente de já haver origem
+  # definida. (A campanha/UTM em si é por último toque — ver find_or_create_journey_session.)
   def record_content_origin(page)
     tag, subtag = page.taxonomy_tag&.origin_pair || [ nil, nil ]
+    track_page_view(tag: tag, subtag: subtag)
+  end
 
+  # Registra a visita em páginas sem taxonomia própria (home, institucionais) —
+  # sem tag/subtag, só garante que a sessão e o Journey::Event de página consultada
+  # existam, para o anúncio/campanha que aponta pra elas não ficar invisível no painel.
+  def track_page_view(tag: nil, subtag: nil)
     session = current_journey_session
     if session.tag_origem.blank? && tag.present?
       session.update!(tag_origem: tag, subtag_origem: subtag)
@@ -49,12 +56,22 @@ class ApplicationController < ActionController::Base
     session = id.present? ? Journey::Session.find_by(id: id) : nil
     session ||= Journey::Session.create!(
       started_at: Time.current,
-      plataforma_origem: params[:utm_source],
-      campanha: params[:utm_campaign],
-      conteudo_origem: params[:utm_content],
       pagina_entrada: request.fullpath
     )
+    update_journey_session_utm(session)
     cookies.signed[:journey_session_id] = { value: session.id, expires: 30.days, httponly: true, same_site: :lax }
     session
+  end
+
+  # Atribuição por último toque: toda chegada com utm_* reescreve a origem da
+  # sessão, mesmo que ela já tivesse uma campanha diferente antes.
+  def update_journey_session_utm(session)
+    return if params[:utm_source].blank? && params[:utm_campaign].blank? && params[:utm_content].blank?
+
+    session.update!(
+      plataforma_origem: params[:utm_source],
+      campanha: params[:utm_campaign],
+      conteudo_origem: params[:utm_content]
+    )
   end
 end
