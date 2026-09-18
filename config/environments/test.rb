@@ -50,4 +50,12 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Chaves fixas só para teste (geradas com bin/rails db:encryption:init, sem relação
+  # com as de produção) — sem isso, qualquer teste que toque coluna criptografada
+  # (ex. Chat::Message#body) falha em CI, que não recebe RAILS_MASTER_KEY no job
+  # "test" de propósito (não deveria precisar do segredo de produção para rodar).
+  config.active_record.encryption.primary_key = "GjVhi3yJ3I0g0fy9EsyAcv8jw0DDefFM"
+  config.active_record.encryption.deterministic_key = "XMoQIyrSBc8zd0CnXoCAaZrgOMAUTtPe"
+  config.active_record.encryption.key_derivation_salt = "0ZmZdL2cw7IexmsukkokeF5JmsIk7nFd"
 end
