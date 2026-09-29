@@ -28,7 +28,13 @@ module Chat
     def start!
       return unless @conversation.saudacao? && @conversation.messages.none?
 
-      say_assistant("Como a Maria Mineira pode te ajudar hoje? Pode escrever com suas próprias palavras.")
+      say_assistant(
+        "Oi, eu sou a Maria Mineira. Tem alguma situação no seu relacionamento, em casa ou na sua vida " \
+        "que está te preocupando, machucando ou deixando insegura? Mesmo que você não saiba se isso é " \
+        "violência, pode conversar comigo. Sua conversa é sigilosa, e eu estou preparada para te ajudar " \
+        "a entender o que está acontecendo e indicar caminhos e serviços onde você pode buscar ajuda em " \
+        "qualquer município de Minas Gerais. Conte, do seu jeito, o que está acontecendo."
+      )
       @conversation.update!(stage: :aguardando_motivo)
 
       return unless @journey_session.tag_origem.present?
