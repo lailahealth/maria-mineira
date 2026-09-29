@@ -7,10 +7,24 @@ module Chat
   # provedor/formato de chamada de Classification::LlmClassifier (Net::HTTP puro,
   # sem gem, mesma chave de API).
   #
-  # Sem chave de API configurada, ou se a API falhar, #answer sempre retorna nil
-  # e quem chama usa a mensagem canned de hoje — nunca quebra a conversa por
-  # falta de orçamento/provedor de IA (mesma filosofia do LlmClassifier).
+  # Sem chave de API configurada, ou se a API falhar, #answer sempre retorna um
+  # Answer sem texto e quem chama usa a mensagem canned de hoje — nunca quebra a
+  # conversa por falta de orçamento/provedor de IA (mesma filosofia do
+  # LlmClassifier). `failed?` distingue "a IA rodou e decidiu não responder" de
+  # "a chamada falhou de verdade" (API fora do ar, timeout, resposta malformada),
+  # para Chat::TurnHandler poder registrar isso como erro técnico em vez de
+  # confundir com uma mensagem simplesmente fora do escopo das cartilhas.
   class KnowledgeAnswerer
+    Answer = Struct.new(:text, :failed, keyword_init: true) do
+      def present?
+        text.present?
+      end
+
+      def failed?
+        failed
+      end
+    end
+
     ENDPOINT = URI("https://api.anthropic.com/v1/messages")
     MODEL = "claude-haiku-4-5-20251001"
     API_VERSION = "2023-06-01"
@@ -28,11 +42,11 @@ module Chat
     end
 
     def answer(text)
-      return nil unless self.class.configured?
-      return nil if text.blank?
+      return no_answer unless self.class.configured?
+      return no_answer if text.blank?
 
       response = post(build_body(text))
-      return nil unless response.is_a?(Net::HTTPSuccess)
+      return failed_answer unless response.is_a?(Net::HTTPSuccess)
 
       body = JSON.parse(response.body)
       content = body["content"]
@@ -40,13 +54,21 @@ module Chat
       answer = text_block&.fetch("text", nil).to_s.strip
       answer = truncate_to_last_sentence(answer) if body["stop_reason"] == "max_tokens"
       answer = strip_markdown(answer)
-      answer.presence
+      Answer.new(text: answer.presence, failed: false)
     rescue StandardError => e
       Rails.logger.warn("[Chat::KnowledgeAnswerer] falhou: #{e.class} #{e.message}")
-      nil
+      failed_answer
     end
 
     private
+
+    def no_answer
+      Answer.new(text: nil, failed: false)
+    end
+
+    def failed_answer
+      Answer.new(text: nil, failed: true)
+    end
 
     # A resposta veio cortada no limite de tokens (max_tokens) — melhor terminar na
     # última frase completa do que exibir uma frase pela metade no balão do chat.

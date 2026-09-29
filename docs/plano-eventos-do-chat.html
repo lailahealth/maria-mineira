@@ -1,0 +1,295 @@
+<title>Enxergando melhor o chat</title>
+<meta name="description" content="Resumo em linguagem simples do que estamos passando a acompanhar no chat da Maria Mineira, sem termos técnicos.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rosa:#cb7979; --terracota:#bb4b35; --vinho:#6f2233; --blush:#eac6b7; --offwhite:#f1f1f1; --presenca:#232323;
+
+    --bg:var(--offwhite);
+    --surface:#ffffff;
+    --surface-2:#f7f1ee;
+    --text:var(--presenca);
+    --text-muted:#655e59;
+    --border:#e3dad3;
+    --accent:var(--vinho);
+    --accent-2:var(--terracota);
+    --accent-soft:var(--blush);
+    --accent-soft-text:#5c2a1c;
+
+    --ok:#2f6b4f; --ok-bg:#e5f1ea; --ok-border:#bfdccb;
+    --warn:#8a5a0a; --warn-bg:#f8ecd8; --warn-border:#e8cd9e;
+
+    --radius:14px;
+    --shadow:0 1px 2px rgba(35,20,15,.06), 0 8px 24px -12px rgba(35,20,15,.18);
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1c1613; --surface:#241c19; --surface-2:#2c2220;
+      --text:#f1e8e3; --text-muted:#c3b3ab; --border:#3d302b;
+      --accent:var(--rosa); --accent-2:#e08a6f; --accent-soft:#3c2926; --accent-soft-text:#f0c9bb;
+      --ok:#7fd9ac; --ok-bg:#17281f; --ok-border:#2c5240;
+      --warn:#e7b768; --warn-bg:#332609; --warn-border:#5c4818;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1c1613; --surface:#241c19; --surface-2:#2c2220;
+    --text:#f1e8e3; --text-muted:#c3b3ab; --border:#3d302b;
+    --accent:var(--rosa); --accent-2:#e08a6f; --accent-soft:#3c2926; --accent-soft-text:#f0c9bb;
+    --ok:#7fd9ac; --ok-bg:#17281f; --ok-border:#2c5240;
+    --warn:#e7b768; --warn-bg:#332609; --warn-border:#5c4818;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Public Sans", system-ui, -apple-system, sans-serif;
+    line-height:1.6; padding-inline:16px; margin:0;
+  }
+  ::selection{ background:var(--accent-soft); color:var(--accent-soft-text); }
+
+  .wrap{ max-width:800px; margin:0 auto; padding-block:40px 80px; }
+
+  h1,h2,h3{ font-family:"Source Serif 4", Georgia, serif; font-weight:700; text-wrap:balance; margin:0; }
+  .eyebrow{
+    font-family:"Public Sans", sans-serif; font-size:13px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--accent-2); font-weight:700; margin:0 0 10px;
+  }
+  h1{ font-size:clamp(28px,5vw,40px); line-height:1.12; color:var(--text); }
+  .lede{ font-size:17px; color:var(--text-muted); max-width:64ch; margin:16px 0 0; }
+
+  header.page{ padding-bottom:28px; border-bottom:1px solid var(--border); margin-bottom:36px; }
+
+  section{ margin-block:44px; }
+  section > h2{ font-size:23px; margin-bottom:8px; }
+  section > .section-sub{ color:var(--text-muted); font-size:15px; max-width:66ch; margin:0 0 22px; }
+
+  p{ margin:0 0 14px; }
+  p:last-child{ margin-bottom:0; }
+
+  .cards{ display:flex; flex-direction:column; gap:12px; }
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 20px; box-shadow:var(--shadow); display:flex; gap:16px;
+  }
+  .card .idx{
+    font-family:"Source Serif 4",serif; font-weight:700; font-size:22px; color:var(--accent-2);
+    flex:none; width:30px;
+  }
+  .card b{ display:block; margin-bottom:4px; font-size:15.5px; }
+  .card p{ margin:0; color:var(--text-muted); font-size:14.5px; }
+
+  .compare{ display:grid; grid-template-columns:1fr; gap:12px; }
+  @media (min-width:620px){ .compare{ grid-template-columns:1fr 1fr; } }
+  .bubble{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 18px; box-shadow:var(--shadow);
+  }
+  .bubble .tag{
+    font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700;
+    color:var(--text-muted); margin-bottom:8px; display:block;
+  }
+  .bubble.depois{ border-color:var(--ok-border); background:var(--ok-bg); }
+  .bubble.depois .tag{ color:var(--ok); }
+  .bubble p{ margin:0; font-size:15px; }
+  .bubble mark{ background:var(--accent-soft); color:var(--accent-soft-text); padding:0 3px; border-radius:4px; }
+
+  .panel-cards{ display:grid; grid-template-columns:1fr; gap:12px; }
+  @media (min-width:620px){ .panel-cards{ grid-template-columns:1fr 1fr; } }
+  .panel-card{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .panel-card b{ display:block; margin-bottom:5px; font-size:14.5px; }
+  .panel-card p{ margin:0; color:var(--text-muted); font-size:14px; }
+
+  .note-box{
+    background:var(--accent-soft); color:var(--accent-soft-text); border-radius:var(--radius);
+    padding:18px 20px; font-size:15px;
+  }
+  .note-box b{ display:block; margin-bottom:6px; }
+
+  footer.page{
+    margin-top:56px; padding-top:20px; border-top:1px solid var(--border);
+    color:var(--text-muted); font-size:13px;
+  }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <p class="eyebrow">Maria Mineira · Melhoria interna · Setembro 2026</p>
+    <h1>Vendo com mais clareza o que acontece dentro do chat</h1>
+    <p class="lede">
+      Um resumo, sem termos técnicos, de uma melhoria que estamos fazendo para entender melhor
+      quem conversa com a Maria Mineira — e para onde direcionar os próximos esforços.
+    </p>
+  </header>
+
+  <section>
+    <h2>O problema, hoje</h2>
+    <p class="section-sub">O que já sabemos vs. o que ainda não conseguimos ver.</p>
+    <p>
+      Hoje já conseguimos ver, de forma agregada, quantas pessoas abrem o chat, quantas escrevem
+      e quantas chegam a buscar um serviço perto delas. Isso é bom, mas é uma visão de fora — como
+      olhar só o número de pessoas que entraram numa loja, sem saber se encontraram o que
+      procuravam.
+    </p>
+    <p>
+      O que ainda não sabemos, olhando só esses números, é: a pessoa só estava curiosa e foi
+      embora? Ela tentou pedir ajuda mas a Maria Mineira não entendeu o que ela quis dizer? A
+      resposta que ela recebeu foi realmente útil, ou só uma mensagem genérica de "ainda não sei
+      responder isso"? E se alguma coisa técnica falhou bem no momento em que alguém mais
+      precisava de uma resposta — isso hoje fica escondido, não aparece em lugar nenhum que a
+      equipe olhe no dia a dia.
+    </p>
+    <p>
+      É essa lacuna que a mudança descrita abaixo fecha.
+    </p>
+  </section>
+
+  <section>
+    <h2>O que vamos passar a enxergar</h2>
+    <p class="section-sub">Cinco situações que hoje são invisíveis e passam a ser registradas.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="idx">1</span>
+        <div>
+          <b>Quando alguém pede para buscar um serviço perto dela</b>
+          <p>
+            Hoje só sabemos quando a busca é concluída, ou seja, quando a pessoa já disse a
+            cidade dela. Vamos passar a saber também quando ela clica no botão de busca, mesmo
+            que desista antes de informar onde está — isso ajuda a entender se esse botão está
+            sendo encontrado e usado, ou se as pessoas desistem no meio do caminho.
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <span class="idx">2</span>
+        <div>
+          <b>Quando a busca não reconhece a cidade ou CEP digitado</b>
+          <p>
+            Antes, "não encontramos nada perto de você" podia significar duas coisas bem
+            diferentes: a cidade existe mas ainda não temos nenhum serviço cadastrado lá, ou a
+            Maria Mineira simplesmente não entendeu o nome da cidade ou o CEP digitado. Agora
+            essas duas situações aparecem separadas — uma é falta de cadastro, a outra é um
+            problema de reconhecer o que foi escrito.
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <span class="idx">3</span>
+        <div>
+          <b>Se a resposta foi útil, ou só um "ainda não sei responder isso"</b>
+          <p>
+            Cada resposta passa a ser marcada como: baseada em conteúdo de verdade das
+            cartilhas; sobre um assunto que reconhecemos mas ainda não temos um conteúdo pronto;
+            ou uma mensagem que não conseguimos entender — esse último caso é o sinal mais forte
+            de que a pessoa pode estar confusa, ou perguntando algo fora do que a Maria Mineira
+            cobre hoje.
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <span class="idx">4</span>
+        <div>
+          <b>Quando a inteligência artificial falha tecnicamente</b>
+          <p>
+            Se o serviço de inteligência artificial que gera as respostas ficar fora do ar ou
+            demorar demais para responder, isso vai aparecer separado das demais respostas, num
+            número visível para a equipe — hoje essa informação só fica registrada num arquivo
+            técnico que ninguém consulta no dia a dia.
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <span class="idx">5</span>
+        <div>
+          <b>Quando alguém some no meio da conversa, e em que ponto</b>
+          <p>
+            Vamos saber se a pessoa sumiu logo depois de ser cumprimentada, sem chegar a contar
+            o motivo; se pediu para buscar um serviço e não chegou a informar a cidade; ou se
+            recebeu uma resposta e simplesmente não voltou a escrever — este último caso costuma
+            ser um final tranquilo (ela só queria aquela resposta), não necessariamente um
+            problema.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Um ajuste na primeira mensagem do chat</h2>
+    <p class="section-sub">
+      A primeira mensagem da Maria Mineira também foi renovada nesta mesma frente: agora acolhe
+      quem ainda não sabe se o que vive é violência, reforça o sigilo da conversa, e deixa claro,
+      já de cara, que ela indica caminhos e serviços em <mark>qualquer município de Minas
+      Gerais</mark> — reduzindo a dúvida de "será que funciona pra onde eu moro?".
+    </p>
+    <div class="compare">
+      <div class="bubble">
+        <span class="tag">Antes</span>
+        <p>"Como a Maria Mineira pode te ajudar hoje? Pode escrever com suas próprias palavras."</p>
+      </div>
+      <div class="bubble depois">
+        <span class="tag">Depois</span>
+        <p>"Oi, eu sou a Maria Mineira. Tem alguma situação no seu relacionamento, em casa ou na
+          sua vida que está te preocupando, machucando ou deixando insegura? Mesmo que você não
+          saiba se isso é violência, pode conversar comigo. Sua conversa é sigilosa, e eu estou
+          preparada para te ajudar a entender o que está acontecendo e indicar caminhos e
+          serviços onde você pode buscar ajuda em <mark>qualquer município de Minas
+          Gerais</mark>. Conte, do seu jeito, o que está acontecendo."</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>O que aparece de novo no painel interno</h2>
+    <p class="section-sub">Quatro novos quadros de leitura, junto dos que já existiam.</p>
+    <div class="panel-cards">
+      <div class="panel-card">
+        <b>Quadro "Qualidade das respostas"</b>
+        <p>Mostra, em números, quantas respostas vieram com conteúdo de verdade, quantas foram
+          genéricas, quantas mensagens não entendemos, e quantas vezes a inteligência artificial
+          falhou tecnicamente.</p>
+      </div>
+      <div class="panel-card">
+        <b>Quadro "Resultado das buscas"</b>
+        <p>Separa quantas buscas encontraram um serviço, quantas eram de um local conhecido mas
+          sem cobertura, e quantas nem chegaram a reconhecer a cidade ou CEP digitado.</p>
+      </div>
+      <div class="panel-card">
+        <b>Quadro "Conversas inacabadas"</b>
+        <p>Mostra em que ponto as pessoas param de escrever: logo após a saudação, depois de
+          pedir uma busca sem informar onde estão, ou depois de já terem recebido uma resposta.</p>
+      </div>
+      <div class="panel-card">
+        <b>Nova coluna na tabela de campanhas</b>
+        <p>A tabela que já existia, com os números por campanha de divulgação (como uma
+          campanha no Instagram), ganha uma coluna a mais mostrando quantas pessoas pediram uma
+          busca por serviço.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="note-box">
+      <b>O que não muda</b>
+      A Maria Mineira continua sem guardar o conteúdo das conversas — o texto que cada pessoa
+      escreve nunca fica armazenado de forma permanente. Tudo o que foi descrito acima são
+      apenas contagens e categorias (por exemplo "recebeu uma resposta com conteúdo" ou "não
+      encontramos a cidade"), nunca a frase exata que alguém escreveu. É a mesma política de
+      privacidade de sempre, só que agora com mais detalhe sobre o que está funcionando bem e o
+      que precisa de atenção.
+    </div>
+  </section>
+
+  <footer class="page">
+    Documento de acompanhamento interno da Maria Mineira, sobre a ampliação do registro de
+    eventos do chat implementada em setembro de 2026.
+  </footer>
+</div>

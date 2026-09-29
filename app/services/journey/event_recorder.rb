@@ -11,7 +11,7 @@ module Journey
     end
 
     def record(event_type:, tag: nil, subtag: nil, municipality_ibge_code: nil, categoria_servico: nil,
-               equipamento_indicado: nil, resultado: nil, distancia_aproximada_km: nil)
+               equipamento_indicado: nil, resultado: nil, distancia_aproximada_km: nil, qualidade_resposta: nil)
       Journey::Event.create!(
         session: @session,
         event_type: event_type,
@@ -22,7 +22,8 @@ module Journey
         equipamento_indicado_id: equipamento_indicado&.id,
         equipamento_indicado_nome: equipamento_indicado&.name,
         resultado: resultado,
-        distancia_aproximada_km: distancia_aproximada_km
+        distancia_aproximada_km: distancia_aproximada_km,
+        qualidade_resposta: qualidade_resposta
       )
     end
   end

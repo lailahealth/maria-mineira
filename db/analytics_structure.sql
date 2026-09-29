@@ -74,7 +74,8 @@ CREATE TABLE public.journey_events (
     equipamento_indicado_nome character varying,
     resultado integer,
     distancia_aproximada_km double precision,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    qualidade_resposta integer
 );
 
 
@@ -238,6 +239,7 @@ ALTER TABLE ONLY public.journey_chat_turns
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260923200008'),
 ('20260813143657'),
 ('20260813143656'),
 ('20260813143655');

@@ -40,7 +40,7 @@
     <p class="mt-4 text-sm text-presenca/70">Nenhuma sessão com UTM registrada ainda.</p>
   <% else %>
     <div class="mt-4 overflow-x-auto">
-      <table class="w-full min-w-[640px] text-left text-sm">
+      <table class="w-full min-w-[760px] text-left text-sm">
         <thead>
           <tr class="border-b border-blush text-xs font-semibold uppercase tracking-wide text-presenca/60">
             <th class="py-2 pr-4">Plataforma</th>
@@ -49,6 +49,7 @@
             <th class="py-2 pr-4 text-right">Sessões</th>
             <th class="py-2 pr-4 text-right">Abriram o chat</th>
             <th class="py-2 pr-4 text-right">Escreveram no chat</th>
+            <th class="py-2 pr-4 text-right">Pediram busca</th>
             <th class="py-2 pr-4 text-right">Buscaram serviço</th>
             <th class="py-2 text-right">Serviço encontrado</th>
           </tr>
@@ -62,6 +63,7 @@
               <td class="py-2 pr-4 text-right font-semibold text-vinho"><%= row[:sessoes] %></td>
               <td class="py-2 pr-4 text-right"><%= row[:abriram_chat] %></td>
               <td class="py-2 pr-4 text-right"><%= row[:escreveram] %></td>
+              <td class="py-2 pr-4 text-right"><%= row[:pediram_busca] %></td>
               <td class="py-2 pr-4 text-right"><%= row[:buscaram] %></td>
               <td class="py-2 text-right"><%= row[:encontraram] %></td>
             </tr>
@@ -106,6 +108,82 @@
       <% end %>
     </ul>
   </div>
+</div>
+
+<div class="mt-10 grid gap-6 lg:grid-cols-2">
+  <div class="rounded-2xl border border-blush bg-white p-6">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Qualidade das respostas</p>
+    <p class="mt-1 text-xs text-presenca/60">
+      O que a Maria Mineira entregou nas mensagens de motivo/texto livre — inclui falhas técnicas da IA de resposta.
+    </p>
+    <% qualidade_total = @qualidade_respostas.values.sum %>
+    <ul class="mt-4 space-y-2 text-sm">
+      <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+        <span>Respondida com conteúdo das cartilhas</span>
+        <span class="font-semibold text-vinho"><%= @qualidade_respostas[:com_conteudo] %></span>
+      </li>
+      <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+        <span>Identificamos o assunto, sem conteúdo pronto</span>
+        <span class="font-semibold text-vinho"><%= @qualidade_respostas[:fallback_classificado] %></span>
+      </li>
+      <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+        <span>Não entendemos a mensagem</span>
+        <span class="font-semibold text-vinho"><%= @qualidade_respostas[:nao_classificado] %></span>
+      </li>
+      <li class="flex items-center justify-between gap-3 pb-2">
+        <span class="text-terracota">Erro técnico da IA de resposta</span>
+        <span class="font-semibold text-terracota"><%= @qualidade_respostas[:erro_tecnico] %></span>
+      </li>
+    </ul>
+    <% if qualidade_total.zero? %>
+      <p class="mt-4 text-sm text-presenca/70">Nenhuma resposta registrada ainda.</p>
+    <% end %>
+  </div>
+
+  <div class="rounded-2xl border border-blush bg-white p-6">
+    <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Resultado das buscas</p>
+    <p class="mt-1 text-xs text-presenca/60">
+      Toda vez que alguém tentou buscar um serviço perto de si, com o desfecho dessa tentativa.
+    </p>
+    <% resultado_total = @resultados_busca.values.sum %>
+    <ul class="mt-4 space-y-2 text-sm">
+      <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+        <span>Encontrou um serviço</span>
+        <span class="font-semibold text-vinho"><%= @resultados_busca[:encontrado] %></span>
+      </li>
+      <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+        <span>Reconhecemos o local, mas sem serviço cadastrado ali</span>
+        <span class="font-semibold text-vinho"><%= @resultados_busca[:nao_encontrado] %></span>
+      </li>
+      <li class="flex items-center justify-between gap-3 pb-2">
+        <span>Não reconhecemos a cidade/CEP digitado</span>
+        <span class="font-semibold text-vinho"><%= @resultados_busca[:local_nao_reconhecido] %></span>
+      </li>
+    </ul>
+    <% if resultado_total.zero? %>
+      <p class="mt-4 text-sm text-presenca/70">Nenhuma busca registrada ainda.</p>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-10 rounded-2xl border border-blush bg-white p-6">
+  <p class="font-display text-sm font-semibold uppercase tracking-widest text-terracota">Conversas inacabadas</p>
+  <p class="mt-1 text-xs text-presenca/60">
+    Conversas encerradas por inatividade (1h), por ponto onde a pessoa parou de escrever — do maior sinal de
+    fricção (sumiu antes de contar o motivo) ao desfecho mais comum (recebeu resposta e não voltou).
+  </p>
+  <% if @conversas_inacabadas.empty? %>
+    <p class="mt-4 text-sm text-presenca/70">Nenhuma conversa inacabada registrada ainda.</p>
+  <% else %>
+    <ul class="mt-4 space-y-2 text-sm">
+      <% @conversas_inacabadas.each do |linha| %>
+        <li class="flex items-center justify-between gap-3 border-b border-blush/50 pb-2">
+          <span><%= linha[:estagio] %></span>
+          <span class="font-semibold text-vinho"><%= linha[:count] %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
 </div>
 
 <div class="mt-10 grid gap-6 lg:grid-cols-2">

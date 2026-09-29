@@ -52,10 +52,6 @@ module Chat
       warn_emergency_if_needed(text)
       result = Classification::Classifier.classify(text)
 
-      Journey::EventRecorder.record(
-        session: @journey_session, event_type: :motivo, tag: result.tag_slug, subtag: result.subtag_slug
-      )
-
       # Vai direto para o estágio livre em vez de forçar a localização: às vezes a
       # mulher só quer tirar uma dúvida, não buscar um serviço. A busca por
       # proximidade fica disponível a qualquer momento pelo botão "Buscar serviço
@@ -63,7 +59,11 @@ module Chat
       # obrigatório.
       @conversation.update!(context_tag: result.tag_slug, service_category: unambiguous_category_for(result), stage: :livre)
 
-      say_answer_or_fallback(text, result)
+      qualidade = say_answer_or_fallback(text, result)
+      Journey::EventRecorder.record(
+        session: @journey_session, event_type: :motivo, tag: result.tag_slug, subtag: result.subtag_slug,
+        qualidade_resposta: qualidade
+      )
       say_assistant(
         "Quando quiser, posso procurar um serviço perto de você — é só clicar em " \
         "\"Buscar serviço perto de você\", aqui embaixo.",
@@ -73,9 +73,16 @@ module Chat
 
     # Acionado pelo botão "Buscar serviço perto de você" do composer (disponível a
     # qualquer momento na conversa livre) — não é mais um passo forçado logo após o
-    # motivo, para não interromper quem só quer conversar/tirar dúvidas.
+    # motivo, para não interromper quem só quer conversar/tirar dúvidas. Registra a
+    # intenção de busca já aqui, separada de Journey::Event.busca_servico (só gravado
+    # quando a localização é de fato informada) — a diferença entre os dois é quem
+    # clicou e desistiu no meio, sem dizer cidade nem CEP.
     def request_location
       @conversation.update!(stage: :aguardando_localizacao)
+      Journey::EventRecorder.record(
+        session: @journey_session, event_type: :busca_solicitada,
+        categoria_servico: @conversation.service_category&.slug
+      )
       say_assistant("Claro! Me diga sua cidade, CEP, ou clique em \"Usar minha localização\".")
     end
 
@@ -98,7 +105,7 @@ module Chat
       )
       Journey::EventRecorder.record(
         session: @journey_session, event_type: :resultado_busca,
-        resultado: facilities.any? ? :encontrado : :nao_encontrado,
+        resultado: resultado_busca_para(municipality: municipality, lat: lat, facilities: facilities),
         municipality_ibge_code: municipality&.ibge_code,
         equipamento_indicado: facilities.first,
         distancia_aproximada_km: facilities.first&.distance_km
@@ -139,11 +146,14 @@ module Chat
       if result.classified?
         Journey::ChatTurn.create!(session: @journey_session, tag_chat: result.tag_slug, subtag_chat: result.subtag_slug)
       end
-      Journey::EventRecorder.record(session: @journey_session, event_type: :chatbot, tag: result.tag_slug, subtag: result.subtag_slug)
 
       @conversation.update!(stage: :livre)
 
-      say_answer_or_fallback(text, result)
+      qualidade = say_answer_or_fallback(text, result)
+      Journey::EventRecorder.record(
+        session: @journey_session, event_type: :chatbot, tag: result.tag_slug, subtag: result.subtag_slug,
+        qualidade_resposta: qualidade
+      )
     end
 
     private
@@ -152,24 +162,45 @@ module Chat
     # cai numa mensagem honesta quando a IA não está configurada/disponível ou não
     # tem uma resposta — usado tanto no motivo quanto no texto livre, para que a
     # primeira mensagem já receba uma resposta de verdade, não só um redirecionamento.
+    # Retorna o símbolo de Journey::Event.qualidade_resposta correspondente, para
+    # quem chama gravar junto do evento :motivo/:chatbot.
     def say_answer_or_fallback(text, result)
       answer = Chat::KnowledgeAnswerer.answer(text)
 
       if answer.present?
-        say_assistant(answer)
-      elsif result.classified?
+        say_assistant(answer.text)
+        return :com_conteudo
+      end
+
+      say_assistant(fallback_message(result))
+      return :erro_tecnico if answer.failed?
+
+      result.classified? ? :fallback_classificado : :nao_classificado
+    end
+
+    # Mesma mensagem de hoje independente do motivo da falta de resposta (falha
+    # técnica ou simplesmente sem conteúdo) — a pessoa não precisa saber qual dos
+    # dois aconteceu, só que a Maria Mineira ainda não tem uma resposta pronta;
+    # a distinção fica só nos bastidores, em qualidade_resposta.
+    def fallback_message(result)
+      if result.classified?
         label = matched_tag(result)&.label&.downcase
-        say_assistant(
-          "Percebi que isso tem a ver com #{label}. Ainda estou aprendendo a explicar esse assunto com mais " \
+        "Percebi que isso tem a ver com #{label}. Ainda estou aprendendo a explicar esse assunto com mais " \
           "profundidade — em breve vou trazer conteúdo completo sobre ele. Por enquanto, você pode conferir o " \
           "que já temos ou procurar um serviço de apoio."
-        )
       else
-        say_assistant(
-          "Ainda estou aprendendo a entender esse tipo de mensagem. Você pode tentar reformular, ou explorar os " \
+        "Ainda estou aprendendo a entender esse tipo de mensagem. Você pode tentar reformular, ou explorar os " \
           "conteúdos e serviços da Maria Mineira enquanto isso."
-        )
       end
+    end
+
+    # local_nao_reconhecido quando a cidade/CEP digitado não foi reconhecido (nem
+    # município nem lat/lng) — diferente de nao_encontrado, onde o local é conhecido
+    # mas não há equipamento cadastrado ali (ver Journey::Event#resultado).
+    def resultado_busca_para(municipality:, lat:, facilities:)
+      return :local_nao_reconhecido if municipality.nil? && lat.nil?
+
+      facilities.any? ? :encontrado : :nao_encontrado
     end
 
     # Mostra o direcionamento de emergência no máximo uma vez por conversa — repetir

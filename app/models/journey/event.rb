@@ -12,10 +12,25 @@ module Journey
       resultado_busca: 3,
       chatbot: 4,
       pagina_conteudo: 5,
-      chat_aberto: 6
+      chat_aberto: 6,
+      busca_solicitada: 7,
+      conversa_inacabada: 8
     }
 
-    enum :resultado, { encontrado: 0, nao_encontrado: 1 }, prefix: true, allow_nil: true
+    # local_nao_reconhecido: a busca foi tentada mas a cidade/CEP digitado não foi
+    # reconhecido (diferente de nao_encontrado, onde o local é conhecido mas não há
+    # equipamento cadastrado ali) — ver Chat::TurnHandler#receive_location.
+    enum :resultado, { encontrado: 0, nao_encontrado: 1, local_nao_reconhecido: 2 }, prefix: true, allow_nil: true
+
+    # O que a resposta da Maria Mineira entregou num evento :motivo/:chatbot — a
+    # distinção entre "não entendemos a mensagem" e "a IA falhou tecnicamente" é o
+    # sinal de erro que falta hoje (ver Chat::KnowledgeAnswerer::Answer).
+    enum :qualidade_resposta, {
+      com_conteudo: 0,
+      fallback_classificado: 1,
+      nao_classificado: 2,
+      erro_tecnico: 3
+    }, prefix: true, allow_nil: true
 
     belongs_to :session, class_name: "Journey::Session", foreign_key: :journey_session_id
 

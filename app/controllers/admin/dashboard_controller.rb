@@ -25,6 +25,9 @@ module Admin
       @top_motivos = report.top_motivos
       @top_municipios = report.top_municipios
       @recent_conversas = report.recent_conversas
+      @resultados_busca = report.resultados_busca
+      @qualidade_respostas = report.qualidade_respostas
+      @conversas_inacabadas = report.conversas_inacabadas
     end
   end
 end

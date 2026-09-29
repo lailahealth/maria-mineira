@@ -11,6 +11,16 @@ module Journey
     TOP_N = 10
     RECENT_LIMIT = 25
 
+    # Rótulo legível para o estágio (Chat::Conversation#stage) em que uma conversa
+    # expurgada parou — ver #conversas_inacabadas.
+    STAGE_LABELS = {
+      "saudacao" => "Abriu o chat, sem chegar a ser cumprimentada",
+      "aguardando_motivo" => "Foi cumprimentada e não respondeu",
+      "aguardando_localizacao" => "Pediu busca e não informou cidade/CEP",
+      "apresentando_resultado" => "Recebeu o resultado da busca e não voltou",
+      "livre" => "Recebeu uma resposta e não voltou a escrever"
+    }.freeze
+
     def campaigns
       sessions = Session.where.not(plataforma_origem: [ nil, "" ])
       return [] if sessions.none?
@@ -18,6 +28,7 @@ module Journey
       ids = sessions.ids
       abriram_chat = session_ids_with_event(ids, :chat_aberto)
       escreveram = session_ids_with_event(ids, :motivo, :chatbot)
+      pediram_busca = session_ids_with_event(ids, :busca_solicitada)
       buscaram = session_ids_with_event(ids, :busca_servico)
       encontraram = Event.resultado_busca.resultado_encontrado
         .where(journey_session_id: ids).distinct.pluck(:journey_session_id).to_set
@@ -33,6 +44,7 @@ module Journey
             sessoes: group_ids.size,
             abriram_chat: group_ids.count { |id| abriram_chat.include?(id) },
             escreveram: group_ids.count { |id| escreveram.include?(id) },
+            pediram_busca: group_ids.count { |id| pediram_busca.include?(id) },
             buscaram: group_ids.count { |id| buscaram.include?(id) },
             encontraram: group_ids.count { |id| encontraram.include?(id) }
           }
@@ -113,6 +125,41 @@ module Journey
           origem: session_origem(session)
         }
       end
+    end
+
+    # Resultado das tentativas de busca por serviço: achou equipamento, não achou
+    # (local reconhecido, sem cobertura ali) ou não reconheceu a cidade/CEP digitado
+    # (ver Journey::Event#resultado).
+    def resultados_busca
+      base = Event.resultado_busca
+      {
+        encontrado: base.resultado_encontrado.count,
+        nao_encontrado: base.resultado_nao_encontrado.count,
+        local_nao_reconhecido: base.resultado_local_nao_reconhecido.count
+      }
+    end
+
+    # Qualidade das respostas dadas nos eventos :motivo/:chatbot: resposta com
+    # conteúdo das cartilhas, resposta genérica (assunto identificado mas sem
+    # conteúdo pronto), mensagem não compreendida (sinal de confusão/fora do
+    # escopo), ou falha técnica da IA de resposta (Chat::KnowledgeAnswerer).
+    def qualidade_respostas
+      base = Event.where(event_type: [ :motivo, :chatbot ])
+      {
+        com_conteudo: base.qualidade_resposta_com_conteudo.count,
+        fallback_classificado: base.qualidade_resposta_fallback_classificado.count,
+        nao_classificado: base.qualidade_resposta_nao_classificado.count,
+        erro_tecnico: base.qualidade_resposta_erro_tecnico.count
+      }
+    end
+
+    # Conversas expurgadas por inatividade (PurgeStaleChatMessagesJob), por estágio
+    # em que pararam — do maior sinal de fricção (nunca chegou a contar o motivo) ao
+    # desfecho mais comum (recebeu resposta/resultado e não voltou).
+    def conversas_inacabadas
+      Event.conversa_inacabada.group(:tag).count
+        .map { |stage, count| { estagio: STAGE_LABELS[stage] || stage, count: count } }
+        .sort_by { |row| -row[:count] }
     end
 
     private
