@@ -1,4 +1,4 @@
-<header data-controller="nav" class="sticky top-0 z-40 border-b border-blush bg-offwhite/95 backdrop-blur supports-[backdrop-filter]:bg-offwhite/80">
+<header data-controller="nav" class="<%= "hidden sm:block" if content_for?(:hide_header_on_mobile) %> sticky top-0 z-40 border-b border-blush bg-offwhite/95 backdrop-blur supports-[backdrop-filter]:bg-offwhite/80">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4">
     <%= link_to root_path, class: "shrink-0" do %>
       <%= image_tag "brand/lockup-horizontal-vinho.svg", alt: "Maria Mineira", class: "h-9 w-auto sm:h-10" %>

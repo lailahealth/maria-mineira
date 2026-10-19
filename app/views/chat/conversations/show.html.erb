@@ -1,8 +1,17 @@
 <% content_for :title, "Converse com a Maria Mineira" %>
+<%# No celular o cabeçalho do site sai para sobrar espaço acima do teclado; o link "‹" abaixo leva de volta ao início. %>
+<% content_for :hide_header_on_mobile, true %>
 
-<section class="mx-auto flex h-[calc(100vh-73px)] max-w-2xl flex-col px-0 sm:px-5">
+<section data-controller="chat-viewport"
+         class="mx-auto flex h-dvh max-w-2xl flex-col px-0 sm:h-[calc(100vh-73px)] sm:px-5">
   <div class="flex items-start justify-between gap-3 border-b border-blush bg-offwhite px-5 py-4 sm:rounded-t-3xl sm:border-x sm:border-t">
-    <div>
+    <%= link_to root_path, aria: { label: "Voltar ao início" },
+          class: "-ml-2 -my-1 shrink-0 rounded-full p-2 text-vinho hover:bg-blush/40 sm:hidden" do %>
+      <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+      </svg>
+    <% end %>
+    <div class="flex-1">
       <p class="font-display text-lg font-semibold text-vinho">Maria Mineira</p>
       <p class="text-xs text-presenca/60">Orientação e informação — não é um canal de denúncia.</p>
     </div>

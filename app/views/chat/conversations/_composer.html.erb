@@ -1,22 +1,24 @@
 <% case conversation.stage.to_sym %>
 <% when :aguardando_motivo %>
-  <%= form_with url: chat_messages_path, method: :post, class: "flex items-end gap-2" do |f| %>
+  <%= form_with url: chat_messages_path, method: :post, class: "flex items-end gap-2", data: { controller: "chat-composer" } do |f| %>
     <label class="sr-only" for="chat_body">Sua mensagem</label>
-    <%= f.text_area :body, id: "chat_body", rows: 1, required: true, autofocus: true,
+    <%= f.text_area :body, id: "chat_body", rows: 1, required: true, autofocus: true, enterkeyhint: "send",
+          data: { chat_composer_target: "input", action: "keydown->chat-composer#keydown beforeinput->chat-composer#beforeinput" },
           placeholder: "Escreva o que você está buscando…",
           class: "flex-1 resize-none rounded-2xl border border-blush bg-white px-4 py-2.5 text-sm text-presenca placeholder:text-presenca/40 focus:border-vinho focus:outline-none" %>
-    <%= f.submit "Enviar", data: { turbo_submits_with: "Enviando…" },
+    <%= f.submit "Enviar", data: { turbo_submits_with: "Enviando…", chat_composer_target: "submit" },
           class: "shrink-0 rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90 cursor-pointer disabled:opacity-60" %>
   <% end %>
 
 <% when :apresentando_resultado, :livre %>
   <div class="space-y-2">
-    <%= form_with url: chat_messages_path, method: :post, class: "flex items-end gap-2" do |f| %>
+    <%= form_with url: chat_messages_path, method: :post, class: "flex items-end gap-2", data: { controller: "chat-composer" } do |f| %>
       <label class="sr-only" for="chat_body">Sua mensagem</label>
-      <%= f.text_area :body, id: "chat_body", rows: 1, required: true, autofocus: true,
+      <%= f.text_area :body, id: "chat_body", rows: 1, required: true, autofocus: true, enterkeyhint: "send",
+            data: { chat_composer_target: "input", action: "keydown->chat-composer#keydown beforeinput->chat-composer#beforeinput" },
             placeholder: "Continue a conversa…",
             class: "flex-1 resize-none rounded-2xl border border-blush bg-white px-4 py-2.5 text-sm text-presenca placeholder:text-presenca/40 focus:border-vinho focus:outline-none" %>
-      <%= f.submit "Enviar", data: { turbo_submits_with: "Enviando…" },
+      <%= f.submit "Enviar", data: { turbo_submits_with: "Enviando…", chat_composer_target: "submit" },
             class: "shrink-0 rounded-full bg-vinho px-5 py-2.5 text-sm font-semibold text-offwhite hover:bg-vinho/90 cursor-pointer disabled:opacity-60" %>
     <% end %>
 
@@ -51,7 +53,7 @@
           <option value="<%= name %>">
         <% end %>
       </datalist>
-      <%= f.submit "Enviar", data: { turbo_submits_with: "Enviando…" },
+      <%= f.submit "Enviar", data: { turbo_submits_with: "Enviando…", chat_composer_target: "submit" },
             class: "shrink-0 rounded-full border border-vinho px-5 py-2.5 text-sm font-semibold text-vinho hover:bg-vinho hover:text-offwhite cursor-pointer disabled:opacity-60" %>
     <% end %>
 
