@@ -45,10 +45,12 @@ module Chat
       return no_answer unless self.class.configured?
       return no_answer if text.blank?
 
+      started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       response = post(build_body(text))
       return failed_answer unless response.is_a?(Net::HTTPSuccess)
 
       body = JSON.parse(response.body)
+      log_timing(started, body["usage"])
       content = body["content"]
       text_block = content&.find { |block| block["type"] == "text" }
       answer = text_block&.fetch("text", nil).to_s.strip
@@ -68,6 +70,18 @@ module Chat
 
     def failed_answer
       Answer.new(text: nil, failed: true)
+    end
+
+    # Para medir em produção se a demora vem de cache frio: cache_read alto e
+    # cache_creation zero é o caso rápido; o contrário é a base inteira sendo
+    # processada de novo.
+    def log_timing(started, usage)
+      elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
+      Rails.logger.info(
+        "[Chat::KnowledgeAnswerer] #{elapsed_ms}ms " \
+        "cache_read=#{usage&.dig("cache_read_input_tokens")} cache_creation=#{usage&.dig("cache_creation_input_tokens")} " \
+        "input=#{usage&.dig("input_tokens")} output=#{usage&.dig("output_tokens")}"
+      )
     end
 
     # A resposta veio cortada no limite de tokens (max_tokens) — melhor terminar na
@@ -108,7 +122,10 @@ module Chat
         temperature: 0.2,
         system: [
           { type: "text", text: persona_prompt },
-          { type: "text", text: knowledge_prompt, cache_control: { type: "ephemeral" } }
+          # 1h em vez dos 5 min padrão: com o tráfego de hoje, o cache de 5 min
+          # quase sempre expira entre uma conversa e outra, e cada mensagem pagava
+          # (em tempo e custo) o processamento das cartilhas inteiras de novo.
+          { type: "text", text: knowledge_prompt, cache_control: { type: "ephemeral", ttl: "1h" } }
         ],
         messages: [ { role: "user", content: text } ]
       }

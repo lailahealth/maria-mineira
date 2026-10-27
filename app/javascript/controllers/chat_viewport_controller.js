@@ -4,7 +4,9 @@ import { Controller } from "@hotwired/stimulus"
 // browser scrolls the whole page to reveal the focused field and the greeting
 // ends up above the screen. Here the chat section is sized to the visual
 // viewport (the space above the keyboard) and the page is kept at the top.
-// Desktop keeps the plain CSS height.
+// Desktop keeps the plain CSS height. Focus changes re-fit too: the composer is
+// swapped in by Turbo Streams with autofocus after each reply, and focusing it
+// could make the browser scroll the page away from the chat.
 export default class extends Controller {
   connect() {
     this.viewport = window.visualViewport
@@ -14,12 +16,14 @@ export default class extends Controller {
     this.fit = this.fit.bind(this)
     this.viewport.addEventListener("resize", this.fit)
     this.mobile.addEventListener("change", this.fit)
+    document.addEventListener("focusin", this.fit)
     this.fit()
   }
 
   disconnect() {
     this.viewport?.removeEventListener("resize", this.fit)
     this.mobile?.removeEventListener("change", this.fit)
+    document.removeEventListener("focusin", this.fit)
     this.element.style.height = ""
   }
 

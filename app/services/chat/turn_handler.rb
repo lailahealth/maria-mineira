@@ -50,7 +50,15 @@ module Chat
 
       say_user(text)
       warn_emergency_if_needed(text)
+
+      # A resposta das cartilhas (chamada à IA) e a classificação (que pode chamar a
+      # IA também, ver Classification::Classifier) não dependem uma da outra — em
+      # paralelo, a espera do primeiro relato é a mais lenta das duas, não a soma.
+      # Só o KnowledgeAnswerer vai para a thread: é HTTP puro, sem ActiveRecord, então
+      # não precisa de conexão própria do pool.
+      answer_thread = Thread.new { Chat::KnowledgeAnswerer.answer(text) }
       result = Classification::Classifier.classify(text)
+      answer = answer_thread.value
 
       # Vai direto para o estágio livre em vez de forçar a localização: às vezes a
       # mulher só quer tirar uma dúvida, não buscar um serviço. A busca por
@@ -59,14 +67,20 @@ module Chat
       # obrigatório.
       @conversation.update!(context_tag: result.tag_slug, service_category: unambiguous_category_for(result), stage: :livre)
 
-      qualidade = say_answer_or_fallback(text, result)
+      qualidade = say_answer_or_fallback(text, result, answer: answer)
       Journey::EventRecorder.record(
         session: @journey_session, event_type: :motivo, tag: result.tag_slug, subtag: result.subtag_slug,
         qualidade_resposta: qualidade
       )
+
+      # Se o relato já disse a cidade ("moro em Juiz de Fora e meu marido…"), mostra
+      # os serviços de uma vez, em vez de pedir uma localização que ela já deu.
+      location = Territorial::LocationResolver.extract(text).except(:remainder)
+      return receive_location(**location) if location.present?
+
       say_assistant(
         "Quando quiser, posso procurar um serviço perto de você — é só clicar em " \
-        "\"Buscar serviço perto de você\", aqui embaixo.",
+        "\"Buscar serviço perto de você\", aqui embaixo, ou me dizer em que cidade você está.",
         card_type: :location_prompt
       )
     end
@@ -83,7 +97,7 @@ module Chat
         session: @journey_session, event_type: :busca_solicitada,
         categoria_servico: @conversation.service_category&.slug
       )
-      say_assistant("Claro! Me diga sua cidade, CEP, ou clique em \"Usar minha localização\".")
+      say_assistant("Claro! Me diga em que cidade você está (ou seu CEP), ou clique em \"Usar minha localização\".")
     end
 
     # Desiste da busca por localização e volta para a conversa livre — a única porta
@@ -133,13 +147,17 @@ module Chat
       say_user(text)
       warn_emergency_if_needed(text)
 
-      # Se ela digitar só uma cidade ou um CEP na própria conversa (em vez de usar o
-      # botão "Buscar serviço perto de você"), trata como localização em vez de
-      # tentar responder como se fosse uma pergunta — resolve_strict só reconhece
-      # quando a mensagem inteira é isso, para não confundir uma frase comum com
-      # nome de cidade (ver Territorial::LocationResolver).
-      location = Territorial::LocationResolver.resolve_strict(text)
-      return receive_location(**location) if location.present?
+      # Se ela disser a cidade ou o CEP na própria conversa ("Estou em Juiz de Fora",
+      # em vez de usar o botão "Buscar serviço perto de você"), busca os serviços —
+      # ela não tem como saber que deveria digitar só o nome. Quando a mensagem
+      # também traz uma pergunta ("moro em Uberlândia, quais meus direitos?"),
+      # responde a pergunta e depois mostra os serviços. Ver
+      # Territorial::LocationResolver#extract para o que conta como localização.
+      location = Territorial::LocationResolver.extract(text)
+      if location.present?
+        remainder = location.delete(:remainder)
+        return receive_location(**location) unless question_left?(remainder)
+      end
 
       result = Classification::Classifier.classify(text)
 
@@ -154,19 +172,27 @@ module Chat
         session: @journey_session, event_type: :chatbot, tag: result.tag_slug, subtag: result.subtag_slug,
         qualidade_resposta: qualidade
       )
+
+      receive_location(**location) if location.present?
     end
 
     private
+
+    # O que sobra da mensagem depois de tirar a localização ainda é uma pergunta ou
+    # um relato? "oi," ou "tem delegacia?" não são — a lista de serviços já responde;
+    # "e ele me xinga" ou "quais meus direitos?" são.
+    def question_left?(remainder)
+      remainder.to_s.scan(/[a-z]+/).length >= 3
+    end
 
     # Responde com base nas cartilhas (Chat::KnowledgeAnswerer) sempre que possível;
     # cai numa mensagem honesta quando a IA não está configurada/disponível ou não
     # tem uma resposta — usado tanto no motivo quanto no texto livre, para que a
     # primeira mensagem já receba uma resposta de verdade, não só um redirecionamento.
     # Retorna o símbolo de Journey::Event.qualidade_resposta correspondente, para
-    # quem chama gravar junto do evento :motivo/:chatbot.
-    def say_answer_or_fallback(text, result)
-      answer = Chat::KnowledgeAnswerer.answer(text)
-
+    # quem chama gravar junto do evento :motivo/:chatbot. `answer` pode vir pronta
+    # de quem chama (receive_motivo a busca em paralelo com a classificação).
+    def say_answer_or_fallback(text, result, answer: Chat::KnowledgeAnswerer.answer(text))
       if answer.present?
         say_assistant(answer.text)
         return :com_conteudo

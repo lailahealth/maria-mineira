@@ -1,6 +1,8 @@
 <% content_for :title, "Converse com a Maria Mineira" %>
 <%# No celular o cabeçalho do site sai para sobrar espaço acima do teclado; o link "‹" abaixo leva de volta ao início. %>
 <% content_for :hide_header_on_mobile, true %>
+<%# O rodapé também sai: o chat ocupa a tela inteira (h-dvh), e com o rodapé embaixo o navegador às vezes rolava a página até ele ao abrir/fechar o teclado. %>
+<% content_for :hide_footer_on_mobile, true %>
 
 <section data-controller="chat-viewport"
          class="mx-auto flex h-dvh max-w-2xl flex-col px-0 sm:h-[calc(100vh-73px)] sm:px-5">

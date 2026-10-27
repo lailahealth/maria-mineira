@@ -101,27 +101,39 @@ module Journey
 
     # Últimas conversas: data/hora do :motivo, assunto e — se a pessoa chegou a
     # buscar um serviço — o município e a origem (campanha) da sessão.
+    #
+    # O município é o da primeira busca feita *naquela conversa* — entre esse
+    # :motivo e o próximo :motivo da mesma sessão. "Encerrar conversa" mantém a
+    # sessão, então associar por sessão dava a todas as conversas de uma pessoa a
+    # cidade da última busca dela.
     def recent_conversas
       events = Event.motivo.order(created_at: :desc).limit(RECENT_LIMIT).to_a
       return [] if events.empty?
 
       session_ids = events.map(&:journey_session_id)
       sessions = Session.where(id: session_ids).index_by(&:id)
-      municipio_by_session = Event.busca_servico
+      buscas_by_session = Event.busca_servico
         .where(journey_session_id: session_ids)
         .where.not(municipality_ibge_code: [ nil, "" ])
         .order(:created_at)
-        .pluck(:journey_session_id, :municipality_ibge_code)
-        .to_h
-      names = municipality_names(municipio_by_session.values)
+        .pluck(:journey_session_id, :created_at, :municipality_ibge_code)
+        .group_by(&:first)
+      motivos_by_session = Event.motivo.where(journey_session_id: session_ids)
+        .order(:created_at).pluck(:journey_session_id, :created_at)
+        .group_by(&:first).transform_values { |rows| rows.map(&:last) }
+      names = municipality_names(buscas_by_session.values.flatten(1).map(&:last))
       labels = tag_labels(events.flat_map { |e| [ e.tag, e.subtag ] })
 
       events.map do |event|
         session = sessions[event.journey_session_id]
+        next_motivo_at = motivos_by_session[event.journey_session_id].find { |at| at > event.created_at }
+        busca = buscas_by_session.fetch(event.journey_session_id, []).find do |_, at, _|
+          at >= event.created_at && (next_motivo_at.nil? || at < next_motivo_at)
+        end
         {
           at: event.created_at,
           motivo: motivo_label(event.tag, event.subtag, labels),
-          municipio: names[municipio_by_session[event.journey_session_id]],
+          municipio: names[busca&.last],
           origem: session_origem(session)
         }
       end
