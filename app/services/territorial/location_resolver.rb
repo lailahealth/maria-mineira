@@ -16,13 +16,23 @@ module Territorial
   # "minha cidade é"…), testando as palavras seguintes do trecho mais longo para o
   # mais curto. Ainda nunca por "contém" solto — e "estou em casa" ou "sou de
   # confiança" não viram busca porque "casa"/"confiança" não são município.
+  #
+  # Gatilho negado não conta: "não moro em BH, moro numa cidade pequena" buscava
+  # Belo Horizonte e mostrava os serviços de lá como "perto de você". Gatilhos mais
+  # soltos ("fica em", "é em", ou uma oração que é só ", em Itabira") só aceitam o
+  # nome exato do município, sem tolerância a erro de digitação.
   module LocationResolver
     CEP_ONLY = /\A\d{5}-?\d{3}\z/
     # CEP no meio de uma frase: com hífen, ou precedido de "cep" — 8 dígitos soltos
     # poderiam ser um telefone fixo.
     CEP_IN_TEXT = /(?:\bcep\D{0,5}(\d{5}-?\d{3})|\b(\d{5}-\d{3}))\b/
-    # Aplicado ao texto já normalizado (minúsculo, sem acento).
-    LOCATION_TRIGGER = /\b(?:estou|esto|to|tou|moro|vivo|resido|fico|sou|aqui|cidade|municipio|cidade e|municipio e)\s+(?:em|no|na|de|do|da|e)\s+/
+    # Aplicados ao texto já normalizado (minúsculo, sem acento).
+    LOCATION_TRIGGER = /\b(?:estou|esto|to|tou|estamos|moro|mora|moram|moramos|morava|moravamos|morei|moradora|morador|vivo|vive|vivemos|vivia|resido|reside|fico|sou|somos|aqui|cidade|municipio|cidade e|municipio e)\s+(?:em|no|na|de|do|da|e)\s+/
+    LOOSE_TRIGGER = /\b(?:fica|ficam|ficamos|e)\s+(?:em|no|na|de|do|da)\s+/
+    # Oração que é só a cidade, com palavras de enchimento antes: "…, em Itabira",
+    # "na verdade é Itabira", "é em Itabira".
+    CLAUSE_FILLER = /\A(?:(?:mas|na verdade|e|em|no|na|so|sim|ok|entao)\s+)+/
+    NEGATION = /\b(?:nao|nem|nunca)\s+(?:\S+\s+)?\z/
     STATE_SUFFIX = /[\s,\-\/]*\b(?:mg|minas gerais|minas)\s*[.!?]*\s*\z/i
     MAX_NAME_WORDS = 6
     ALIASES = { "bh" => "belo horizonte", "jf" => "juiz de fora" }.freeze
@@ -53,17 +63,10 @@ module Territorial
       end
 
       normalized = Territorial::Municipality.normalize(text)
-      normalized.to_enum(:scan, LOCATION_TRIGGER).each do
-        match = Regexp.last_match
-        found = municipality_at_start_of(normalized[match.end(0)..])
-        next unless found
-
-        municipality, consumed = found
-        remainder = normalized[0...match.begin(0)] + " " + normalized[(match.end(0) + consumed)..]
-        return { municipality: municipality, remainder: remainder.sub(STATE_SUFFIX, "").squish }
-      end
-
-      {}
+      after_trigger(normalized, LOCATION_TRIGGER, fuzzy: true) ||
+        after_trigger(normalized, LOOSE_TRIGGER, fuzzy: false) ||
+        clause_with_only_the_city(normalized) ||
+        {}
     end
 
     def self.resolve_strict(text)
@@ -88,17 +91,51 @@ module Territorial
 
       geocoded ? { lat: geocoded.latitude, lng: geocoded.longitude, municipality: municipality } : { municipality: municipality }
     end
+
+    def self.after_trigger(normalized, trigger, fuzzy:)
+      normalized.to_enum(:scan, trigger).each do
+        match = Regexp.last_match
+        next if NEGATION.match?(normalized[0...match.begin(0)])
+
+        found = municipality_at_start_of(normalized[match.end(0)..], fuzzy: fuzzy)
+        next unless found
+
+        municipality, consumed = found
+        # Gatilho solto só vale se a cidade fecha a oração: "é de Luz" sim,
+        # "ele é de luz apagada" não.
+        next if !fuzzy && !normalized[(match.end(0) + consumed)..].match?(/\A\s*(?:[,;.!?]|\z|(?:mg|minas)\b)/)
+        remainder = normalized[0...match.begin(0)] + " " + normalized[(match.end(0) + consumed)..]
+        return { municipality: municipality, remainder: remainder.sub(STATE_SUFFIX, "").squish }
+      end
+
+      nil
+    end
+
+    def self.clause_with_only_the_city(normalized)
+      clauses = normalized.split(/[,;.!?]/)
+      clauses.each_with_index do |clause, index|
+        candidate = clause.sub(STATE_SUFFIX, "").strip.sub(CLAUSE_FILLER, "")
+        municipality = Territorial::Municipality.exact_match(ALIASES.fetch(candidate, candidate))
+        next unless municipality
+
+        remainder = (clauses[0...index] + clauses[(index + 1)..]).join(" ")
+        return { municipality: municipality, remainder: remainder.squish }
+      end
+
+      nil
+    end
+
     # Testa as primeiras palavras depois do gatilho, da janela mais longa para a
     # mais curta ("juiz de fora e ele" → "juiz de fora e" → "juiz de fora" ✓), para
     # casar nomes compostos sem engolir o resto da frase. Todas as janelas passam
     # pela igualdade exata antes da tolerância a erro de digitação — senão
     # "juiz de fora e" (2 letras a mais) casaria antes de "juiz de fora".
     # Devolve o município e quantos caracteres do trecho ele ocupou.
-    def self.municipality_at_start_of(fragment)
+    def self.municipality_at_start_of(fragment, fuzzy:)
       words = fragment.to_s.scan(/[a-z0-9']+/).first(MAX_NAME_WORDS)
       windows = words.length.downto(1).map { |size| [ size, ALIASES.fetch(words.first(size).join(" ")) { |name| name } ] }
 
-      %i[exact_match fuzzy_match].each do |matcher|
+      (fuzzy ? %i[exact_match fuzzy_match] : %i[exact_match]).each do |matcher|
         windows.each do |size, candidate|
           municipality = Territorial::Municipality.public_send(matcher, candidate)
           next unless municipality
@@ -110,6 +147,6 @@ module Territorial
 
       nil
     end
-    private_class_method :resolve_cep, :municipality_at_start_of
+    private_class_method :resolve_cep, :after_trigger, :clause_with_only_the_city, :municipality_at_start_of
   end
 end

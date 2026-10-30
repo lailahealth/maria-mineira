@@ -30,6 +30,33 @@ class Chat::MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_not conversation.messages.card_type_location_prompt.exists?
   end
 
+  test "não moro em BH não busca Belo Horizonte" do
+    Territorial::Municipality.create!(ibge_code: "3106200", name: "Belo Horizonte")
+
+    without_ai do
+      get chat_path, headers: headers
+      post chat_messages_path, params: { body: "meu marido me ofende com palavras" }, headers: headers
+      post chat_messages_path, params: { body: "não moro em BH, moro numa cidade pequena" }, headers: headers
+    end
+
+    assert_nil Chat::Conversation.last.municipality
+  end
+
+  test "o resultado da busca diz qual cidade o chat entendeu" do
+    category = Territorial::ServiceCategory.create!(name: "CRAS", slug: "cras-teste")
+    Territorial::Facility.create!(name: "CRAS Centro", facility_type: "cras", municipality: @juiz_de_fora,
+                                  active: true, service_categories: [ category ])
+
+    without_ai do
+      get chat_path, headers: headers
+      post chat_messages_path, params: { body: "meu marido me ofende com palavras" }, headers: headers
+      post chat_messages_path, params: { body: "Estou em Juiz de Fora" }, headers: headers
+    end
+
+    card = Chat::Conversation.last.messages.card_type_facility_results.last
+    assert_equal "Encontrei estes serviços em Juiz de Fora:", JSON.parse(card.body)["text"]
+  end
+
   test "frase comum não vira busca por localização" do
     without_ai do
       get chat_path, headers: headers

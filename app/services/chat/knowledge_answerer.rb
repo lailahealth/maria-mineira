@@ -37,16 +37,20 @@ module Chat
       ENV["ANTHROPIC_API_KEY"].presence || Rails.application.credentials.dig(:anthropic, :api_key)
     end
 
-    def self.answer(text)
-      new.answer(text)
+    # history: mensagens anteriores da conversa, [{ role: "user"|"assistant", text: }]
+    # (ver Chat::TurnHandler#recent_text_history). municipality: o município que a
+    # pessoa já informou, se informou — sem os dois, a IA respondia cada mensagem do
+    # zero e presumia Belo Horizonte, a cidade dos endereços das cartilhas.
+    def self.answer(text, history: [], municipality: nil)
+      new.answer(text, history: history, municipality: municipality)
     end
 
-    def answer(text)
+    def answer(text, history: [], municipality: nil)
       return no_answer unless self.class.configured?
       return no_answer if text.blank?
 
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      response = post(build_body(text))
+      response = post(build_body(text, history: history, municipality: municipality))
       return failed_answer unless response.is_a?(Net::HTTPSuccess)
 
       body = JSON.parse(response.body)
@@ -115,7 +119,7 @@ module Chat
       end
     end
 
-    def build_body(text)
+    def build_body(text, history: [], municipality: nil)
       {
         model: MODEL,
         max_tokens: 260,
@@ -125,10 +129,33 @@ module Chat
           # 1h em vez dos 5 min padrão: com o tráfego de hoje, o cache de 5 min
           # quase sempre expira entre uma conversa e outra, e cada mensagem pagava
           # (em tempo e custo) o processamento das cartilhas inteiras de novo.
-          { type: "text", text: knowledge_prompt, cache_control: { type: "ephemeral", ttl: "1h" } }
+          { type: "text", text: knowledge_prompt, cache_control: { type: "ephemeral", ttl: "1h" } },
+          { type: "text", text: location_prompt(municipality) }
         ],
-        messages: [ { role: "user", content: text } ]
+        messages: conversation_messages(history, text)
       }
+    end
+
+    # A API exige começar por "user" e alternar papéis: a saudação da Maria (antes
+    # de qualquer mensagem da pessoa) sai, e mensagens seguidas do mesmo papel —
+    # duas respostas da Maria em sequência, por exemplo — viram uma só.
+    def conversation_messages(history, text)
+      turns = history.map { |turn| { role: turn[:role], content: turn[:text].to_s } } + [ { role: "user", content: text } ]
+      turns = turns.drop_while { |turn| turn[:role] != "user" }
+      turns.slice_when { |a, b| a[:role] != b[:role] }.map do |group|
+        { role: group.first[:role], content: group.map { |turn| turn[:content] }.join("\n\n") }
+      end
+    end
+
+    # Vai depois do bloco das cartilhas (que tem o cache_control): muda de uma
+    # conversa para outra, e antes do ponto de cache invalidaria o cache inteiro.
+    def location_prompt(municipality)
+      if municipality
+        "A pessoa informou que está em #{municipality.name} (MG). Os serviços cadastrados lá já são mostrados " \
+          "a ela em cartões pelo sistema — trate #{municipality.name} como a cidade dela e não sugira serviços de outra cidade."
+      else
+        "A pessoa ainda não informou em que município está. Não presuma nenhuma cidade."
+      end
     end
 
     def persona_prompt
@@ -170,6 +197,20 @@ module Chat
           conversa já está em andamento, vá direto à resposta.
         - Você não substitui atendimento profissional, jurídico ou de emergência. Não
           precisa repetir isso sempre, só quando fizer sentido para a pergunta.
+        - Localização: nunca presuma em que cidade a pessoa está e nunca diga que um
+          serviço fica "perto de você" — quem busca e mostra os serviços da cidade dela
+          é o sistema da Maria Mineira, em cartões, não você. Os endereços e telefones
+          específicos do conhecimento abaixo são de Belo Horizonte: só cite esses
+          endereços se a pessoa disser que está em Belo Horizonte. Para qualquer outra
+          cidade, fale do tipo de serviço (Delegacia da Mulher, CRAS, CREAS, Centro de
+          Referência da Mulher, Defensoria Pública) e diga que, se ela disser o nome do
+          município, a Maria Mineira mostra os serviços de lá.
+        - Se a pessoa contar de onde é sem dizer o município ("uma cidade pequena do
+          interior"), pergunte apenas o nome do município — não peça endereço, bairro
+          nem outros dados.
+        - Se a pessoa estiver fora de Minas Gerais, explique que os serviços que a Maria
+          Mineira mostra são de Minas, e que a Central de Atendimento à Mulher (180,
+          gratuita, 24 horas) atende em todo o Brasil — em perigo imediato, 190.
 
         Exemplo de formato correto (ilustrativo, não copie o conteúdo):
         "Um relacionamento fica preocupante quando há controle sobre com quem você fala
@@ -179,12 +220,12 @@ module Chat
 
         Exemplo de formato ERRADO, nunca faça isso mesmo para emergências (ilustrativo):
         "Ligue **190 imediatamente**.
-        - Delegacia (DEAM): Rua Rio Grande do Sul, 661
-        - Casa da Mulher Mineira: Av. Augusto de Lima, 1.845"
+        - Delegacia da Mulher (DEAM)
+        - Centro de Referência da Mulher"
         A versão correta da mesma resposta, em uma frase só, sem quebras de linha nem
         negrito: "Ligue 190 agora — a Polícia Militar vai até você; depois, quando
-        estiver segura, procure a Delegacia da Mulher (DEAM) ou a Casa da Mulher
-        Mineira, ambas em Belo Horizonte, para registrar o caso e pedir proteção."
+        estiver segura, procure a Delegacia da Mulher (DEAM) ou o Centro de Referência
+        da Mulher da sua cidade para registrar o caso e pedir proteção."
 
         Lembrete final: um único parágrafo curto, sem \n, sem markdown, sem títulos, sem
         listas — mesmo quando a resposta envolve emergência, endereços ou telefones.

@@ -5,6 +5,8 @@ class Territorial::LocationResolverTest < ActiveSupport::TestCase
     @juiz_de_fora = Territorial::Municipality.create!(ibge_code: "3136702", name: "Juiz de Fora")
     @uberlandia = Territorial::Municipality.create!(ibge_code: "3170206", name: "Uberlândia")
     @belo_horizonte = Territorial::Municipality.create!(ibge_code: "3106200", name: "Belo Horizonte")
+    @itabira = Territorial::Municipality.create!(ibge_code: "3131703", name: "Itabira")
+    Territorial::Municipality.create!(ibge_code: "3138807", name: "Luz")
     Territorial::Municipality.create!(ibge_code: "3111804", name: "Casa Grande")
   end
 
@@ -39,10 +41,36 @@ class Territorial::LocationResolverTest < ActiveSupport::TestCase
   test "extract não confunde frases comuns com localização" do
     [
       "tem muita formiga aqui", "estou em casa", "estou em perigo", "sou de confiança", "estou em dúvida",
-      "estou na casa da minha mãe", "vivo em um relacionamento abusivo", "moro no interior"
+      "estou na casa da minha mãe", "vivo em um relacionamento abusivo", "moro no interior",
+      "ela fica em casa", "é em casa", "fico em dúvida", "ele é de família rica", "moro numa cidade pequena no interior de Minas"
     ].each do |text|
       assert_empty Territorial::LocationResolver.extract(text), text
     end
+  end
+
+  test "extract entende outras formas de dizer onde mora" do
+    [
+      "ela mora em Itabira", "minha amiga mora em Itabira", "moramos em Itabira", "morava em Itabira",
+      "sou moradora de Itabira", "fica em Itabira", "é em Itabira", "na verdade é Itabira",
+      "eu moro no interior, em Itabira", "não moro em BH, moro em Itabira"
+    ].each do |text|
+      assert_equal @itabira, Territorial::LocationResolver.extract(text)[:municipality], text
+    end
+  end
+
+  test "extract não busca a cidade que a pessoa diz que não é a dela" do
+    [
+      "não moro em BH, moro numa cidade pequena", "eu não moro em Belo Horizonte", "nao estou em BH",
+      "não sou de BH, sou do interior", "nunca morei em BH"
+    ].each do |text|
+      assert_empty Territorial::LocationResolver.extract(text), text
+    end
+  end
+
+  test "extract só aceita gatilho solto quando a cidade fecha a frase" do
+    assert_empty Territorial::LocationResolver.extract("ele é de luz apagada")
+    assert_empty Territorial::LocationResolver.extract("tem muita formiga em casa")
+    assert_equal "Luz", Territorial::LocationResolver.extract("é de Luz")[:municipality].name
   end
 
   test "extract reconhece CEP no meio da frase" do

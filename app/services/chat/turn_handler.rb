@@ -20,6 +20,8 @@ module Chat
       "acabou de me bater", "me perseguindo agora"
     ].freeze
 
+    HISTORY_LIMIT = 8
+
     def initialize(conversation:, journey_session:)
       @conversation = conversation
       @journey_session = journey_session
@@ -54,9 +56,10 @@ module Chat
       # A resposta das cartilhas (chamada à IA) e a classificação (que pode chamar a
       # IA também, ver Classification::Classifier) não dependem uma da outra — em
       # paralelo, a espera do primeiro relato é a mais lenta das duas, não a soma.
-      # Só o KnowledgeAnswerer vai para a thread: é HTTP puro, sem ActiveRecord, então
-      # não precisa de conexão própria do pool.
-      answer_thread = Thread.new { Chat::KnowledgeAnswerer.answer(text) }
+      # Só a chamada HTTP do KnowledgeAnswerer vai para a thread — o histórico é lido
+      # aqui, antes, para a thread não precisar de conexão própria do pool.
+      history = recent_text_history
+      answer_thread = Thread.new { Chat::KnowledgeAnswerer.answer(text, history: history, municipality: @conversation.municipality) }
       result = Classification::Classifier.classify(text)
       answer = answer_thread.value
 
@@ -128,7 +131,11 @@ module Chat
       @conversation.update!(municipality: municipality, stage: :apresentando_resultado)
 
       if facilities.any?
-        say_assistant("Encontrei estas opções perto de você:", card_type: :facility_results, facilities: facilities)
+        # Diz qual cidade entendeu, em vez de "perto de você": se o reconhecimento
+        # errar a cidade, a pessoa vê na hora. "Perto de você" só quando a busca foi
+        # por coordenada (GPS/CEP), que é de fato a posição dela.
+        intro = lat.present? || municipality.nil? ? "Encontrei estas opções perto de você:" : "Encontrei estes serviços em #{municipality.name}:"
+        say_assistant(intro, card_type: :facility_results, facilities: facilities)
       else
         onde = municipality ? " em #{municipality.name}" : " nessa localização"
         say_assistant(
@@ -167,7 +174,11 @@ module Chat
 
       @conversation.update!(stage: :livre)
 
-      qualidade = say_answer_or_fallback(text, result)
+      # A cidade dita nesta mesma mensagem ainda não está na conversa (os serviços
+      # vêm depois da resposta) — a IA precisa saber dela já nesta resposta.
+      qualidade = say_answer_or_fallback(
+        text, result, answer: knowledge_answer(text, municipality: location[:municipality] || @conversation.municipality)
+      )
       Journey::EventRecorder.record(
         session: @journey_session, event_type: :chatbot, tag: result.tag_slug, subtag: result.subtag_slug,
         qualidade_resposta: qualidade
@@ -192,7 +203,7 @@ module Chat
     # Retorna o símbolo de Journey::Event.qualidade_resposta correspondente, para
     # quem chama gravar junto do evento :motivo/:chatbot. `answer` pode vir pronta
     # de quem chama (receive_motivo a busca em paralelo com a classificação).
-    def say_answer_or_fallback(text, result, answer: Chat::KnowledgeAnswerer.answer(text))
+    def say_answer_or_fallback(text, result, answer: knowledge_answer(text))
       if answer.present?
         say_assistant(answer.text)
         return :com_conteudo
@@ -266,6 +277,20 @@ module Chat
     def unambiguous_category_for(result)
       categories = Territorial::ServiceCategory.where(taxonomy_tag_id: matched_tag(result)&.id)
       categories.count == 1 ? categories.first : nil
+    end
+
+    def knowledge_answer(text, municipality: @conversation.municipality)
+      Chat::KnowledgeAnswerer.answer(text, history: recent_text_history, municipality: municipality)
+    end
+
+    # As últimas mensagens de texto da conversa, para a IA não responder cada
+    # mensagem do zero (sem isso ela "esquecia" a cidade e voltava a sugerir BH).
+    # Cards (serviços, emergência, convite para busca) ficam de fora — o corpo dos
+    # cards de serviço é JSON. A mensagem atual, já salva por #say_user, também.
+    def recent_text_history
+      messages = @conversation.messages.where(card_type: nil).order(:created_at).last(HISTORY_LIMIT + 1)
+      messages = messages[0...-1] if messages.last&.user?
+      messages.map { |message| { role: message.user? ? "user" : "assistant", text: message.body } }
     end
 
     def say_user(text)
