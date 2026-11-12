@@ -938,6 +938,13 @@ puts "  #{Territorial::Facility.where(id: sample_facility_ids).where.not(latitud
 #                                    latitude e longitude seguem o dicionário do e-SUS:
 #                                    quando vierem preenchidas, dispensam a geocodificação
 #                                    e o cnes passa a ser a chave de deduplicação.
+#                                    cnes/latitude/longitude vêm da API de dados
+#                                    abertos do Ministério da Saúde
+#                                    (/cnes/estabelecimentos), casados por município,
+#                                    nome e CEP. O CEAE de Poços de Caldas estava na
+#                                    planilha num endereço que no CNES só tem
+#                                    estabelecimentos desativados; foi corrigido para
+#                                    o do CNES 2958988 (antigo CAESMC, Rua São Paulo).
 # Idempotente e conservador contra duplicatas: pula quando já existe equipamento
 # de mesmo nome; para DEAM, quando já existe qualquer DEAM no mesmo município
 # (raramente há mais de uma); para CRAS/CREAS, quando já existe uma do mesmo
@@ -1011,7 +1018,19 @@ begin
         changes[:cep] = row["cep"].presence if duplicate.cep.blank? && row["cep"].present?
         changes[:phone] = phone if duplicate.phone.blank? && phone
         changes[:opening_hours] = row["opening_hours"].presence if duplicate.opening_hours.blank? && row["opening_hours"].present?
-        changes[:cnes] = cnes if duplicate.cnes.blank? && cnes
+        if duplicate.cnes.blank? && cnes
+          changes[:cnes] = cnes
+          # Ao vincular o CNES pela primeira vez, endereço e ponto oficiais do
+          # cadastro substituem os da planilha original e os da geocodificação
+          # (que, sem achar o logradouro, cai no centro do município). Depois
+          # disso, edições manuais no admin ficam.
+          changes[:address] = address if address && address != duplicate.address
+          changes[:cep] = row["cep"] if row["cep"].present? && row["cep"] != duplicate.cep
+          if row["latitude"].present? && row["longitude"].present?
+            changes[:latitude] = row["latitude"].to_f
+            changes[:longitude] = row["longitude"].to_f
+          end
+        end
         if changes.any?
           duplicate.update!(changes)
           csv_completed += 1
