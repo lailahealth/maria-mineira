@@ -49,7 +49,7 @@ module Admin
       params.require(:territorial_facility).permit(
         :name, :facility_type, :municipality_id, :address, :neighborhood, :cep,
         :phone, :opening_hours, :description, :access_info, :active,
-        :latitude, :longitude, service_category_ids: []
+        :latitude, :longitude, :cnes, service_category_ids: []
       )
     end
   end

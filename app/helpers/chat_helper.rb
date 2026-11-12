@@ -34,6 +34,10 @@ module ChatHelper
     when /deam|delegacia/
       "Delegacia com equipe preparada para atender mulheres em situação de violência. É onde você pode " \
         "registrar o boletim de ocorrência e pedir medida protetiva contra o agressor."
+    when /unidade de saude|unidade-de-saude/
+      "Serviço de saúde de referência para quem sofreu violência sexual. Procure o quanto antes, de " \
+        "preferência em até 72 horas: lá você recebe atendimento médico, remédios que previnem HIV e outras " \
+        "infecções e a pílula de emergência, de graça e sem precisar registrar boletim de ocorrência."
     when /cream|cram|casa da mulher|centro de referencia de atendimento a mulher/
       "Centro que atende só mulheres, de graça e sem precisar registrar denúncia. Oferece acolhimento e " \
         "acompanhamento com psicóloga, assistente social e orientação sobre os seus direitos."

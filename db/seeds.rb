@@ -48,6 +48,7 @@ puts "Semeando categorias de serviço..."
 servicos_tag = Taxonomy::Tag.find_by!(slug: "servicos_e_equipamentos")
 saude_tag = Taxonomy::Tag.find_by!(slug: "saude")
 direitos_tag = Taxonomy::Tag.find_by!(slug: "direitos")
+violencia_sexual_tag = Taxonomy::Tag.find_by!(slug: "violencia_sexual")
 
 service_categories = [
   { slug: "deam", name: "Delegacia Especializada de Atendimento à Mulher (DEAM)", tag: servicos_tag },
@@ -57,7 +58,13 @@ service_categories = [
   { slug: "central-180", name: "Central de Atendimento à Mulher (180)", tag: servicos_tag },
   { slug: "cream-cram", name: "Centro de Referência de Atendimento à Mulher (CREAM/CRAM)", tag: servicos_tag },
   { slug: "atendimento-psicologico", name: "Atendimento psicológico", tag: saude_tag },
-  { slug: "orientacao-juridica", name: "Orientação jurídica", tag: direitos_tag }
+  { slug: "orientacao-juridica", name: "Orientação jurídica", tag: direitos_tag },
+  # Unidades de saúde de referência para pessoas em situação de violência sexual
+  # (UBS, hospitais, UPAs, SAE/CTA). Ligada à tag violencia_sexual — e não a
+  # "saude", que já aponta para atendimento-psicologico — para que o chat, ao
+  # identificar violência sexual, filtre exatamente por esta categoria (ver
+  # Chat::TurnHandler#unambiguous_category_for).
+  { slug: "unidade-de-saude", name: "Unidade de Saúde (atendimento à violência sexual)", tag: violencia_sexual_tag }
 ]
 
 service_categories.each do |attrs|
@@ -924,6 +931,13 @@ puts "  #{Territorial::Facility.where(id: sample_facility_ids).where.not(latitud
 #                                    ("RELAÇÃO DE DEAMS E ENDEREÇOS PCMG.pdf")
 #   - facilities_cras_creas_mg.csv : CRAS e CREAS de MG (fonte MDS/SAGI/CadSUAS,
 #                                    extração 28/06/2026)
+#   - facilities_saude_mg.csv      : unidades de saúde que atendem pessoas em
+#                                    situação de violência sexual (filtro "Rede social
+#                                    do serviço" = "Unidade de Saúde" em
+#                                    docs/Minas Gerais.xlsx). Colunas opcionais cnes,
+#                                    latitude e longitude seguem o dicionário do e-SUS:
+#                                    quando vierem preenchidas, dispensam a geocodificação
+#                                    e o cnes passa a ser a chave de deduplicação.
 # Idempotente e conservador contra duplicatas: pula quando já existe equipamento
 # de mesmo nome; para DEAM, quando já existe qualquer DEAM no mesmo município
 # (raramente há mais de uma); para CRAS/CREAS, quando já existe uma do mesmo
@@ -960,7 +974,7 @@ csv_no_muni = Hash.new(0)
 # bloco para não despejar ~1,7 mil jobs de uma vez (ver comentário acima).
 Territorial::Facility.skip_callback(:commit, :after, :enqueue_geocoding, raise: false)
 begin
-  %w[facilities_deam_pcmg.csv facilities_cras_creas_mg.csv].each do |filename|
+  %w[facilities_deam_pcmg.csv facilities_cras_creas_mg.csv facilities_saude_mg.csv].each do |filename|
     path = Rails.root.join("db", "seeds", filename)
     unless File.exist?(path)
       puts "  Aviso: #{filename} não encontrado — pulando."
@@ -980,7 +994,9 @@ begin
       phone = row["phone"].presence
       siblings = siblings_by_muni_type[siblings_key.call(municipality.id, ftype)]
 
+      cnes = row["cnes"].presence
       duplicate =
+        (cnes && Territorial::Facility.find_by(cnes: cnes)) ||
         facilities_by_name[seed_norm.call(name)] ||
         if ftype.casecmp?("DEAM")
           siblings.first
@@ -995,6 +1011,7 @@ begin
         changes[:cep] = row["cep"].presence if duplicate.cep.blank? && row["cep"].present?
         changes[:phone] = phone if duplicate.phone.blank? && phone
         changes[:opening_hours] = row["opening_hours"].presence if duplicate.opening_hours.blank? && row["opening_hours"].present?
+        changes[:cnes] = cnes if duplicate.cnes.blank? && cnes
         if changes.any?
           duplicate.update!(changes)
           csv_completed += 1
@@ -1018,7 +1035,10 @@ begin
         cep: row["cep"].presence,
         phone: phone,
         opening_hours: row["opening_hours"].presence,
-        description: description.presence
+        description: description.presence,
+        cnes: cnes,
+        latitude: row["latitude"].presence&.to_f,
+        longitude: row["longitude"].presence&.to_f
       )
 
       slugs = row["categories"].to_s.split(/[;,\s]+/).reject(&:blank?)

@@ -415,7 +415,8 @@ CREATE TABLE public.territorial_facilities (
     active boolean DEFAULT true NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    location public.geography(Point,4326)
+    location public.geography(Point,4326),
+    cnes character varying
 );
 
 
@@ -897,6 +898,13 @@ CREATE UNIQUE INDEX index_taxonomy_tags_on_slug ON public.taxonomy_tags USING bt
 
 
 --
+-- Name: index_territorial_facilities_on_cnes; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_territorial_facilities_on_cnes ON public.territorial_facilities USING btree (cnes) WHERE (cnes IS NOT NULL);
+
+
+--
 -- Name: index_territorial_facilities_on_location; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1048,6 +1056,7 @@ ALTER TABLE ONLY public.chat_conversations
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261112170000'),
 ('20260813182834'),
 ('20260813182833'),
 ('20260813181646'),

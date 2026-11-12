@@ -11,6 +11,9 @@ module Territorial
 
     validates :name, presence: true
     validates :facility_type, presence: true
+    validates :cnes, uniqueness: true, allow_blank: true
+
+    normalizes :cnes, with: ->(value) { value.to_s.gsub(/\D/, "").presence }
 
     scope :active, -> { where(active: true) }
 

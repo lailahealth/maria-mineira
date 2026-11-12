@@ -203,7 +203,8 @@ module Chat
           específicos do conhecimento abaixo são de Belo Horizonte: só cite esses
           endereços se a pessoa disser que está em Belo Horizonte. Para qualquer outra
           cidade, fale do tipo de serviço (Delegacia da Mulher, CRAS, CREAS, Centro de
-          Referência da Mulher, Defensoria Pública) e diga que, se ela disser o nome do
+          Referência da Mulher, Defensoria Pública, unidade de saúde/hospital de
+          referência em violência sexual) e diga que, se ela disser o nome do
           município, a Maria Mineira mostra os serviços de lá.
         - Se a pessoa contar de onde é sem dizer o município ("uma cidade pequena do
           interior"), pergunte apenas o nome do município — não peça endereço, bairro
