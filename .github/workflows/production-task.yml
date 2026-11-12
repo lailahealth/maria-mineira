@@ -1,0 +1,62 @@
+# Roda uma tarefa de manutenção no container de produção que já está no ar
+# (kamal app exec --reuse), disparada à mão em Actions › "Production task".
+# Existe porque o SSH do servidor só aceita conexões de IPs liberados — o runner
+# do GitHub consegue, a máquina de quem desenvolve nem sempre. As tarefas são uma
+# lista fechada (não um comando livre) para o workflow não virar um shell remoto.
+name: Production task
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Tarefa a rodar em produção"
+        required: true
+        type: choice
+        options:
+          - db:seed
+          - territorial:backfill_geocoding
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      TASK: ${{ inputs.task }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Load deploy SSH key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_PRODUCTION }}
+
+      - name: Trust the server host key
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          # Só a chave ed25519 — ver o comentário equivalente em ci.yml.
+          ssh-keyscan -t ed25519 "$SERVER_IP" >> ~/.ssh/known_hosts
+
+      - name: Write the Rails master key (.kamal/secrets reads this file)
+        run: |
+          printf '%s' "$RAILS_MASTER_KEY" > config/master.key
+
+      - name: Run task in production
+        run: bin/kamal app exec --reuse "bin/rails $TASK"
