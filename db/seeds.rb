@@ -955,7 +955,10 @@ puts "  #{Territorial::Facility.where(id: sample_facility_ids).where.not(latitud
 #                                    "ubs"). Lista da API de dados abertos do
 #                                    Ministério da Saúde (/assistencia-a-saude/
 #                                    unidade-basicas-de-saude, uf 31), completada pelo
-#                                    CNES (CEP, número, telefone, turno). Só as ativas
+#                                    CNES (CEP, número, telefone, turno), mais os
+#                                    postos de saúde (tipo 01 do CNES), que essa lista
+#                                    não traz — em Bicas, Datas e Tapiraí a atenção
+#                                    básica só existe nesse tipo. Só as ativas
 #                                    no CNES; fora as unidades prisionais e
 #                                    socioeducativas, que não atendem o público.
 # Idempotente e conservador contra duplicatas: pula quando já existe equipamento
