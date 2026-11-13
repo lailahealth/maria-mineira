@@ -111,9 +111,10 @@ module Chat
     end
 
     def receive_location(lat: nil, lng: nil, municipality: nil)
-      facilities = Territorial::NearestFacilityFinder.new(
+      finder = Territorial::NearestFacilityFinder.new(
         service_category: @conversation.service_category, municipality: municipality, lat: lat, lng: lng
-      ).call
+      )
+      facilities = finder.call
 
       Journey::EventRecorder.record(
         session: @journey_session, event_type: :busca_servico,
@@ -135,7 +136,8 @@ module Chat
         # errar a cidade, a pessoa vê na hora. "Perto de você" só quando a busca foi
         # por coordenada (GPS/CEP), que é de fato a posição dela.
         intro = lat.present? || municipality.nil? ? "Encontrei estas opções perto de você:" : "Encontrei estes serviços em #{municipality.name}:"
-        say_assistant(intro, card_type: :facility_results, facilities: facilities)
+        say_assistant(intro, card_type: :facility_results, facilities: facilities,
+                      search: search_payload(finder, municipality: municipality, lat: lat, lng: lng, offset: 0))
       else
         onde = municipality ? " em #{municipality.name}" : " nessa localização"
         say_assistant(
@@ -146,6 +148,32 @@ module Chat
       end
 
       say_assistant("Se quiser, posso continuar te ajudando ou explicar melhor seus direitos. É só me contar.")
+    end
+
+    # Botão "Ver mais" de um card de resultados: repete a busca guardada no card na
+    # página seguinte e apaga o has_more do card clicado (o botão some dele).
+    # Devolve o card clicado, para a resposta remover o botão da tela, ou nil se
+    # não havia o que buscar (card de outra conversa, antigo ou já expandido).
+    def more_facilities(message_id)
+      card = @conversation.messages.card_type_facility_results.find_by(id: message_id)
+      payload = card && (JSON.parse(card.body) rescue nil)
+      search = payload&.dig("search")
+      return nil unless search && search["has_more"]
+
+      offset = search["offset"].to_i + Territorial::NearestFacilityFinder::PAGE_SIZE
+      municipality = Territorial::Municipality.find_by(id: search["municipality_id"])
+      finder = Territorial::NearestFacilityFinder.new(
+        service_category: Territorial::ServiceCategory.find_by(id: search["category_id"]),
+        municipality: municipality, lat: search["lat"], lng: search["lng"], offset: offset
+      )
+      facilities = finder.call
+
+      card.update!(body: payload.merge("search" => search.merge("has_more" => false)).to_json)
+      if facilities.any?
+        say_assistant("Mais opções:", card_type: :facility_results, facilities: facilities,
+                      search: search_payload(finder, municipality: municipality, lat: search["lat"], lng: search["lng"], offset: offset))
+      end
+      card
     end
 
     def receive_free_text(text)
@@ -301,9 +329,23 @@ module Chat
     # e distâncias são serializados juntos (mesmo índice) porque uma nova consulta
     # ao renderizar a mensagem perderia tanto a ordem quanto o distance_meters
     # (só existe no resultado anotado por Territorial::Facility.near, não na tabela).
-    def say_assistant(text, card_type: nil, facilities: nil)
-      body = facilities ? { text: text, facility_ids: facilities.map(&:id), distances_km: facilities.map(&:distance_km) }.to_json : text
+    #
+    # search: os parâmetros da busca e se há mais resultados, para o botão "Ver
+    # mais" do card repetir a mesma busca na página seguinte (#more_facilities).
+    def say_assistant(text, card_type: nil, facilities: nil, search: nil)
+      body =
+        if facilities
+          { text: text, facility_ids: facilities.map(&:id), distances_km: facilities.map(&:distance_km),
+            search: search }.compact.to_json
+        else
+          text
+        end
       @conversation.messages.create!(role: :assistant, body: body, card_type: card_type)
+    end
+
+    def search_payload(finder, municipality:, lat:, lng:, offset:)
+      { category_id: finder.matched_category&.id, municipality_id: municipality&.id,
+        lat: lat.presence, lng: lng.presence, offset: offset, has_more: finder.more? }
     end
   end
 end

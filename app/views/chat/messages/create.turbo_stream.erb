@@ -1,3 +1,7 @@
+<% if @expanded_card %>
+  <%= turbo_stream.remove "more-facilities-#{@expanded_card.id}" %>
+<% end %>
+
 <%= turbo_stream.append "messages" do %>
   <%= render @new_messages %>
 <% end %>

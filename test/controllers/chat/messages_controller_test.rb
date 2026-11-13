@@ -57,6 +57,38 @@ class Chat::MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Encontrei estes serviços em Juiz de Fora:", JSON.parse(card.body)["text"]
   end
 
+  test "com mais de 5 serviços, o card tem Ver mais, que traz os próximos e some" do
+    7.times do |i|
+      Territorial::Facility.create!(name: "Serviço #{i}", facility_type: "CRAS", municipality: @juiz_de_fora, active: true)
+    end
+
+    without_ai do
+      get chat_path, headers: headers
+      post chat_messages_path, params: { body: "meu marido me ofende com palavras" }, headers: headers
+      post chat_messages_path, params: { body: "Estou em Juiz de Fora" }, headers: headers
+    end
+
+    first = Chat::Conversation.last.messages.card_type_facility_results.last
+    assert_equal 5, JSON.parse(first.body)["facility_ids"].size
+    assert_select "#more-facilities-#{first.id} input[type=submit][value='Ver mais']"
+
+    post chat_messages_path, params: { more_facilities: first.id }, headers: headers
+
+    assert_select "turbo-stream[action=remove][target='more-facilities-#{first.id}']"
+    second = Chat::Conversation.last.messages.card_type_facility_results.last
+    payload = JSON.parse(second.body)
+    assert_equal "Mais opções:", payload["text"]
+    assert_equal 2, payload["facility_ids"].size
+    assert_empty payload["facility_ids"] & JSON.parse(first.reload.body)["facility_ids"]
+    assert_not payload.dig("search", "has_more")
+    assert_not JSON.parse(first.body).dig("search", "has_more")
+
+    # clicar de novo no card já expandido não repete a lista
+    assert_no_difference -> { Chat::Message.count } do
+      post chat_messages_path, params: { more_facilities: first.id }, headers: headers
+    end
+  end
+
   test "frase comum não vira busca por localização" do
     without_ai do
       get chat_path, headers: headers
