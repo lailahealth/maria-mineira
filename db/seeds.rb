@@ -64,7 +64,13 @@ service_categories = [
   # "saude", que já aponta para atendimento-psicologico — para que o chat, ao
   # identificar violência sexual, filtre exatamente por esta categoria (ver
   # Chat::TurnHandler#unambiguous_category_for).
-  { slug: "unidade-de-saude", name: "Unidade de Saúde (atendimento à violência sexual)", tag: violencia_sexual_tag }
+  { slug: "unidade-de-saude", name: "Unidade de Saúde (atendimento à violência sexual)", tag: violencia_sexual_tag },
+  # Atenção primária geral (não específica para violência). Ligada a
+  # servicos_e_equipamentos, que já tem várias categorias, para o chat nunca
+  # escolhê-la sozinha; e fora da busca genérica do chat
+  # (Territorial::NearestFacilityFinder), para as ~5,4 mil UBS não tomarem o
+  # lugar de DEAM/CRAS/CREAS nas sugestões. No mapa, aparecem no filtro próprio.
+  { slug: "ubs", name: "Unidade Básica de Saúde (UBS)", tag: servicos_tag }
 ]
 
 service_categories.each do |attrs|
@@ -945,6 +951,13 @@ puts "  #{Territorial::Facility.where(id: sample_facility_ids).where.not(latitud
 #                                    planilha num endereço que no CNES só tem
 #                                    estabelecimentos desativados; foi corrigido para
 #                                    o do CNES 2958988 (antigo CAESMC, Rua São Paulo).
+#   - facilities_ubs_mg.csv        : UBS de MG (atenção primária geral, categoria
+#                                    "ubs"). Lista da API de dados abertos do
+#                                    Ministério da Saúde (/assistencia-a-saude/
+#                                    unidade-basicas-de-saude, uf 31), completada pelo
+#                                    CNES (CEP, número, telefone, turno). Só as ativas
+#                                    no CNES; fora as unidades prisionais e
+#                                    socioeducativas, que não atendem o público.
 # Idempotente e conservador contra duplicatas: pula quando já existe equipamento
 # de mesmo nome; para DEAM, quando já existe qualquer DEAM no mesmo município
 # (raramente há mais de uma); para CRAS/CREAS, quando já existe uma do mesmo
@@ -981,7 +994,7 @@ csv_no_muni = Hash.new(0)
 # bloco para não despejar ~1,7 mil jobs de uma vez (ver comentário acima).
 Territorial::Facility.skip_callback(:commit, :after, :enqueue_geocoding, raise: false)
 begin
-  %w[facilities_deam_pcmg.csv facilities_cras_creas_mg.csv facilities_saude_mg.csv].each do |filename|
+  %w[facilities_deam_pcmg.csv facilities_cras_creas_mg.csv facilities_saude_mg.csv facilities_ubs_mg.csv].each do |filename|
     path = Rails.root.join("db", "seeds", filename)
     unless File.exist?(path)
       puts "  Aviso: #{filename} não encontrado — pulando."
@@ -1003,9 +1016,17 @@ begin
 
       cnes = row["cnes"].presence
       duplicate =
-        (cnes && Territorial::Facility.find_by(cnes: cnes)) ||
-        facilities_by_name[seed_norm.call(name)] ||
-        if ftype.casecmp?("DEAM")
+        if cnes
+          # Com CNES, o código é a identidade: nome igual em outra cidade ("UBS
+          # Centro") ou outra equipe no mesmo prédio é outro estabelecimento. Pelo
+          # nome, só casa um registro da mesma cidade que ainda não tem CNES.
+          Territorial::Facility.find_by(cnes: cnes) ||
+            facilities_by_name[seed_norm.call(name)]&.then { |f|
+              f if f.cnes.blank? && f.municipality_id == municipality.id
+            }
+        elsif (by_name = facilities_by_name[seed_norm.call(name)])
+          by_name
+        elsif ftype.casecmp?("DEAM")
           siblings.first
         elsif address
           siblings.find { |f| seed_norm.call(f.address) == seed_norm.call(address) }

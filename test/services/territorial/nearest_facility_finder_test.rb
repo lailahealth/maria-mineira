@@ -20,4 +20,14 @@ class Territorial::NearestFacilityFinderTest < ActiveSupport::TestCase
   test "sem nada da categoria adequada na cidade, mostra os outros equipamentos" do
     assert_equal [ @facility ], Territorial::NearestFacilityFinder.new(service_category: @juridica, municipality: @uberlandia).call
   end
+
+  test "a busca genérica não sugere UBS, mas o filtro pela categoria UBS sim" do
+    ubs_category = Territorial::ServiceCategory.create!(name: "UBS", slug: "ubs")
+    ubs = Territorial::Facility.create!(name: "UBS Centro", facility_type: "UBS", municipality: @uberlandia,
+                                        active: true, service_categories: [ ubs_category ])
+
+    assert_equal [ @facility ], Territorial::NearestFacilityFinder.new(service_category: @juridica, municipality: @uberlandia).call
+    assert_equal [ @facility ], Territorial::NearestFacilityFinder.new(municipality: @uberlandia).call
+    assert_equal [ ubs ], Territorial::NearestFacilityFinder.new(service_category: ubs_category, municipality: @uberlandia).call
+  end
 end

@@ -38,6 +38,9 @@ module ChatHelper
       "Serviço de saúde de referência para quem sofreu violência sexual. Procure o quanto antes, de " \
         "preferência em até 72 horas: lá você recebe atendimento médico, remédios que previnem HIV e outras " \
         "infecções e a pílula de emergência, de graça e sem precisar registrar boletim de ocorrência."
+    when /\bubs\b|unidade basica/
+      "Posto de saúde do SUS perto de casa, de graça. Além das consultas, a equipe pode acolher quem " \
+        "está passando por violência, cuidar da sua saúde e encaminhar para a rede de proteção."
     when /cream|cram|casa da mulher|centro de referencia de atendimento a mulher/
       "Centro que atende só mulheres, de graça e sem precisar registrar denúncia. Oferece acolhimento e " \
         "acompanhamento com psicóloga, assistente social e orientação sobre os seus direitos."
