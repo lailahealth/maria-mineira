@@ -32,6 +32,24 @@ class MapControllerTest < ActionDispatch::IntegrationTest
     MapController.const_set(:STATEWIDE_LIMIT, original)
   end
 
+  test "pagina os cartões de 10 em 10, mas o mapa recebe todos os pontos" do
+    10.times do |i|
+      Territorial::Facility.create!(name: "UBS Extra #{i}", facility_type: "UBS", municipality: @uberlandia,
+                                    active: true, service_categories: [ @ubs ], latitude: -18.9, longitude: -48.2)
+    end
+
+    get map_page_path(municipio: "Uberlândia", categoria: "ubs")
+    assert_match "12 equipamentos encontrados", response.body
+    assert_equal 10, css_select("a[href^='/mapa/equipamentos/'].rounded-2xl").size
+    assert_equal 12, JSON.parse(css_select("[data-controller=map]").first["data-map-facilities-value"]).size
+    assert_match "1–10 de 12", response.body
+    assert_select "a[href*='page=2'][href$='#resultados']", text: "Próxima →"
+
+    get map_page_path(municipio: "Uberlândia", categoria: "ubs", page: 2)
+    assert_equal 2, css_select("a[href^='/mapa/equipamentos/'].rounded-2xl").size
+    assert_equal 12, JSON.parse(css_select("[data-controller=map]").first["data-map-facilities-value"]).size
+  end
+
   test "com município, mostra tudo da cidade" do
     get map_page_path(municipio: "Uberlândia", categoria: "ubs")
 

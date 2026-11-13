@@ -1,5 +1,7 @@
 <%# Navegação de paginação (Pagy). Uso: render "shared/pagination", pagy: @pagy
-    Não renderiza nada quando há uma página só. %>
+    Não renderiza nada quando há uma página só. fragment (opcional, ex.: "#resultados")
+    leva a página nova direto a essa âncora. %>
+<% fragment = local_assigns[:fragment] %>
 <% if pagy.pages > 1 %>
   <nav class="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm" aria-label="Paginação">
     <span class="text-presenca/60">
@@ -8,7 +10,7 @@
 
     <div class="flex items-center gap-2">
       <% if pagy.prev %>
-        <%= link_to "← Anterior", pagy_url_for(pagy, pagy.prev),
+        <%= link_to "← Anterior", pagy_url_for(pagy, pagy.prev, fragment: fragment),
               class: "rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca hover:border-vinho hover:text-vinho" %>
       <% else %>
         <span class="rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca/30">← Anterior</span>
@@ -17,7 +19,7 @@
       <span class="px-1 text-presenca/60">Página <%= pagy.page %> de <%= pagy.pages %></span>
 
       <% if pagy.next %>
-        <%= link_to "Próxima →", pagy_url_for(pagy, pagy.next),
+        <%= link_to "Próxima →", pagy_url_for(pagy, pagy.next, fragment: fragment),
               class: "rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca hover:border-vinho hover:text-vinho" %>
       <% else %>
         <span class="rounded-full border border-blush px-3.5 py-1.5 font-semibold text-presenca/30">Próxima →</span>

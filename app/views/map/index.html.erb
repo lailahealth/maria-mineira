@@ -42,11 +42,11 @@
 
   <div
     data-controller="map"
-    data-map-facilities-value="<%= @facilities.map { |f| { id: f.id, name: f.name, lat: f.latitude, lng: f.longitude, url: territorial_facility_path(f) } }.to_json %>"
+    data-map-facilities-value="<%= @map_points.map { |id, name, lat, lng| { id: id, name: name, lat: lat, lng: lng, url: territorial_facility_path(id) } }.to_json %>"
     class="mt-8 h-80 w-full overflow-hidden rounded-3xl border border-blush sm:h-96"
   ></div>
 
-  <div class="mt-8">
+  <div id="resultados" class="mt-8 scroll-mt-24">
     <% if @searched %>
       <% if @too_broad %>
         <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
@@ -56,12 +56,13 @@
           <%= link_to "converse com a Maria Mineira", chat_path, class: "font-semibold text-vinho underline" %>.
         </div>
       <% elsif @facilities.any? %>
-        <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@facilities.size, "equipamento encontrado", plural: "equipamentos encontrados") %></h2>
+        <h2 class="font-display text-lg font-semibold text-presenca"><%= pluralize(@pagy.count, "equipamento encontrado", plural: "equipamentos encontrados") %></h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           <% @facilities.each do |facility| %>
             <%= render "territorial/facilities/card", facility: facility %>
           <% end %>
         </div>
+        <%= render "shared/pagination", pagy: @pagy, fragment: "#resultados" %>
       <% else %>
         <div class="rounded-2xl border border-terracota/40 bg-blush/30 px-5 py-4 text-sm text-presenca">
           <% if @municipality %>

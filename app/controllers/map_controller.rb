@@ -14,6 +14,7 @@ class MapController < ApplicationController
     @service_categories = Territorial::ServiceCategory.order(:name)
     @searched = @municipality.present? || @service_category.present?
     @facilities = []
+    @map_points = []
     return unless @searched
 
     scope = Territorial::Facility.active
@@ -28,7 +29,10 @@ class MapController < ApplicationController
       return
     end
 
-    @facilities = scope.includes(:municipality, :service_categories).order(:name).to_a
+    # O mapa mostra todos os resultados (só id, nome e coordenadas — leve); os
+    # cartões abaixo dele vêm paginados, 10 por página.
+    @map_points = scope.pluck(:id, :name, :latitude, :longitude)
+    @pagy, @facilities = pagy(scope.includes(:municipality, :service_categories).order(:name), limit: 10)
   end
 
   private
